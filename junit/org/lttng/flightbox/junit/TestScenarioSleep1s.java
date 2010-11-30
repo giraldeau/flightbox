@@ -3,10 +3,6 @@ package org.lttng.flightbox.junit;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.eclipse.linuxtools.lttng.event.LttngEventField;
-
-// I hate LttngEvent class: we can't create stub objects easily!
-
 public class TestScenarioSleep1s {
 
 	ArrayList<LttngEventStub> events; 
@@ -19,8 +15,8 @@ public class TestScenarioSleep1s {
 	}
 	
 	private void init() {
-		HashMap<String, LttngEventField> content;
-		content = new HashMap<String, LttngEventField>();
+		HashMap<String, Object> content;
+		content = new HashMap<String, Object>();
 		//content.put(, value)
 		//events.add(new LttngEventStub(0, 0, content));
 	}

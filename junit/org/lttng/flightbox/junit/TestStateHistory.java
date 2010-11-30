@@ -2,18 +2,12 @@ package org.lttng.flightbox.junit;
 
 import static org.junit.Assert.assertTrue;
 
-import org.eclipse.linuxtools.lttng.event.LttngEvent;
-import org.eclipse.linuxtools.lttng.event.LttngTimestamp;
-import org.eclipse.linuxtools.lttng.state.history.StateEventHandler;
-import org.eclipse.linuxtools.lttng.trace.LTTngTrace;
-import org.eclipse.linuxtools.tmf.event.TmfTimeRange;
-import org.eclipse.linuxtools.tmf.experiment.TmfExperiment;
-import org.eclipse.linuxtools.tmf.trace.ITmfTrace;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class TestStateHistory {
 
+	/*
 	TmfExperiment<LttngEvent> fExperiment = null;
 	static TmfTimeRange allRange;
 	
@@ -60,5 +54,5 @@ public class TestStateHistory {
 		System.out.println("test");
 		assertTrue(true);
 	}
-	
+	*/
 }
