@@ -87,4 +87,7 @@ public class JniTraceFactory {
 		}
 	}
 	
+	static public JniTrace getJniTrace(String path) throws JniException {
+		return getJniTrace(path, false);
+	}
 }
