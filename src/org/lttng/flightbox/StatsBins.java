@@ -65,9 +65,11 @@ public class StatsBins {
 		return bins.get(index);
 	}
 	
-	// this function should take Alex's intervals and then
+	// this function may take Alex's intervals and then
 	// chunk it into corresponding bins
+	/*
 	public void addInterval() {
 		
 	}
+	*/
 }

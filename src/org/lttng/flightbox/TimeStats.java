@@ -1,13 +1,14 @@
 package org.lttng.flightbox;
 
+import java.util.EnumMap;
+
+import org.lttng.flightbox.GlobalState.KernelMode;
+
 public class TimeStats {
 
-	private double user; 
-	private double irq;
-	private double trap;
-	private double syscall;
 	private double t1;
 	private double t2;
+	private EnumMap<KernelMode, Double> dataMap;
 	
 	public TimeStats() {
 		this(0,0);
@@ -16,38 +17,20 @@ public class TimeStats {
 	public TimeStats(double t1, double t2) {
 		this.setStartTime(t1);
 		this.setEndTime(t2);
+		dataMap = new EnumMap<KernelMode, Double>(KernelMode.class);
+		for(KernelMode mode: KernelMode.values()) {
+			dataMap.put(mode, 0.0);
+		}
 	}
 	
-	public double getUser() {
-		return user;
+	public void addTime(double time, KernelMode mode) {
+		Double t = dataMap.get(mode);
+		t += time;
+		dataMap.put(mode, t);
 	}
 	
-	public void addUser(double user) {
-		this.user += user;
-	}
-	
-	public double getIrq() {
-		return irq;
-	}
-	
-	public void addIrq(double irq) {
-		this.irq += irq;
-	}
-	
-	public double getTrap() {
-		return trap;
-	}
-	
-	public void addTrap(double trap) {
-		this.trap += trap;
-	}
-	
-	public double getSyscall() {
-		return syscall;
-	}
-	
-	public void addSyscall(double syscall) {
-		this.syscall += syscall;
+	public double getTime(KernelMode mode) {
+		return dataMap.get(mode).doubleValue();
 	}
 	
 	public double getStartTime() {
@@ -67,11 +50,14 @@ public class TimeStats {
 	}
 	
 	public double getSystem() {
-		return irq + trap + syscall;
+		return 	dataMap.get(KernelMode.IRQ) +
+				dataMap.get(KernelMode.TRAP) +
+				dataMap.get(KernelMode.SYSCALL) +
+				dataMap.get(KernelMode.SOFTIRQ);
 	}
 	
 	public double getTotal() {
-		return irq + trap + syscall + user;
+		return getSystem() + dataMap.get(KernelMode.USER);
 	}
 	
 	public double getDuration() {
@@ -86,20 +72,8 @@ public class TimeStats {
 		return getTotal() / getDuration();
 	}
 	
-	public double getUserAvg() {
-		return getUser() / getDuration();
-	}
-	
-	public double getTrapAvg() {
-		return getTrap() / getDuration();
-	}
-	
-	public double getIrqAvg() {
-		return getIrq() / getDuration();
-	}
-	
-	public double getSyscallAvg() {
-		return getSyscall() / getDuration();
+	public double getAvg(KernelMode mode) {
+		return dataMap.get(mode) / getDuration();
 	}
 	
 	public double getIdleAvg() {
@@ -117,9 +91,10 @@ public class TimeStats {
 		if (other.getEndTime() > t2) {
 			this.t2 = other.getEndTime();
 		}
-		user += other.getUser();
-		irq += other.getIrq();
-		trap += other.getTrap();
-		syscall += other.getSyscall();
+		for (KernelMode mode: other.dataMap.keySet()) {
+			Double d = dataMap.get(mode);
+			d += other.dataMap.get(mode);
+			dataMap.put(mode, d);
+		}
 	}
 }

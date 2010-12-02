@@ -17,6 +17,7 @@ import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.eclipse.linuxtools.lttng.jni.factory.JniTraceFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.lttng.flightbox.cpu.TraceEventHandlerCpu;
 import org.lttng.flightbox.io.EventQuery;
 import org.lttng.flightbox.io.TraceEventHandler;
 import org.lttng.flightbox.io.TraceEventHandlerCounter;
@@ -113,6 +114,18 @@ public class TestTraceReader {
 			}
 			assertEquals(isMatch.booleanValue(), e.getParentTracefile().getCpuNumber() == cpu);
 		}
-		System.out.println("total=" + nbEvents + " match=" + matchEvents);
+		assertTrue(nbEvents >= matchEvents);
+	}
+	
+	@Test
+	public void testCpuTraceHandler() throws JniException {
+		String trace_path = new File(trace_dir, "burn-8x-1sec").toString();
+		EventQuery sched_query = new EventQuery();
+		sched_query.addEventType("kernel");
+		sched_query.addEventName("sched_schedule");
+		TraceEventHandlerCpu cpu_handler = new TraceEventHandlerCpu();
+		TraceReader reader = new TraceReader(trace_path);
+		reader.register(sched_query, cpu_handler);
+		reader.process();
 	}
 }

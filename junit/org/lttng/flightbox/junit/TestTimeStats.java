@@ -3,6 +3,7 @@ package org.lttng.flightbox.junit;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.lttng.flightbox.GlobalState.KernelMode;
 import org.lttng.flightbox.TimeStats;
 
 public class TestTimeStats {
@@ -18,12 +19,12 @@ public class TestTimeStats {
 	@Test
 	public void testStatsLogic() {
 		TimeStats t = new TimeStats();
-		t.addIrq(1.0);
-		t.addSyscall(2.0);
-		t.addTrap(3.0);
-		t.addUser(4.0);
+		t.addTime(1.0, KernelMode.IRQ);
+		t.addTime(2.0, KernelMode.SYSCALL);
+		t.addTime(3.0, KernelMode.TRAP);
+		t.addTime(4.0, KernelMode.USER);
 		assertEquals(10, t.getTotal(), p);
-		assertEquals(4, t.getUser(), p);
+		assertEquals(4, t.getTime(KernelMode.USER), p);
 		assertEquals(6, t.getSystem(), p);
 	}
 	
@@ -41,16 +42,16 @@ public class TestTimeStats {
 		TimeStats t = new TimeStats();
 		t.setStartTime(10.0);
 		t.setEndTime(30.0);
-		t.addIrq(1.0);
-		t.addSyscall(2.0);
-		t.addTrap(3.0);
-		t.addUser(4.0);
+		t.addTime(1.0, KernelMode.IRQ);
+		t.addTime(2.0, KernelMode.SYSCALL);
+		t.addTime(3.0, KernelMode.TRAP);
+		t.addTime(4.0, KernelMode.USER);
 		assertEquals(0.5, t.getTotalAvg(), p);
-		assertEquals(0.2, t.getUserAvg(), p);
+		assertEquals(0.2, t.getAvg(KernelMode.USER), p);
 		assertEquals(0.3, t.getSystemAvg(), p);
-		assertEquals(0.15, t.getTrapAvg(), p);
-		assertEquals(0.05, t.getIrqAvg(), p);
-		assertEquals(0.1, t.getSyscallAvg(), p);
+		assertEquals(0.15, t.getAvg(KernelMode.TRAP), p);
+		assertEquals(0.05, t.getAvg(KernelMode.IRQ), p);
+		assertEquals(0.1, t.getAvg(KernelMode.SYSCALL), p);
 		assertEquals(0.5, t.getIdleAvg(), p);
 	}
 	
@@ -59,20 +60,27 @@ public class TestTimeStats {
 		TimeStats t1 = new TimeStats();
 		t1.setStartTime(10.0);
 		t1.setEndTime(30.0);
-		t1.addIrq(1.0);
-		t1.addSyscall(2.0);
-		t1.addTrap(3.0);
-		t1.addUser(4.0);
+		t1.addTime(1.0, KernelMode.IRQ);
+		t1.addTime(2.0, KernelMode.SYSCALL);
+		t1.addTime(3.0, KernelMode.TRAP);
+		t1.addTime(4.0, KernelMode.USER);
 		TimeStats t2 = new TimeStats();
 		t2.setStartTime(5.0);
 		t2.setEndTime(8.0);
-		t2.addIrq(1.0);
-		t2.addSyscall(2.0);
-		t2.addTrap(3.0);
-		t2.addUser(4.0);
+		t2.addTime(1.0, KernelMode.IRQ);
+		t2.addTime(2.0, KernelMode.SYSCALL);
+		t2.addTime(3.0, KernelMode.TRAP);
+		t2.addTime(4.0, KernelMode.USER);
 		t2.add(t1);
 		assertEquals(20, t2.getTotal(), p);
 		assertEquals(5, t2.getStartTime(), p);
 		assertEquals(30, t2.getEndTime(), p);
+	}
+	
+	@Test
+	public void testGenericMethods() {
+		TimeStats t1 = new TimeStats();
+		t1.addTime(1.0, KernelMode.USER);
+		assertEquals(1.0, t1.getTime(KernelMode.USER), 0);
 	}
 }
