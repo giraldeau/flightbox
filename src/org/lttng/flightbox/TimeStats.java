@@ -9,6 +9,7 @@ public class TimeStats {
 	private double t1;
 	private double t2;
 	private EnumMap<KernelMode, Double> dataMap;
+	public static double NANO = 1000000000;
 	
 	public TimeStats() {
 		this(0,0);
@@ -96,5 +97,27 @@ public class TimeStats {
 			d += other.dataMap.get(mode);
 			dataMap.put(mode, d);
 		}
+	}
+	
+	public String toString() {
+		StringBuilder b = new StringBuilder();
+		b.append("enlaps=" + getDuration()/NANO);
+		b.append(" user=" + getTime(KernelMode.USER)/NANO);
+		b.append(" system=" + getSystem()/NANO);
+		return b.toString();
+	}
+
+	public void addInterval(double tx1, double tx2, KernelMode mode) {
+		// verify that this interval is part of our time 
+		if (tx2 <= t1 || t2 >= tx1)
+			return;
+		
+		double t = 0; 
+		if (tx1 <= t1 && tx2 >= t2) { // full period add
+			t = t2 - t1;
+		} else if (tx1 >= t1 && tx2 <= t2) { // all  
+			//t = t1
+		}
+		
 	}
 }

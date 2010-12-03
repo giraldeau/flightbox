@@ -30,9 +30,8 @@ public class TraceEventHandlerCpu implements TraceEventHandler {
 		numCpu = trace.getCpuNumber();
 		start = (double) trace.getStartTime().getTime();
 		end = (double) trace.getEndTime().getTime();
-		for(int i=0; i<numCpu; i++) {
-			cpuStats.getStats().put(new Long(i), new TimeStats(start, end));
-		}
+		cpuStats.setStart(start);
+		cpuStats.setEnd(end);
 	}
 	
 	@Override
@@ -42,24 +41,22 @@ public class TraceEventHandlerCpu implements TraceEventHandler {
 		if (eventName.compareTo("sched_schedule") != 0){
 			return;
 		}
-		
+
 		count++;
 		Long cpu = event.getParentTracefile().getCpuNumber();
 		long eventTs = event.getEventTime().getTime();
 		Long prev_pid = (Long) event.parseFieldByName("prev_pid");
 		Long next_pid = (Long) event.parseFieldByName("next_pid");
 		
-		TimeStats stats = cpuStats.getStats().get(cpu);
-		
 		double t = 0;
 		if (cpuHistory.containsKey(cpu)) { // we have a previous event
-			t = (double) eventTs - cpuHistory.get(cpu).getTime();
+			t = cpuHistory.get(cpu).getTime();
 		} else { // first event for this CPU
-			t = (double) eventTs - start; 
+			t = start; 
 			cpuHistory.put(cpu, new EventData());
 		}
 		if (prev_pid > 0) {
-			stats.addTime(t, KernelMode.USER);
+			cpuStats.addInterval(t, eventTs, cpu, KernelMode.USER);
 		}
 		// update history to keep track of previous event
 		cpuHistory.get(cpu).update(event);
@@ -73,11 +70,9 @@ public class TraceEventHandlerCpu implements TraceEventHandler {
 			// last event for this CPU
 			event = cpuHistory.get(cpu);
 			long eventTs = event.getTime();
-			double t = (double) end - eventTs;
-			TimeStats stats = cpuStats.getStats().get(cpu);
 			Long next_pid = (Long) event.get("next_pid");
 			if(next_pid > 0) {
-				stats.addTime(t, KernelMode.USER);
+				cpuStats.addInterval(eventTs, end, cpu, KernelMode.USER);
 			}
 		}
 	}

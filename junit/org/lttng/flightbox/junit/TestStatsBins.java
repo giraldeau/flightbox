@@ -4,7 +4,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.lttng.flightbox.GlobalState.KernelMode;
-import org.lttng.flightbox.StatsBins;
+import org.lttng.flightbox.TimeStatsBucket;
 import org.lttng.flightbox.TimeStats;
 
 public class TestStatsBins {
@@ -21,7 +21,7 @@ public class TestStatsBins {
 	
 	@Test
 	public void testCreateStatsBins() {
-		StatsBins s = new StatsBins();
+		TimeStatsBucket s = new TimeStatsBucket();
 		assertEquals(0, s.size());
 		assertEquals(0, s.getBinDuration(), p);
 		assertEquals(0, s.getStartTime(), p);
@@ -30,7 +30,7 @@ public class TestStatsBins {
 	
 	@Test
 	public void testInitBins() {
-		StatsBins s = new StatsBins();
+		TimeStatsBucket s = new TimeStatsBucket();
 		s.init(0.5, 0.8, 3);
 		assertEquals(3, s.size());
 		assertEquals(0.1, s.getBinDuration(), p);
@@ -41,7 +41,7 @@ public class TestStatsBins {
 		TimeStats t2 = s.getIntervalByTime(0.75);
 		t2.addTime(0.2, KernelMode.USER);
 		assertEquals(t1.getTime(KernelMode.USER) + 
-				t2.getTime(KernelMode.USER), 
-				s.getSum().getTime(KernelMode.USER), p);
+		t2.getTime(KernelMode.USER), 
+		s.getSum().getTime(KernelMode.USER), p);
 	}
 }

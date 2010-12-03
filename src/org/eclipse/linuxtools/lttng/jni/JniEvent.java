@@ -452,6 +452,14 @@ public abstract class JniEvent extends Jni_C_Common implements Comparable<JniEve
         ltt_printEvent(thisEventPtr.getLibraryId(), thisEventPtr.getPointer());
     }
     
+    public long getBloc() {
+    	return ltt_getBlock(thisEventPtr.getLibraryId(), thisEventPtr.getPointer());
+    }
+    
+    public long getOffset() {
+    	return ltt_getOffset(thisEventPtr.getLibraryId(), thisEventPtr.getPointer());
+    }
+    
     /**
      * toString() method. 
      * <u>Intended to debug.</u><p>
