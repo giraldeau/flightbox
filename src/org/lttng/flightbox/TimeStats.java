@@ -105,9 +105,9 @@ public class TimeStats {
 	
 	public String toString() {
 		StringBuilder b = new StringBuilder();
-		b.append("enlaps=" + getDuration()/NANO);
-		b.append(" user=" + getTime(KernelMode.USER)/NANO);
-		b.append(" system=" + getSystem()/NANO);
+		b.append("enlaps=" + getDuration());
+		b.append(" user=" + getTime(KernelMode.USER));
+		b.append(" system=" + getSystem());
 		return b.toString();
 	}
 
