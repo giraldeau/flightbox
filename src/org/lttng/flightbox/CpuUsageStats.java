@@ -13,10 +13,14 @@ public class CpuUsageStats {
 	int nbBuckets;
 	
 	public CpuUsageStats() {
+		this(0L, 0L, 1);
+	}
+	
+	public CpuUsageStats(Long start, Long end, int precision) {
 		cpuStats = new TreeMap<Long, TimeStatsBucket>();
-		start = 0; 
-		end = 0;
-		nbBuckets = 100;
+		this.start = start; 
+		this.end = end;
+		nbBuckets = 100;		
 	}
 	
 	public void addInterval(double ts1, double ts2, Long id, KernelMode mode) {
@@ -36,12 +40,20 @@ public class CpuUsageStats {
 		return s.toString();
 	}
 	
-	public TimeStats getTotal() {
-		TimeStats total = new TimeStats();
-		for(Long cpu: cpuStats.keySet()) {
-			total.add(cpuStats.get(cpu));
+	public TimeStatsBucket getTotal() {
+		TimeStatsBucket total = new TimeStatsBucket(start, end, nbBuckets);
+		TimeStatsBucket current;
+		for(Long id: cpuStats.keySet()) {
+			current = cpuStats.get(id);
+			for(int i=0; i<nbBuckets; i++) {
+				total.getInterval(i).add(current.getInterval(i));
+			}
 		}
 		return total;
+	}
+	
+	public TimeStatsBucket getStats(Long id) {
+		return cpuStats.get(id);
 	}
 	
 	public void setStart(double start) {

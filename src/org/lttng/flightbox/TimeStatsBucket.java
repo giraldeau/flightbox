@@ -48,7 +48,6 @@ public class TimeStatsBucket {
 	
 	public void init(double t1, double t2, int nbBucket) {
 		buckets = new ArrayList<TimeStats>();
-		total = new TimeStats();
 		this.t1 = t1;
 		this.t2 = t2;
 		if (nbBucket <= 0) {
@@ -89,6 +88,10 @@ public class TimeStatsBucket {
 		for(int i=index_start; i<=index_end; i++) {
 			buckets.get(i).addInterval(t1, t2, mode);
 		}
+	}
+
+	public TimeStats getInterval(int index) {
+		return buckets.get(index);
 	}
 	
 }

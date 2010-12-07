@@ -8,15 +8,28 @@ import org.lttng.flightbox.GlobalState.KernelMode;
 
 public class TestCpuUsageStats {
 
+	public static double p = 0.0001; 
+	
 	@Test
 	public void testAddInterval() {
-		CpuUsageStats stats = new CpuUsageStats();
-		// id can be pid or cpuid? same algorithms and datas
-		Long ts1 = 10L;
-		Long ts2 = 20L; 
-		Long id = 0L;
+		CpuUsageStats stats = new CpuUsageStats(0L, 30L, 100);
 		KernelMode mode = KernelMode.USER;
-		stats.addInterval(ts1, ts2, id, mode);
-		assertEquals(10, stats.getTotal().getTime(mode), 0.01);
+		stats.addInterval(10L, 20L, 0L, mode);
+		stats.addInterval(15L, 16L, 1L, mode);
+		// total for all items
+		assertEquals(11, stats.getTotal().getSum().getTime(mode), p);
+		// total for one item
+		assertEquals(10, stats.getStats(0L).getSum().getTime(mode), p);
+		assertEquals(1, stats.getStats(1L).getSum().getTime(mode), p);
+		// total for one interval
+		double t0 = stats.getTotal().getIntervalByTime(5).getTime(mode);
+		double t1 = stats.getTotal().getIntervalByTime(11).getTime(mode);
+		double t2 = stats.getTotal().getIntervalByTime(15.5).getTime(mode);
+		double t3 = stats.getTotal().getIntervalByTime(17).getTime(mode);
+		assertEquals(0, t0, p);
+		assertEquals(t1 * 2, t2, p);
+		assertEquals(t1, t3, p);
+		// total for one item for one interval
+		assertEquals(0.3, stats.getStats(0L).getIntervalByTime(15).getTime(mode), p);
 	}
 }

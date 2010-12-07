@@ -18,6 +18,7 @@ import org.eclipse.linuxtools.lttng.jni.factory.JniTraceFactory;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.lttng.flightbox.CpuUsageStats;
+import org.lttng.flightbox.TimeStatsBucket;
 import org.lttng.flightbox.GlobalState.KernelMode;
 import org.lttng.flightbox.TimeStats;
 import org.lttng.flightbox.cpu.TraceEventHandlerCpu;
@@ -131,7 +132,8 @@ public class TestTraceReader {
 		reader.register(sched_query, cpu_handler);
 		reader.process();
 		System.out.println(cpu_handler.getCpuUsageStats());
-		TimeStats total = cpu_handler.getCpuUsageStats().getTotal();
-		assertEquals(8 * TimeStats.NANO, total.getTime(KernelMode.USER), 1 * TimeStats.NANO);
+		TimeStatsBucket total = cpu_handler.getCpuUsageStats().getTotal();
+		TimeStats sum = total.getSum();
+		assertEquals(8 * TimeStats.NANO, sum.getTime(KernelMode.USER), 1 * TimeStats.NANO);
 	}
 }
