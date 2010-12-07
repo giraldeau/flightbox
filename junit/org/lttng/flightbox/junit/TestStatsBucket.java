@@ -7,7 +7,7 @@ import org.lttng.flightbox.GlobalState.KernelMode;
 import org.lttng.flightbox.TimeStatsBucket;
 import org.lttng.flightbox.TimeStats;
 
-public class TestStatsBins {
+public class TestStatsBucket {
 
 	static double p = 0.0001;
 	
@@ -43,5 +43,15 @@ public class TestStatsBins {
 		assertEquals(t1.getTime(KernelMode.USER) + 
 		t2.getTime(KernelMode.USER), 
 		s.getSum().getTime(KernelMode.USER), p);
+	}
+	
+	@Test
+	public void testAddInterval() {
+		KernelMode mode = KernelMode.USER;
+		TimeStatsBucket s = new TimeStatsBucket();
+		s.init(0.1, 0.7, 6);
+		s.addInterval(0.0, 1.0, mode);
+		TimeStats t = s.getIntervalByTime(0.2);
+		assertEquals(0.1, t.getTime(mode), p);
 	}
 }

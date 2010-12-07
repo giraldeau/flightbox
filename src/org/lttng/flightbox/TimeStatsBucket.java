@@ -13,7 +13,7 @@ public class TimeStatsBucket {
 	double bucketDuration;
 	
 	public TimeStatsBucket() {
-		this(0, 0, 1);
+		this(0, 0, 0);
 	}
 	
 	public TimeStatsBucket(double t1, double t2, int nbBucket) {
@@ -48,9 +48,11 @@ public class TimeStatsBucket {
 	
 	public void init(double t1, double t2, int nbBucket) {
 		buckets = new ArrayList<TimeStats>();
+		total = new TimeStats();
 		this.t1 = t1;
 		this.t2 = t2;
 		if (nbBucket <= 0) {
+			bucketDuration = 0;
 			return;
 		} 
 		bucketDuration = (t2 - t1) / nbBucket;
@@ -69,7 +71,16 @@ public class TimeStatsBucket {
 	}
 	
 	public int getIntervalIndex(double t) {
-		return (int)Math.floor((t - t1) / bucketDuration);
+		if (bucketDuration == 0) {
+			return 0;
+		}
+		int index = (int)Math.floor((t - t1) / bucketDuration);
+		if (index < 0) {
+			return 0;
+		} else if (index >= buckets.size()) {
+			return buckets.size() - 1;
+		}
+		return index;
 	}
 	
 	public void addInterval(double t1, double t2, KernelMode mode) {

@@ -1,29 +1,31 @@
 package org.lttng.flightbox;
 
-import java.util.HashMap;
+import java.util.TreeMap;
 
 import org.lttng.flightbox.GlobalState.KernelMode;
 
 public class CpuUsageStats {
 
-	HashMap<Long, TimeStats> cpuStats;
+	TreeMap<Long, TimeStatsBucket> cpuStats;
 	//HashMap<Long, >
 	double start;
 	double end;
+	int nbBuckets;
 	
 	public CpuUsageStats() {
-		cpuStats = new HashMap<Long, TimeStats>();
+		cpuStats = new TreeMap<Long, TimeStatsBucket>();
 		start = 0; 
 		end = 0;
+		nbBuckets = 100;
 	}
 	
-	public void addInterval(double ts1, double ts2, Long id, KernelMode mode){
+	public void addInterval(double ts1, double ts2, Long id, KernelMode mode) {
 		if (!cpuStats.containsKey(id)) {
-			cpuStats.put(id, new TimeStats(start, end));
+			cpuStats.put(id, new TimeStatsBucket(start, end, nbBuckets));
 		}
 		
-		TimeStats stat = cpuStats.get(id);
-		stat.addTime(ts2 - ts1, mode);
+		TimeStatsBucket stat = cpuStats.get(id);
+		stat.addInterval(ts1, ts2, mode);
 	}
 	
 	public String toString() {

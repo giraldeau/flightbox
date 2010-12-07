@@ -83,4 +83,34 @@ public class TestTimeStats {
 		t1.addTime(1.0, KernelMode.USER);
 		assertEquals(1.0, t1.getTime(KernelMode.USER), 0);
 	}
+	
+	@Test
+	public void testAddInterval() {
+		KernelMode mode = KernelMode.USER;
+		TimeStats t1 = new TimeStats();
+		t1.setStartTime(10.0);
+		t1.setEndTime(30.0);
+		// Interval outside range
+		t1.addInterval(1, 5, mode);
+		t1.addInterval(35, 40, mode);
+		assertEquals(0, t1.getTime(mode), p);
+		t1.clear();
+		// Interval inside one interval
+		t1.addInterval(11, 12, mode);
+		t1.addInterval(13, 14, mode);
+		assertEquals(2, t1.getTime(mode), p);
+		t1.clear();
+		// Interval starts before
+		t1.addInterval(5, 15, mode);
+		assertEquals(5, t1.getTime(mode), p);
+		t1.clear();
+		// Interval starts after
+		t1.addInterval(25, 35, mode);
+		assertEquals(5, t1.getTime(mode), p);
+		t1.clear();
+		// Interval starts before and end after
+		t1.addInterval(5, 35, mode);
+		assertEquals(20, t1.getTime(mode), p);
+		t1.clear();
+	}
 }

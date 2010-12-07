@@ -19,6 +19,10 @@ public class TimeStats {
 		this.setStartTime(t1);
 		this.setEndTime(t2);
 		dataMap = new EnumMap<KernelMode, Double>(KernelMode.class);
+		clear();
+	}
+	
+	public void clear() {
 		for(KernelMode mode: KernelMode.values()) {
 			dataMap.put(mode, 0.0);
 		}
@@ -107,17 +111,23 @@ public class TimeStats {
 		return b.toString();
 	}
 
-	public void addInterval(double tx1, double tx2, KernelMode mode) {
+	public void addInterval(double x1, double x2, KernelMode mode) {
 		// verify that this interval is part of our time 
-		if (tx2 <= t1 || t2 >= tx1)
+		if (x2 <= t1 || x1 >= t2)
 			return;
 		
 		double t = 0; 
-		if (tx1 <= t1 && tx2 >= t2) { // full period add
+		if (x1 >= t1 && x2 <= t2) { // add whole interval
+			t = x2 - x1;
+		} else if (x1 >= t1 && x2 >= t2) { // starts before
+			t = t2 - x1;
+		} else if (x1 <= t1 && x2 <= t2) { // end after
+			t = x2 - t1;
+		} else if (x1 <= t1 && x2 >= t2) { // max time span
 			t = t2 - t1;
-		} else if (tx1 >= t1 && tx2 <= t2) { // all  
-			//t = t1
 		}
+		
+		addTime(t, mode);
 		
 	}
 }

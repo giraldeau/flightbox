@@ -1,5 +1,7 @@
 package org.lttng.flightbox.junit;
 
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 import org.lttng.flightbox.CpuUsageStats;
 import org.lttng.flightbox.GlobalState.KernelMode;
@@ -15,5 +17,6 @@ public class TestCpuUsageStats {
 		Long id = 0L;
 		KernelMode mode = KernelMode.USER;
 		stats.addInterval(ts1, ts2, id, mode);
+		assertEquals(10, stats.getTotal().getTime(mode), 0.01);
 	}
 }
