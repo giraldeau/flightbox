@@ -1,0 +1,21 @@
+Copyright 2010 Francis Giraldeau <francis.giraldeau@usherbrooke.ca>
+
+This software is released under GPLv3
+
+* You need LTTng utils and kernel running. See here for packages and instructions: 
+
+  https://launchpad.net/~lttng/+archive/ppa
+
+* To run, you need those extra debian packages
+
+  sudo apt-get install cpuburn libswt-cairo-gtk-3.5-jni libswt-gtk-3.5-java junit4 openjdk-6-jdk
+
+* Then, generate the traces with the script tests/gen-traces.sh
+
+  ./tests/gen-traces.sh
+
+* Compute the CPU usage for a trace: 
+
+  ./run.sh tests/traces/burn-1x-1sec
+
+
