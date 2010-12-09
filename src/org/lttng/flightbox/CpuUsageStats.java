@@ -20,7 +20,7 @@ public class CpuUsageStats {
 		cpuStats = new TreeMap<Long, TimeStatsBucket>();
 		this.start = start; 
 		this.end = end;
-		nbBuckets = 100;		
+		nbBuckets = precision;		
 	}
 	
 	public void addInterval(double ts1, double ts2, Long id, KernelMode mode) {
@@ -43,10 +43,15 @@ public class CpuUsageStats {
 	public TimeStatsBucket getTotal() {
 		TimeStatsBucket total = new TimeStatsBucket(start, end, nbBuckets);
 		TimeStatsBucket current;
+		// FIXME: should take the numCpu from the trace, we may not have events for all CPUS
+		double factor = 1.0 / cpuStats.keySet().size();
+		TimeStats item; 
 		for(Long id: cpuStats.keySet()) {
 			current = cpuStats.get(id);
 			for(int i=0; i<nbBuckets; i++) {
-				total.getInterval(i).add(current.getInterval(i));
+				item = current.getInterval(i);
+				item.mul(factor);
+				total.getInterval(i).add(item);
 			}
 		}
 		return total;
@@ -59,7 +64,20 @@ public class CpuUsageStats {
 	public void setStart(double start) {
 		this.start = start;
 	}
+	
 	public void setEnd(double end) {
 		this.end = end;
+	}
+	
+	public double[] getXSeries(Long id) {
+		return cpuStats.get(id).getXSeries();
+	}
+	
+	public double[] getYSeries(Long id, KernelMode mode) {
+		return cpuStats.get(id).getYSeries(mode);
+	}
+	
+	public int getNumEntry() {
+		return cpuStats.keySet().size();
 	}
 }

@@ -94,4 +94,20 @@ public class TimeStatsBucket {
 		return buckets.get(index);
 	}
 	
+	public double[] getXSeries() {
+		double[] dataX = new double[buckets.size()];
+		for(int i=0; i<buckets.size(); i++) {
+			dataX[i] = getInterval(i).getStartTime() / 1000000000;
+		}
+		return dataX;
+	}
+	
+	public double[] getYSeries(KernelMode mode) {
+		double[] dataY = new double[buckets.size()];
+		for(int i=0; i<buckets.size(); i++) {
+			dataY[i] = getInterval(i).getAvg(mode);
+		}
+		return dataY;
+	}
+	
 }

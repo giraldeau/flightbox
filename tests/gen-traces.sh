@@ -9,11 +9,12 @@ fi
 echo "ltt-armall"
 /usr/bin/ltt-armall -q
 
-RET=$?
-if [ $RET -ne 0 ]; then
-    echo "error with ltt-armall, abording"
-    exit 1
-fi
+# FIXME: return code of ltt-armall is broken
+#RET=$?
+#if [ $RET -ne 0 ]; then
+#    echo "error with ltt-armall, abording"
+#    exit 1
+#fi
 
 echo "starting..."
 

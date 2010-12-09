@@ -130,4 +130,12 @@ public class TimeStats {
 		addTime(t, mode);
 		
 	}
+
+	public TimeStats mul(double factor) {
+		for (KernelMode mode: dataMap.keySet()) {
+			Double d = dataMap.get(mode);
+			dataMap.put(mode, d * factor);
+		}
+		return null;
+	}
 }

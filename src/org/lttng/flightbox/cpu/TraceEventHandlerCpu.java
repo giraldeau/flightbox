@@ -26,12 +26,10 @@ public class TraceEventHandlerCpu implements TraceEventHandler {
 		this.trace = trace;
 		count = 0;
 		cpuHistory = new HashMap<Long, EventData>();
-		cpuStats = new CpuUsageStats();
 		numCpu = trace.getCpuNumber();
 		start = (double) trace.getStartTime().getTime();
 		end = (double) trace.getEndTime().getTime();
-		cpuStats.setStart(start);
-		cpuStats.setEnd(end);
+		cpuStats = new CpuUsageStats((long)start, (long)end, 50);
 	}
 	
 	@Override
