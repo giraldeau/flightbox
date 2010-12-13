@@ -8,7 +8,7 @@ This software is released under GPLv3
 
 * To run, you need those extra debian packages
 
-  sudo apt-get install cpuburn libswt-cairo-gtk-3.5-jni libswt-gtk-3.5-java junit4 openjdk-6-jdk
+  sudo apt-get install cpuburn libswt-cairo-gtk-3.5-jni libswt-gtk-3.5-java junit4 openjdk-6-jdk liblttvtraceread-jni
 
 * Then, generate the traces with the script tests/gen-traces.sh
 

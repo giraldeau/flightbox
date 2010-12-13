@@ -3,7 +3,7 @@ package org.lttng.flightbox.junit;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import org.lttng.flightbox.CpuUsageStats;
+import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.GlobalState.KernelMode;
 
 public class TestCpuUsageStats {
@@ -12,7 +12,7 @@ public class TestCpuUsageStats {
 	
 	@Test
 	public void testAddInterval() {
-		CpuUsageStats stats = new CpuUsageStats(0L, 30L, 100);
+		UsageStats<Long> stats = new UsageStats<Long>(0L, 30L, 100);
 		KernelMode mode = KernelMode.USER;
 		stats.addInterval(10L, 20L, 0L, mode);
 		stats.addInterval(15L, 16L, 1L, mode);

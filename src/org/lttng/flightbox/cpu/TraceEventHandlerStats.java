@@ -4,19 +4,19 @@ import java.util.HashMap;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
-import org.lttng.flightbox.CpuUsageStats;
+import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.GlobalState.KernelMode;
 import org.lttng.flightbox.TimeStats;
 import org.lttng.flightbox.io.EventData;
 import org.lttng.flightbox.io.TraceEventHandler;
 
-public class TraceEventHandlerCpu implements TraceEventHandler {
+public class TraceEventHandlerStats implements TraceEventHandler {
 	
 	int count; 
 	JniTrace trace;
 
 	HashMap<Long, EventData> cpuHistory;
-	CpuUsageStats cpuStats;
+	UsageStats<Long> cpuStats;
 	private int numCpu;
 	private double start;
 	private double end;
@@ -29,7 +29,7 @@ public class TraceEventHandlerCpu implements TraceEventHandler {
 		numCpu = trace.getCpuNumber();
 		start = (double) trace.getStartTime().getTime();
 		end = (double) trace.getEndTime().getTime();
-		cpuStats = new CpuUsageStats((long)start, (long)end, 50);
+		cpuStats = new UsageStats<Long>((long)start, (long)end, 50);
 	}
 	
 	@Override
@@ -75,7 +75,7 @@ public class TraceEventHandlerCpu implements TraceEventHandler {
 		}
 	}
 	
-	public CpuUsageStats getCpuUsageStats() {
+	public UsageStats getCpuUsageStats() {
 		return cpuStats;
 	}
 }

@@ -17,10 +17,10 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
-import org.lttng.flightbox.CpuUsageStats;
+import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.TimeStatsBucket;
 import org.lttng.flightbox.GlobalState.KernelMode;
-import org.lttng.flightbox.cpu.TraceEventHandlerCpu;
+import org.lttng.flightbox.cpu.TraceEventHandlerStats;
 import org.lttng.flightbox.io.EventQuery;
 import org.lttng.flightbox.io.TraceReader;
 import org.swtchart.Chart;
@@ -87,14 +87,14 @@ public class TestCpuUsageView {
 		EventQuery sched_query = new EventQuery();
 		sched_query.addEventType("kernel");
 		sched_query.addEventName("sched_schedule");
-		TraceEventHandlerCpu cpu_handler = new TraceEventHandlerCpu();
+		TraceEventHandlerStats cpu_handler = new TraceEventHandlerStats();
 		TraceReader reader = new TraceReader(trace_path);
 		reader.register(sched_query, cpu_handler);
 		reader.process();
 		
 		System.out.println(cpu_handler.getCpuUsageStats());
 		
-		CpuUsageStats cpuStats = cpu_handler.getCpuUsageStats();
+		UsageStats cpuStats = cpu_handler.getCpuUsageStats();
 		
 		createChart(group, cpuStats, "Per CPU usage");
 		createGlobalChart(group, cpuStats, "Global usage");
@@ -113,7 +113,7 @@ public class TestCpuUsageView {
 		lineSeries.setLineColor(color);
 	}
 	
-	public static Chart createChart(Composite parent, CpuUsageStats stats, String title) {
+	public static Chart createChart(Composite parent, UsageStats stats, String title) {
 		// create a chart
 		Chart chart = new Chart(parent, SWT.NONE);
 		
@@ -143,7 +143,7 @@ public class TestCpuUsageView {
 		return chart;
 	}
 	
-	public static Chart createGlobalChart(Composite parent, CpuUsageStats stats, String title) {
+	public static Chart createGlobalChart(Composite parent, UsageStats stats, String title) {
 		// create a chart
 		Chart chart = new Chart(parent, SWT.NONE);
 		

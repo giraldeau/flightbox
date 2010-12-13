@@ -4,26 +4,25 @@ import java.util.TreeMap;
 
 import org.lttng.flightbox.GlobalState.KernelMode;
 
-public class CpuUsageStats {
+public class UsageStats <T> {
 
-	TreeMap<Long, TimeStatsBucket> cpuStats;
-	//HashMap<Long, >
+	TreeMap<T, TimeStatsBucket> cpuStats;
 	double start;
 	double end;
 	int nbBuckets;
 	
-	public CpuUsageStats() {
+	public UsageStats() {
 		this(0L, 0L, 1);
 	}
 	
-	public CpuUsageStats(Long start, Long end, int precision) {
-		cpuStats = new TreeMap<Long, TimeStatsBucket>();
+	public UsageStats(Long start, Long end, int precision) {
+		cpuStats = new TreeMap<T, TimeStatsBucket>();
 		this.start = start; 
 		this.end = end;
 		nbBuckets = precision;		
 	}
 	
-	public void addInterval(double ts1, double ts2, Long id, KernelMode mode) {
+	public void addInterval(double ts1, double ts2, T id, KernelMode mode) {
 		if (!cpuStats.containsKey(id)) {
 			cpuStats.put(id, new TimeStatsBucket(start, end, nbBuckets));
 		}
@@ -34,7 +33,7 @@ public class CpuUsageStats {
 	
 	public String toString() {
 		StringBuilder s = new StringBuilder();
-		for (Long cpu : cpuStats.keySet()) {
+		for (T cpu : cpuStats.keySet()) {
 			s.append("cpu=" + cpu + " " + cpuStats.get(cpu) + "\n");
 		}
 		return s.toString();
@@ -46,7 +45,7 @@ public class CpuUsageStats {
 		// FIXME: should take the numCpu from the trace, we may not have events for all CPUS
 		double factor = 1.0 / cpuStats.keySet().size();
 		TimeStats item; 
-		for(Long id: cpuStats.keySet()) {
+		for(T id: cpuStats.keySet()) {
 			current = cpuStats.get(id);
 			for(int i=0; i<nbBuckets; i++) {
 				item = current.getInterval(i);
