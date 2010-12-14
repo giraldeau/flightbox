@@ -3,22 +3,21 @@ package org.lttng.flightbox.ui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.GlobalState.KernelMode;
+import org.lttng.flightbox.UsageStats;
 import org.swtchart.Chart;
 import org.swtchart.ILineSeries;
-import org.swtchart.Range;
 import org.swtchart.ILineSeries.PlotSymbolType;
 import org.swtchart.ISeries;
 import org.swtchart.ISeries.SeriesType;
 import org.swtchart.ISeriesSet;
+import org.swtchart.Range;
 
 public class CpuUsageView extends Composite {
 
-	UsageStats stats;
+	UsageStats<Long> stats;
 	Chart chart;
 	public CpuUsageView(Composite parent, int style) {
 		super(parent, style);
@@ -46,7 +45,7 @@ public class CpuUsageView extends Composite {
 		});
 	}
 	
-	public void setCpuStats(UsageStats stats) {
+	public void setCpuStats(UsageStats<Long> stats) {
 		this.stats = stats;
 	}
 	

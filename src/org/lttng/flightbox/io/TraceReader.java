@@ -1,6 +1,6 @@
 package org.lttng.flightbox.io;
 
-import java.util.*;
+import java.util.HashMap;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;

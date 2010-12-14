@@ -4,9 +4,8 @@ import java.util.HashMap;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
-import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.GlobalState.KernelMode;
-import org.lttng.flightbox.TimeStats;
+import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.io.EventData;
 import org.lttng.flightbox.io.TraceEventHandler;
 

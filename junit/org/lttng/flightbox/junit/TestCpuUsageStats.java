@@ -1,10 +1,10 @@
 package org.lttng.flightbox.junit;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.GlobalState.KernelMode;
+import org.lttng.flightbox.UsageStats;
 
 public class TestCpuUsageStats {
 

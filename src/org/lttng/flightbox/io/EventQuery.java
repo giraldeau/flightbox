@@ -1,6 +1,5 @@
 package org.lttng.flightbox.io;
 
-import java.util.ArrayList;
 import java.util.TreeSet;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
