@@ -1,25 +1,18 @@
 package org.lttng.flightbox.junit;
 
-import java.io.File;
-
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StackLayout;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
-import org.lttng.flightbox.UsageStats;
-import org.lttng.flightbox.TimeStatsBucket;
 import org.lttng.flightbox.GlobalState.KernelMode;
+import org.lttng.flightbox.TimeStatsBucket;
+import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.cpu.TraceEventHandlerStats;
 import org.lttng.flightbox.io.EventQuery;
 import org.lttng.flightbox.io.TraceReader;
@@ -94,7 +87,7 @@ public class TestCpuUsageView {
 		
 		System.out.println(cpu_handler.getCpuUsageStats());
 		
-		UsageStats cpuStats = cpu_handler.getCpuUsageStats();
+		UsageStats<Long> cpuStats = cpu_handler.getCpuUsageStats();
 		
 		createChart(group, cpuStats, "Per CPU usage");
 		createGlobalChart(group, cpuStats, "Global usage");
@@ -113,7 +106,7 @@ public class TestCpuUsageView {
 		lineSeries.setLineColor(color);
 	}
 	
-	public static Chart createChart(Composite parent, UsageStats stats, String title) {
+	public static Chart createChart(Composite parent, UsageStats<Long> stats, String title) {
 		// create a chart
 		Chart chart = new Chart(parent, SWT.NONE);
 		
@@ -143,7 +136,7 @@ public class TestCpuUsageView {
 		return chart;
 	}
 	
-	public static Chart createGlobalChart(Composite parent, UsageStats stats, String title) {
+	public static Chart createGlobalChart(Composite parent, UsageStats<Long> stats, String title) {
 		// create a chart
 		Chart chart = new Chart(parent, SWT.NONE);
 		
@@ -154,7 +147,7 @@ public class TestCpuUsageView {
 		
 		Color color = new Color(Display.getDefault(), 255, 0, 0);
 
-		TimeStatsBucket bucket = stats.getTotal();
+		TimeStatsBucket bucket = stats.getTotalAvg();
 		
 		double[] dataX = bucket.getXSeries();
 		double[] dataY = bucket.getYSeries(KernelMode.USER);

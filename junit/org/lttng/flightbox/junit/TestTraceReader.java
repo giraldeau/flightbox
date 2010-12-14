@@ -132,7 +132,7 @@ public class TestTraceReader {
 		reader.register(sched_query, cpu_handler);
 		reader.process();
 		System.out.println(cpu_handler.getCpuUsageStats());
-		TimeStatsBucket total = cpu_handler.getCpuUsageStats().getTotal();
+		TimeStatsBucket total = cpu_handler.getCpuUsageStats().getTotalAvg();
 		TimeStats sum = total.getSum();
 		assertEquals(8 * TimeStats.NANO, sum.getTime(KernelMode.USER), 1 * TimeStats.NANO);
 	}

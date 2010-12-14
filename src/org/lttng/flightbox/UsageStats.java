@@ -39,7 +39,7 @@ public class UsageStats <T> {
 		return s.toString();
 	}
 	
-	public TimeStatsBucket getTotal() {
+	public TimeStatsBucket getTotalAvg() {
 		TimeStatsBucket total = new TimeStatsBucket(start, end, nbBuckets);
 		TimeStatsBucket current;
 		// FIXME: should take the numCpu from the trace, we may not have events for all CPUS
@@ -49,7 +49,21 @@ public class UsageStats <T> {
 			current = cpuStats.get(id);
 			for(int i=0; i<nbBuckets; i++) {
 				item = current.getInterval(i);
-				item.mul(factor);
+				total.getInterval(i).add(item);
+			}
+		}
+		total.mul(factor);
+		return total;
+	}
+	
+	public TimeStatsBucket getTotal() {
+		TimeStatsBucket total = new TimeStatsBucket(start, end, nbBuckets);
+		TimeStatsBucket current;
+		TimeStats item; 
+		for(T id: cpuStats.keySet()) {
+			current = cpuStats.get(id);
+			for(int i=0; i<nbBuckets; i++) {
+				item = current.getInterval(i);
 				total.getInterval(i).add(item);
 			}
 		}

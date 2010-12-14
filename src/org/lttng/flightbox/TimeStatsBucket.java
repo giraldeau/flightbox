@@ -39,7 +39,8 @@ public class TimeStatsBucket {
 			return new TimeStats();
 		}
 		TimeStats first = buckets.get(0);
-		TimeStats sum = new TimeStats(first.getStartTime(), first.getEndTime());
+		TimeStats last = buckets.get(buckets.size()-1);
+		TimeStats sum = new TimeStats(first.getStartTime(), last.getEndTime());
 		for (TimeStats t: buckets) {
 			sum.add(t);
 		}
@@ -108,6 +109,12 @@ public class TimeStatsBucket {
 			dataY[i] = getInterval(i).getAvg(mode);
 		}
 		return dataY;
+	}
+
+	public void mul(double factor) {
+		for(TimeStats stat: buckets) {
+			stat.mul(factor);
+		}
 	}
 	
 }

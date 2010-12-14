@@ -75,7 +75,7 @@ public class TraceEventHandlerStats implements TraceEventHandler {
 		}
 	}
 	
-	public UsageStats getCpuUsageStats() {
+	public UsageStats<Long> getCpuUsageStats() {
 		return cpuStats;
 	}
 }
