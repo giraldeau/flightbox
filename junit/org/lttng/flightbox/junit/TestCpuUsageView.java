@@ -85,9 +85,9 @@ public class TestCpuUsageView {
 		reader.register(sched_query, cpu_handler);
 		reader.process();
 		
-		System.out.println(cpu_handler.getCpuUsageStats());
+		System.out.println(cpu_handler.getUsageStats());
 		
-		UsageStats<Long> cpuStats = cpu_handler.getCpuUsageStats();
+		UsageStats<Long> cpuStats = cpu_handler.getUsageStats();
 		
 		createChart(group, cpuStats, "Per CPU usage");
 		createGlobalChart(group, cpuStats, "Global usage");

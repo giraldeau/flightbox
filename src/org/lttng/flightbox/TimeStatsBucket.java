@@ -117,4 +117,8 @@ public class TimeStatsBucket {
 		}
 	}
 	
+	public String toString() {
+		return getSum().toString();
+	}
+	
 }

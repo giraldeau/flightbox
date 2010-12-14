@@ -49,24 +49,25 @@ public class CpuUsageView extends Composite {
 		this.stats = stats;
 	}
 	
-	public void update() {
+	public void updateData() {
 		// clear the chart
 		ISeriesSet set = chart.getSeriesSet();
 		for (ISeries s: set.getSeries()) {
 			set.deleteSeries(s.getId());
 		}
-		
-		// recompute the chart
-		for(int i=0; i<stats.getNumEntry(); i++) {
-			double[] dataX = stats.getXSeries(new Long(i));
-			double[] dataY = stats.getYSeries(new Long(i), KernelMode.USER);
-			ILineSeries lineSeries = (ILineSeries) chart.getSeriesSet()
-			.createSeries(SeriesType.LINE, "CPU ");
-			lineSeries.setSymbolType(PlotSymbolType.NONE);
-			lineSeries.setXSeries(dataX);
-			lineSeries.setYSeries(dataY);
-			lineSeries.setAntialias(SWT.ON);
-			//lineSeries.setLineColor(color);
+		if (stats != null) {
+			// recompute the chart
+			for(int i=0; i<stats.getNumEntry(); i++) {
+				double[] dataX = stats.getXSeries(new Long(i));
+				double[] dataY = stats.getYSeries(new Long(i), KernelMode.USER);
+				ILineSeries lineSeries = (ILineSeries) chart.getSeriesSet()
+				.createSeries(SeriesType.LINE, "CPU ");
+				lineSeries.setSymbolType(PlotSymbolType.NONE);
+				lineSeries.setXSeries(dataX);
+				lineSeries.setYSeries(dataY);
+				lineSeries.setAntialias(SWT.ON);
+				//lineSeries.setLineColor(color);
+			}
 		}
 		// adjust the axis range
 		chart.getAxisSet().adjustRange();

@@ -21,6 +21,8 @@ import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.TimeStatsBucket;
 import org.lttng.flightbox.GlobalState.KernelMode;
 import org.lttng.flightbox.TimeStats;
+import org.lttng.flightbox.cpu.KernelProcess;
+import org.lttng.flightbox.cpu.TraceEventHandlerProcess;
 import org.lttng.flightbox.cpu.TraceEventHandlerStats;
 import org.lttng.flightbox.io.EventQuery;
 import org.lttng.flightbox.io.TraceEventHandler;
@@ -131,9 +133,39 @@ public class TestTraceReader {
 		TraceReader reader = new TraceReader(trace_path);
 		reader.register(sched_query, cpu_handler);
 		reader.process();
-		System.out.println(cpu_handler.getCpuUsageStats());
-		TimeStatsBucket total = cpu_handler.getCpuUsageStats().getTotalAvg();
+		System.out.println(cpu_handler.getUsageStats());
+		TimeStatsBucket total = cpu_handler.getUsageStats().getTotalAvg();
 		TimeStats sum = total.getSum();
-		assertEquals(8 * TimeStats.NANO, sum.getTime(KernelMode.USER), 1 * TimeStats.NANO);
+		assertEquals(1 * TimeStats.NANO, sum.getTime(KernelMode.USER), 0.5 * TimeStats.NANO);
+	}
+	
+	@Test
+	public void testProcTraceHandler() throws JniException {
+		String trace_path = new File(trace_dir, "burn-8x-1sec").toString();
+		EventQuery sched_query = new EventQuery();
+		sched_query.addEventType("kernel");
+		sched_query.addEventName("sched_schedule");
+		sched_query.addEventName("process_fork");
+		sched_query.addEventType("fs");
+		sched_query.addEventName("exec");
+		sched_query.addEventType("task_state");
+		sched_query.addEventName("process_state");
+		TraceEventHandlerProcess handler = new TraceEventHandlerProcess();
+		TraceReader reader = new TraceReader(trace_path);
+		reader.register(sched_query, handler);
+		reader.process();
+		System.out.println(handler.getUsageStats());
+		UsageStats<Long> stats = handler.getUsageStats();
+		double enlaps = stats.getDuration();
+		for(Long id: stats.idSet()){
+			TimeStatsBucket t = stats.getStats(id);
+			if(id != 0) {
+				assertTrue(t.getSum().getTotal() < enlaps);
+			}
+		}
+		for(KernelProcess proc: handler.getProcInfo().values()) {
+			System.out.println(proc);
+		}
+		assertEquals(stats.getNumEntry(), handler.getProcInfo().size());
 	}
 }
