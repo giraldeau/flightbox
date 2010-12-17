@@ -37,9 +37,15 @@ public class MainWindow {
 	CpuUsageView cpuView; 
 	ProcessUsageView processView;
 	Shell shell;
+	Display display;
 	
 	public MainWindow() {
-		Display display = new Display();
+		this(new String[0]);
+	}
+
+	public MainWindow(String[] args) {
+		
+		display = new Display();
 		shell = new Shell(display);
 		shell.setText("Line Chart Example");
 		shell.setSize(800, 800);
@@ -107,6 +113,10 @@ public class MainWindow {
 		//Text text1 = new Text(shell, SWT.SINGLE | SWT.BORDER);
 		//text1.setBounds(10,100,100,20);
 		
+		if (args.length == 1) {
+			setTraceDir(new File(args[0]));
+		}
+		
 		shell.open();
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {
@@ -115,6 +125,7 @@ public class MainWindow {
 		}
 
 		shell.dispose();
+	
 	}
 
 	public void setTraceDir(File traceDir) {
@@ -164,5 +175,4 @@ public class MainWindow {
 		processView.setStats(procStats, procInfo);
 		processView.updateData();
 	}
-	
 }
