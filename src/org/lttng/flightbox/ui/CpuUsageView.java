@@ -3,8 +3,12 @@ package org.lttng.flightbox.ui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Tracker;
 import org.lttng.flightbox.GlobalState.KernelMode;
 import org.lttng.flightbox.UsageStats;
 import org.swtchart.Chart;
@@ -19,31 +23,70 @@ public class CpuUsageView extends Composite {
 
 	UsageStats<Long> stats;
 	Chart chart;
+	ChartHighlighter highlighter;
 	public CpuUsageView(Composite parent, int style) {
 		super(parent, style);
 		this.setLayout(new FillLayout());
 		
 		chart = new Chart(this, SWT.NONE);
+		highlighter = new ChartHighlighter(chart, SWT.NONE);
 		
 		// set titles
 		chart.getTitle().setText("CPU Usage according to time");
 		chart.getAxisSet().getXAxis(0).getTitle().setText("Time");
 		chart.getAxisSet().getYAxis(0).getTitle().setText("CPU Usage");
+		/*
 		chart.getPlotArea().addMouseListener(new MouseAdapter() {
+			
+			int down;
+			
+			@Override
+			public void mouseDown(MouseEvent e) {
+				System.out.println("dw=" + e.x);
+				down = e.x;
+			}
 			
 			@Override
 			public void mouseUp(MouseEvent e) {
-				//System.out.println(e);
-				int w = chart.getPlotArea().getSize().x;
-				double rel = (double) e.x / (double) w;
-				Range range = chart.getAxisSet().getXAxis(0).getRange();
-				double span = range.upper - range.lower;
-				double val = span * rel;
-				double pos = val + range.lower; 
-				System.out.println("pos=" + pos);
+				System.out.println("up=" + e.x);
+				highlighter.setPixelInterval(down, e.x);
+				chart.redraw();
 			}
+			
 		});
+		*/
 		
+		Listener listener = new Listener() {
+
+			int down;
+			boolean track = false;
+			
+			@Override
+			public void handleEvent(Event e) {
+				switch (e.type){
+				case SWT.MouseDown:
+					down = e.x;
+					track = true;
+					break;
+				case SWT.MouseMove:
+					if (track) { 
+						highlighter.setPixelInterval(down, e.x);
+						chart.redraw();
+					}
+					break;
+				case SWT.MouseUp:
+					highlighter.setPixelInterval(down, e.x);
+					chart.redraw();
+					track = false;
+					break;
+				}
+			}
+			
+		};
+		
+		chart.getPlotArea().addListener(SWT.MouseDown, listener);
+		chart.getPlotArea().addListener(SWT.MouseUp, listener);
+		chart.getPlotArea().addListener(SWT.MouseMove, listener);
 		//chart.highlightInterval(20, 40);
 	}
 	

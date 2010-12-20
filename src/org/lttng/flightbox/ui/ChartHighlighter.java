@@ -21,8 +21,8 @@ public class ChartHighlighter extends Composite implements ICustomPaintListener 
 	
 	private Image imageCache;
 	private ImageData sourceData;
-	private double x1;
-	private double x2;
+	private double d1;
+	private double d2;
 	private Chart chart;
 	private boolean updateImageCache;
 	private Color bg;
@@ -41,11 +41,19 @@ public class ChartHighlighter extends Composite implements ICustomPaintListener 
 		updateImageCache = true;
 	}
 	
-	public void setInterval(double x1, double x2) {
-		this.x1 = x1;
-		this.x2 = x2;
+	public void setInterval(double d1, double d2) {
+		this.d1 = d1;
+		this.d2 = d2;
+		updateImageCache = true;
 	}
 	
+	public void setPixelInterval(int x1, int x2) {
+		IAxis xAxis = chart.getAxisSet().getXAxis(0);
+		d1 = xAxis.getDataCoordinate(x1);
+		d2 = xAxis.getDataCoordinate(x2);
+		updateImageCache = true;
+	}
+		
 	@Override
 	public void paintControl(PaintEvent e) {
 		System.out.print("paint ");
@@ -55,6 +63,10 @@ public class ChartHighlighter extends Composite implements ICustomPaintListener 
 			if (imageCache != null && !imageCache.isDisposed()) {
                 imageCache.dispose();
             }
+			IAxis xAxis = chart.getAxisSet().getXAxis(0);
+			int x1 = xAxis.getPixelCoordinate(d1);
+			int x2 = xAxis.getPixelCoordinate(d2);
+			
 			Composite area = chart.getPlotArea();
 			Point size = area.getSize();
 		    sourceData = new ImageData(size.x, size.y, 1, palette);
@@ -65,11 +77,7 @@ public class ChartHighlighter extends Composite implements ICustomPaintListener 
 			gc.setAntialias(1);
 			gc.setBackground(display.getSystemColor(SWT.COLOR_RED));
 			
-			IAxis xAxis = chart.getAxisSet().getXAxis(0);
-			int start = xAxis.getPixelCoordinate(x1);
-			int width = xAxis.getPixelCoordinate(x2) - start;
-			
-			gc.fillRectangle(start, 0, width, size.y);
+			gc.fillRectangle(x1, 0, x2 - x1, size.y);
 			gc.dispose();
 			updateImageCache = false;
 		}
