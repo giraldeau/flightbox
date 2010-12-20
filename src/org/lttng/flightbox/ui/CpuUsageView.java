@@ -18,12 +18,12 @@ import org.swtchart.Range;
 public class CpuUsageView extends Composite {
 
 	UsageStats<Long> stats;
-	ChartWidget chart;
+	Chart chart;
 	public CpuUsageView(Composite parent, int style) {
 		super(parent, style);
 		this.setLayout(new FillLayout());
 		
-		chart = new ChartWidget(this, SWT.NONE);
+		chart = new Chart(this, SWT.NONE);
 		
 		// set titles
 		chart.getTitle().setText("CPU Usage according to time");
@@ -44,7 +44,7 @@ public class CpuUsageView extends Composite {
 			}
 		});
 		
-		chart.highlightInterval(20, 40);
+		//chart.highlightInterval(20, 40);
 	}
 	
 	public void setCpuStats(UsageStats<Long> stats) {
