@@ -1,10 +1,8 @@
 package org.lttng.flightbox.cpu;
 
-import java.util.HashMap;
 import java.util.TreeMap;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
-import org.eclipse.linuxtools.lttng.jni.JniMarker;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
 import org.lttng.flightbox.GlobalState.KernelMode;
 import org.lttng.flightbox.UsageStats;

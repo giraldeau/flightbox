@@ -47,6 +47,24 @@ public class TimeStatsBucket {
 		return sum;
 	}
 	
+	/**
+	 * getSum between given interval
+	 */
+	public TimeStats getSum(double t1, double t2) {
+		if (buckets.size() == 0) {
+			return new TimeStats();
+		}
+		int x1 = getIntervalIndex(t1);
+		int x2 = getIntervalIndex(t2);
+		TimeStats first = getIntervalByTime(t1);
+		TimeStats last = getIntervalByTime(t2);
+		TimeStats sum = new TimeStats(first.getStartTime(), last.getEndTime());
+		for (int i=x1;i<x2;i++) {
+			sum.add(buckets.get(i));
+		}
+		return sum;
+	}
+	
 	public void init(double t1, double t2, int nbBucket) {
 		buckets = new ArrayList<TimeStats>();
 		this.t1 = t1;
@@ -98,7 +116,7 @@ public class TimeStatsBucket {
 	public double[] getXSeries() {
 		double[] dataX = new double[buckets.size()];
 		for(int i=0; i<buckets.size(); i++) {
-			dataX[i] = getInterval(i).getStartTime() / 1000000000;
+			dataX[i] = getInterval(i).getStartTime();
 		}
 		return dataX;
 	}

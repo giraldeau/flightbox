@@ -1,11 +1,8 @@
 package org.lttng.flightbox;
 
-import static org.junit.Assert.assertEquals;
-
 import java.io.File;
 
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
-import org.lttng.flightbox.GlobalState.KernelMode;
 import org.lttng.flightbox.cpu.TraceEventHandlerStats;
 import org.lttng.flightbox.io.EventQuery;
 import org.lttng.flightbox.io.TraceReader;

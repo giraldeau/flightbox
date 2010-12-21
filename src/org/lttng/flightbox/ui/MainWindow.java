@@ -29,7 +29,6 @@ public class MainWindow {
 			Display display = e.display;
 			display.close();
 		}
-		
 	}
 
 	private File traceDir;
@@ -56,7 +55,9 @@ public class MainWindow {
 		
 		cpuView = new CpuUsageView(shell, SWT.BORDER);
 		processView = new ProcessUsageView(shell, SWT.BORDER);
-	
+		cpuView.setProcessView(processView);
+		processView.setCpuView(cpuView);
+		
 		class OpenListener extends SelectionAdapter {
 			private MainWindow window;
 			public OpenListener(MainWindow window) {
@@ -99,20 +100,7 @@ public class MainWindow {
 		shell.setMenuBar(menu);
 		
 		exitItem.addSelectionListener(new ExitListener());
-		
-		// FIXME: Toolbar is below the window content and is hence hidden
-		//ToolBar bar = new ToolBar(shell, SWT.HORIZONTAL);
-		//bar.setSize(shell.getSize().x, 65); // must be set in resize event
-		//bar.setSize(300, 65);
-		//bar.setLocation(0,0);
-		//ToolItem exitToolItem = new ToolItem(bar, SWT.PUSH);
-		//exitToolItem.setText("Exit");
-		//exitToolItem.addSelectionListener(new ExitListener());
-		//exitToolItem.setToolTipText("Exit the application");
-		
-		//Text text1 = new Text(shell, SWT.SINGLE | SWT.BORDER);
-		//text1.setBounds(10,100,100,20);
-		
+				
 		if (args.length == 1) {
 			setTraceDir(new File(args[0]));
 		}
@@ -159,20 +147,15 @@ public class MainWindow {
 			msg.open();
 			return;
 		}
-		
-		/*
-		System.out.println(cpu_handler.getUsageStats());
-		System.out.println(proc_handler.getUsageStats());
-		System.out.println(proc_handler.getProcInfo());
-		*/
-		
+				
 		cpuStats = cpu_handler.getUsageStats();
 		cpuView.setCpuStats(cpuStats);
 		cpuView.updateData();
+		cpuView.resetHighlight();
 
 		UsageStats<Long> procStats = proc_handler.getUsageStats();
 		TreeMap<Long, KernelProcess> procInfo = proc_handler.getProcInfo();
 		processView.setStats(procStats, procInfo);
-		processView.updateData();
+		processView.resetSumInterval();
 	}
 }

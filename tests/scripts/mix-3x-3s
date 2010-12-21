@@ -1,0 +1,11 @@
+#!/bin/bash
+
+burnP6 &
+sleep 1
+pkill burnP6
+burnP5 &
+sleep 1
+pkill burnP5
+burnMMX &
+sleep 1
+pkill burnMMX

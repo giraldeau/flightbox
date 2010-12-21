@@ -2,7 +2,6 @@ package org.lttng.flightbox.ui;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -29,6 +28,14 @@ public class ChartHighlighter extends Composite implements ICustomPaintListener 
 	private Color fg;
 	private PaletteData palette;
 
+	public class TimeInterval {
+		public double t1; 
+		public double t2;
+		public TimeInterval(double t1, double t2) {
+			this.t1 = t1; 
+			this.t2 = t2;
+		}
+	}
 	
 	public ChartHighlighter(Chart parent, int style) {
 		super(parent, style);
@@ -47,6 +54,10 @@ public class ChartHighlighter extends Composite implements ICustomPaintListener 
 		updateImageCache = true;
 	}
 	
+	public TimeInterval getInterval() {
+		return new TimeInterval(this.d1, this.d2);
+	}
+	
 	public void setPixelInterval(int x1, int x2) {
 		IAxis xAxis = chart.getAxisSet().getXAxis(0);
 		d1 = xAxis.getDataCoordinate(x1);
@@ -56,8 +67,6 @@ public class ChartHighlighter extends Composite implements ICustomPaintListener 
 		
 	@Override
 	public void paintControl(PaintEvent e) {
-		System.out.print("paint ");
-		long t1 = System.currentTimeMillis();
 		Display display = Display.getCurrent();
 		if (updateImageCache) {
 			if (imageCache != null && !imageCache.isDisposed()) {
@@ -81,8 +90,6 @@ public class ChartHighlighter extends Composite implements ICustomPaintListener 
 			gc.dispose();
 			updateImageCache = false;
 		}
-		long t2 = System.currentTimeMillis();
-		System.out.println(t2 - t1);
 		
 		/* FIXME: why there is always a white opaque transparent background
 		 * to the image without using a palette?

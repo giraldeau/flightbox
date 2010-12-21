@@ -10,6 +10,10 @@ This software is released under GPLv3
 
   sudo apt-get install cpuburn libswt-cairo-gtk-3.5-jni libswt-gtk-3.5-java junit4 openjdk-6-jdk liblttvtraceread-jni
 
+* You also need the special SWT Chart library on github
+
+  git@github.com:giraldeau/swtchart.git
+
 * Then, generate the traces with the script tests/gen-traces.sh
 
   ./tests/gen-traces.sh

@@ -1,28 +1,22 @@
 package org.lttng.flightbox.ui;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
-import org.junit.runner.manipulation.Sortable;
-import org.junit.runner.manipulation.Sorter;
 import org.lttng.flightbox.GlobalState.KernelMode;
 import org.lttng.flightbox.TimeStats;
 import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.cpu.KernelProcess;
-import org.lttng.flightbox.ui.ProcessUsageView.TableData;
 
 public class ProcessUsageView extends Composite {
 
@@ -31,7 +25,10 @@ public class ProcessUsageView extends Composite {
 	private UsageStats<Long> procStats;
 	private ArrayList<TableData> dataSet;
 	private Comparator cmp;
-	private Boolean isReverse; 
+	private Boolean isReverse;
+	private double t1;
+	private double t2;
+	private CpuUsageView cpuView;
 	
 	public ProcessUsageView(Composite parent, int style) {
 		super(parent, style);
@@ -49,16 +46,16 @@ public class ProcessUsageView extends Composite {
 		tc3.setWidth(100);
 		table.setHeaderVisible(true);
 		table.setLinesVisible(true);
-		cmp = new PidComparator();
+		cmp = new TimeComparator();
 		dataSet = new ArrayList<TableData>();
-		isReverse = false;
+		isReverse = true;
 		
 		tc1.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				setComparator(new PidComparator());
 				toggleSortOrder();
-				updateData();
+				sortTable();
 			}
 		});
 		tc2.addSelectionListener(new SelectionAdapter() {
@@ -66,7 +63,7 @@ public class ProcessUsageView extends Composite {
 			public void widgetSelected(SelectionEvent arg0) {
 				setComparator(new CmdComparator());
 				toggleSortOrder();
-				updateData();
+				sortTable();
 			}
 		});
 		tc3.addSelectionListener(new SelectionAdapter() {
@@ -74,7 +71,7 @@ public class ProcessUsageView extends Composite {
 			public void widgetSelected(SelectionEvent arg0) {
 				setComparator(new TimeComparator());
 				toggleSortOrder();
-				updateData();
+				sortTable();
 			}
 		});
 	}
@@ -117,16 +114,25 @@ public class ProcessUsageView extends Composite {
 		
 		this.procStats = procStats;
 		this.procInfo = procInfo;
+	}
+
+	public void updateDataSet() {
+		//dataSet.clear();
+		dataSet = new ArrayList<TableData>();
 		for(Long pid: procStats.idSet()) {
+			if (pid == 0) {
+				continue;
+			}
 			TableData elem = new TableData();
 			elem.cmd = procInfo.get(pid).getCmd();
 			elem.pid = pid;
-			elem.time = procStats.getStats(pid).getSum().getTime(KernelMode.USER); 
+			elem.time = procStats.getStats(pid).getSum(t1, t2).getTime(KernelMode.USER); 
 			dataSet.add(elem);
 		}
+		sortTable();
 	}
-
-	public void updateData() {
+	
+	public void sortTable() {
 		Collections.sort(dataSet, cmp);
 		
 		table.removeAll();
@@ -153,6 +159,31 @@ public class ProcessUsageView extends Composite {
 	
 	private void toggleSortOrder() {
 		isReverse = !isReverse;
+	}
+	
+	public void resetSumInterval() {
+		if (procStats != null) {
+			t1 = procStats.getStart();
+			t2 = procStats.getEnd();
+			updateDataSet();
+		}
+	}
+
+	public void setCpuView(CpuUsageView cpuView) {
+		this.cpuView = cpuView;
+	}
+	
+	public void setSumInterval(double t1, double t2) {
+		if (t2 > t1) {
+			this.t1 = t1;
+			this.t2 = t2;
+		} else {
+			this.t1 = t2;
+			this.t2 = t1;
+		}
+		if (procStats != null) {
+			updateDataSet();
+		}
 	}
 	
 }
