@@ -12,10 +12,12 @@ public class TraceReader {
 	String trace_path;
 	JniTrace trace; 
 	HashMap<EventQuery, TraceEventHandler> handlers;
+	HashMap<Class, TraceEventHandler> handlerClassMap;
 	
 	public TraceReader(String trace_path) {
 		this.trace_path = trace_path;
 		handlers = new HashMap<EventQuery, TraceEventHandler>();
+		handlerClassMap = new HashMap<Class, TraceEventHandler>();
 	}
 	
 	public void loadTrace() throws JniException {
@@ -24,10 +26,12 @@ public class TraceReader {
 	
 	public void register(EventQuery query, TraceEventHandler handler) {
 		handlers.put(query, handler);
+		handlerClassMap.put(handler.getClass(), handler);
 	}
 	
 	public void register(TraceEventHandler handler) {
 		handlers.put(new EventQuery(), handler);
+		handlerClassMap.put(handler.getClass(), handler);
 	}
 	
 	public void process() throws JniException {
@@ -37,6 +41,7 @@ public class TraceReader {
 		
 		for(TraceEventHandler handler: handlers.values()) {
 			handler.handleInit(trace);
+			handler.setTraceReader(this);
 		}
 		
 		while((event=trace.readNextEvent()) != null) {
@@ -51,5 +56,10 @@ public class TraceReader {
 		for(TraceEventHandler handler: handlers.values()) {
 			handler.handleComplete();
 		}
+	}
+	
+	// FIXME: use of generics
+	public TraceEventHandler getHandler(Class klass) {
+		return handlerClassMap.get(klass);
 	}
 }

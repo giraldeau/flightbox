@@ -8,6 +8,7 @@ import org.lttng.flightbox.GlobalState.KernelMode;
 import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.io.EventData;
 import org.lttng.flightbox.io.TraceEventHandler;
+import org.lttng.flightbox.io.TraceReader;
 
 public class TraceEventHandlerProcess implements TraceEventHandler {
 	
@@ -18,9 +19,11 @@ public class TraceEventHandlerProcess implements TraceEventHandler {
 	TreeMap<Long, EventData> eventHistory;
 	UsageStats<Long> procStats;
 	TreeMap<Long, KernelProcess> procInfo;
+	TreeMap<Long, Long> currentCpuProcess; // (cpu, pid) 
 	private int numCpu;
 	private double start;
 	private double end;
+	private TraceReader traceReader;
 	
 	
 	@Override
@@ -34,6 +37,7 @@ public class TraceEventHandlerProcess implements TraceEventHandler {
 		end = (double) trace.getEndTime().getTime();
 		procStats = new UsageStats<Long>((long)start, (long)end, 50);
 		procInfo = new TreeMap<Long, KernelProcess>();
+		currentCpuProcess = new TreeMap<Long, Long>();
 	}
 	
 	@Override
@@ -65,6 +69,7 @@ public class TraceEventHandlerProcess implements TraceEventHandler {
 				cpuHistory.put(cpu, new EventData());
 			}
 	
+			currentCpuProcess.put(cpu, next_pid);
 			
 			procStats.addInterval(t, eventTs, prev_pid, KernelMode.USER);
 			// update history to keep track of previous event
@@ -115,5 +120,16 @@ public class TraceEventHandlerProcess implements TraceEventHandler {
 	}
 	public TreeMap<Long, KernelProcess> getProcInfo() {
 		return procInfo;
+	}
+	
+	@Override
+	public void setTraceReader(TraceReader traceReader) {
+		this.traceReader = traceReader;
+		
+	}
+
+	public KernelProcess getCurrentProcess(Long cpu) {
+		Long pid = currentCpuProcess.get(cpu);
+		return procInfo.get(pid);
 	}
 }

@@ -8,6 +8,7 @@ import org.lttng.flightbox.GlobalState.KernelMode;
 import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.io.EventData;
 import org.lttng.flightbox.io.TraceEventHandler;
+import org.lttng.flightbox.io.TraceReader;
 
 public class TraceEventHandlerStats implements TraceEventHandler {
 	
@@ -19,6 +20,7 @@ public class TraceEventHandlerStats implements TraceEventHandler {
 	private int numCpu;
 	private double start;
 	private double end;
+	private TraceReader traceReader;
 	
 	@Override
 	public void handleInit(JniTrace trace) {
@@ -76,5 +78,11 @@ public class TraceEventHandlerStats implements TraceEventHandler {
 	
 	public UsageStats<Long> getUsageStats() {
 		return cpuStats;
+	}
+	
+	@Override
+	public void setTraceReader(TraceReader traceReader) {
+		this.traceReader = traceReader;
+		
 	}
 }

@@ -6,6 +6,7 @@ import org.eclipse.linuxtools.lttng.jni.JniTrace;
 public class TraceEventHandlerCounter implements TraceEventHandler {
 
 	public int count;
+	private TraceReader traceReader;
 	
 	@Override
 	public void handleInit(JniTrace trace) {
@@ -23,5 +24,10 @@ public class TraceEventHandlerCounter implements TraceEventHandler {
 	
 	public int getCount() {
 		return count;
+	}
+	
+	@Override
+	public void setTraceReader(TraceReader traceReader) {
+		this.traceReader = traceReader;
 	}
 }
