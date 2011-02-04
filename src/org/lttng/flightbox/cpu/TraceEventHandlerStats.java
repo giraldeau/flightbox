@@ -1,16 +1,19 @@
 package org.lttng.flightbox.cpu;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
 import org.lttng.flightbox.GlobalState.KernelMode;
 import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.io.EventData;
-import org.lttng.flightbox.io.TraceEventHandler;
+import org.lttng.flightbox.io.ITraceEventHandler;
+import org.lttng.flightbox.io.TraceEventHandlerBase;
+import org.lttng.flightbox.io.TraceHook;
 import org.lttng.flightbox.io.TraceReader;
 
-public class TraceEventHandlerStats implements TraceEventHandler {
+public class TraceEventHandlerStats extends TraceEventHandlerBase {
 	
 	int count; 
 	JniTrace trace;
@@ -22,8 +25,13 @@ public class TraceEventHandlerStats implements TraceEventHandler {
 	private double end;
 	private TraceReader traceReader;
 	
+	public TraceEventHandlerStats() {
+		super();
+		hooks.add(new TraceHook("kernel", "sched_schedule"));
+	}
+	
 	@Override
-	public void handleInit(JniTrace trace) {
+	public void handleInit(TraceReader reader, JniTrace trace) {
 		this.trace = trace;
 		count = 0;
 		cpuHistory = new HashMap<Long, EventData>();
@@ -33,14 +41,9 @@ public class TraceEventHandlerStats implements TraceEventHandler {
 		cpuStats = new UsageStats<Long>((long)start, (long)end, 50);
 	}
 	
-	@Override
-	public void handleEvent(JniEvent event) {
+	public void handle_kernel_sched_schedule(TraceReader reader, JniEvent event) {
 		String eventName = event.getMarkersMap().get(event.getEventMarkerId()).getName();
 		
-		if (eventName.compareTo("sched_schedule") != 0){
-			return;
-		}
-
 		count++;
 		Long cpu = event.getParentTracefile().getCpuNumber();
 		long eventTs = event.getEventTime().getTime();
@@ -62,7 +65,7 @@ public class TraceEventHandlerStats implements TraceEventHandler {
 	}
 
 	@Override
-	public void handleComplete() {
+	public void handleComplete(TraceReader reader) {
 		// finish intervals until trace end
 		EventData event;
 		for(Long cpu: cpuHistory.keySet()) {
@@ -78,11 +81,5 @@ public class TraceEventHandlerStats implements TraceEventHandler {
 	
 	public UsageStats<Long> getUsageStats() {
 		return cpuStats;
-	}
-	
-	@Override
-	public void setTraceReader(TraceReader traceReader) {
-		this.traceReader = traceReader;
-		
 	}
 }

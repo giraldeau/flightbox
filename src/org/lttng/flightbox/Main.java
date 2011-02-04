@@ -24,7 +24,7 @@ public class Main {
 		sched_query.addEventName("sched_schedule");
 		TraceEventHandlerStats cpu_handler = new TraceEventHandlerStats();
 		TraceReader reader = new TraceReader(trace_path);
-		reader.register(sched_query, cpu_handler);
+		reader.register(cpu_handler);
 		reader.process();
 		System.out.println(cpu_handler.getUsageStats());
 		TimeStatsBucket total = cpu_handler.getUsageStats().getTotal();

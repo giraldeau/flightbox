@@ -119,24 +119,12 @@ public class MainWindow {
 	public void setTraceDir(File traceDir) {
 		this.traceDir = traceDir;
 		// compute stats, update graphics
-		EventQuery sched_query_cpu = new EventQuery();
-		sched_query_cpu.addEventType("kernel");
-		sched_query_cpu.addEventName("sched_schedule");
-		
-		EventQuery sched_query_proc = new EventQuery();
-		sched_query_proc.addEventType("kernel");
-		sched_query_proc.addEventName("sched_schedule");
-		sched_query_proc.addEventName("process_fork");
-		sched_query_proc.addEventType("fs");
-		sched_query_proc.addEventName("exec");
-		sched_query_proc.addEventType("task_state");
-		sched_query_proc.addEventName("process_state");
 		
 		TraceEventHandlerStats cpu_handler = new TraceEventHandlerStats();
 		TraceEventHandlerProcess proc_handler = new TraceEventHandlerProcess();
 		TraceReader reader = new TraceReader(this.traceDir.toString());
-		reader.register(sched_query_cpu, cpu_handler);
-		reader.register(sched_query_proc, proc_handler);
+		reader.register(cpu_handler);
+		reader.register(proc_handler);
 		try {
 			reader.process();
 		} catch (JniException e) {

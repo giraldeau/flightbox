@@ -33,8 +33,8 @@ public class TestHandlerNet {
 		TraceEventHandlerProcess sched_handler = new TraceEventHandlerProcess();
 		
 		TraceReader reader = new TraceReader(trace_path);
-		reader.register(net_query, net_handler);
-		reader.register(sched_query, sched_handler);
+		reader.register(net_handler);
+		reader.register(sched_handler);
 		reader.process();
 	}
 	

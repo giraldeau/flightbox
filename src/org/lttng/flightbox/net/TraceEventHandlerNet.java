@@ -1,46 +1,47 @@
 package org.lttng.flightbox.net;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
-import org.eclipse.linuxtools.lttng.jni.JniMarker;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
 import org.lttng.flightbox.cpu.KernelProcess;
 import org.lttng.flightbox.cpu.TraceEventHandlerProcess;
-import org.lttng.flightbox.io.TraceEventHandler;
+import org.lttng.flightbox.io.TraceEventHandlerBase;
+import org.lttng.flightbox.io.TraceHook;
 import org.lttng.flightbox.io.TraceReader;
 
-public class TraceEventHandlerNet implements TraceEventHandler {
+public class TraceEventHandlerNet extends TraceEventHandlerBase {
 
-	private TraceReader traceReader;
-
+	public TraceEventHandlerNet() {
+		super();
+		hooks.add(new TraceHook("net", "dev_xmit_extended"));
+		hooks.add(new TraceHook("net", "tcpv4_rcv_extended"));
+	}
+	
 	@Override
-	public void handleInit(JniTrace trace) {
-		
+	public void handleInit(TraceReader reader, JniTrace trace) {
+
 	}
 
-	@Override
-	public void handleEvent(JniEvent event) {
+	public void handle_net_dev_xmit_extended(TraceReader reader, JniEvent event) {
+		debugEvent(reader, event);
+	}
+	
+	public void handle_net_tcpv4_rcv_extended(TraceReader reader, JniEvent event) {
+		debugEvent(reader, event);	
+	}
+
+	public void debugEvent(TraceReader reader, JniEvent event) {
 		String eventName = event.getMarkersMap().get(event.getEventMarkerId()).getName();
+
 		Long cpu = event.getParentTracefile().getCpuNumber();
 		double eventTs = (double) event.getEventTime().getTime();
-		
-		if (eventName.compareTo("dev_xmit_extended") == 0){
-		} else if (eventName.compareTo("tcpv4_rcv_extended") == 0) {
-			// {saddr, syn, ack, ack_seq, ihl, fin, daddr, dest, source, rst seq, tot_len, skb, doff}
-		}
-		TraceEventHandlerProcess processHandler = (TraceEventHandlerProcess) traceReader.getHandler(TraceEventHandlerProcess.class);
+		TraceEventHandlerProcess processHandler = (TraceEventHandlerProcess) reader.getHandler(TraceEventHandlerProcess.class);
 		KernelProcess proc = processHandler.getCurrentProcess(cpu);
-		//System.out.println("ts=" + eventTs + " cpu=" + cpu + " pid=" + proc.getCmd() + " " + eventName + " " + event.parseAllFields());
-		System.out.println("ts=" + eventTs + " cpu=" + cpu + " pid=" + proc.getCmd() + " " + eventName);
-
+		System.out.println("ts=" + eventTs + " cpu=" + cpu + " pid=" + proc.getCmd() + " "  + eventName);
 	}
 
 	@Override
-	public void handleComplete() {
+	public void handleComplete(TraceReader reader) {
 		
 	}
 
-	@Override
-	public void setTraceReader(TraceReader traceReader) {
-		this.traceReader = traceReader;
-	}
 }
