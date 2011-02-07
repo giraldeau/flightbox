@@ -1,6 +1,7 @@
 package org.lttng.flightbox.io;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -18,16 +19,18 @@ public class TraceReader {
 	private JniTrace trace; 
 	private Map<Class, ITraceEventHandler> handlers;
 	private Map<String, Map<String, Set<TraceHook>>> traceHookMap;
+	private Map<String, Map<Integer, Set<TraceHook>>> traceHookMapCache;
 	private Set<TraceHook> catchAllHook;
-	private Set<TraceHook> emptyHook;
+	private Map<Integer, ArrayList<Set<TraceHook>>> traceHookArrayCache;
 	private static Class[] argTypes = new Class[] { TraceReader.class, JniEvent.class };
 	
 	public TraceReader(String trace_path) {
 		this.tracePath = trace_path;
 		handlers = new HashMap<Class, ITraceEventHandler>();
 		traceHookMap = new TreeMap<String, Map<String, Set<TraceHook>>>();
+		traceHookMapCache = new TreeMap<String, Map<Integer, Set<TraceHook>>>();
+		traceHookArrayCache = new TreeMap<Integer, ArrayList<Set<TraceHook>>>();
 		catchAllHook = new HashSet<TraceHook>();
-		emptyHook = new HashSet<TraceHook>();
 	}
 	
 	public void loadTrace() throws JniException {
@@ -100,7 +103,6 @@ public class TraceReader {
 		int nbEvents = 0;
 		int eventId;
 		Set<TraceHook> hooks;
-		Map<String, Set<TraceHook>> channelHooks;
 		String eventName;
 		String traceFileName;
 		
@@ -113,14 +115,11 @@ public class TraceReader {
 			nbEvents++;
 			//eventId = event.getEventMarkerId();
 			traceFileName = event.getParentTracefile().getTracefileName();
+			eventId = event.getEventMarkerId();
 			eventName = event.getMarkersMap().get(event.getEventMarkerId()).getName();
 			
-			/* look in the cache first */
-			/* does java intern strings automatically? */
-			/* can't on a TreeMap: compareTo is used, hence may involve a lot of comparison */
-			
-			hooks = getHookSet(traceFileName, eventName);
-			
+			hooks = getHookSetByIdArrayHashCode(traceFileName, traceFileName.hashCode(), eventName, eventId);
+					
 			for (TraceHook h: hooks){
 				try {
 					h.method.invoke(h.instance, this, event);
@@ -157,19 +156,45 @@ public class TraceReader {
 		}
 	}
 	
-	public Set<TraceHook> getHookSet(String channelName, String eventName) {
+	public Set<TraceHook> getHookSetByName(String channelName, String eventName) {
 		Map<String, Set<TraceHook>> channelHooks;
 		Set<TraceHook> hooks = null;
 		channelHooks = traceHookMap.get(channelName);
-		if (channelHooks != null) {
-			hooks = channelHooks.get(eventName);
+		if (channelHooks == null) {
+			channelHooks = new TreeMap<String, Set<TraceHook>>();
+			traceHookMap.put(channelName, channelHooks);
 		}
+		hooks = channelHooks.get(eventName);
 		if (hooks == null) {
-			hooks = emptyHook;
+			hooks = new HashSet<TraceHook>();
+			channelHooks.put(eventName, hooks);
 		}
 		return hooks;
 	}
 
+	public Set<TraceHook> getHookSetByIdArrayHashCode(String channelName, Integer channelHC, String eventName, int eventId) {
+		ArrayList<Set<TraceHook>> channelHooksCache;
+		Set<TraceHook> hooks = null;
+		channelHooksCache = traceHookArrayCache.get(channelHC);
+		
+		if (channelHooksCache == null) {
+			channelHooksCache = new ArrayList<Set<TraceHook>>();
+			traceHookArrayCache.put(channelHC, channelHooksCache);
+		}
+		if (channelHooksCache.size() <= eventId) {
+			for(int i=channelHooksCache.size(); i<eventId+1; i++) {
+				channelHooksCache.add(null);
+			}
+		}
+		hooks = channelHooksCache.get(eventId);
+		if (hooks == null) {
+			/* we don't have it in the cache, search for it in the traceHookMap */
+			hooks = getHookSetByName(channelName, eventName);
+			channelHooksCache.set(eventId, hooks);
+		}
+		return hooks;
+	}
+	
 	public ITraceEventHandler getHandler(
 			Class<? extends TraceEventHandlerBase> class1) {
 		return null;

@@ -41,7 +41,7 @@ public class TestTraceReader {
 		assertEquals(6, trace.getLttMinorVersion());
 	}
 	
-	//@Test
+	@Test
 	public void testReadAllEvents() throws JniException {
 		String trace_path = new File(trace_dir, "sleep-1x-1sec").toString();
 		JniTrace trace = JniTraceFactory.getJniTrace(trace_path);
