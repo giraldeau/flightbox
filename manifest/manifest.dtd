@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!ELEMENT manifest (events|channels)*>
+<!ELEMENT channels (channel)*>
+<!ELEMENT channel EMPTY>
+<!ELEMENT events (event)*>
+<!ELEMENT event (field)*>
+<!ELEMENT field EMPTY>
+<!ATTLIST manifest
+   name    CDATA       #REQUIRED
+   version CDATA       #REQUIRED
+>
+<!ATTLIST channel
+   name    CDATA       #REQUIRED
+>
+<!ATTLIST event
+   channel CDATA       #REQUIRED
+   name    CDATA       #REQUIRED
+>
+<!ATTLIST field
+   name    CDATA       #REQUIRED
+   type    CDATA       #REQUIRED
+>
+
