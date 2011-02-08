@@ -1,9 +1,9 @@
 package org.lttng.flightbox.junit.xml;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.net.URL;
 
 import org.jdom.Document;
 import org.jdom.Element;
