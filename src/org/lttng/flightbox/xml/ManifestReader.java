@@ -8,12 +8,10 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
 public class ManifestReader {
-
-	public void read(String file) throws JDOMException, IOException {
-		
+	
+	public Document read(String file, String path) throws JDOMException, IOException {
 		SAXBuilder builder = new SAXBuilder(true);
 		FileInputStream inputStream = new FileInputStream(file);
-		Document doc = builder.build(inputStream, "/home/francis/workspace2/flightbox/manifest/");
-		System.out.println(doc);
+		return builder.build(inputStream, path);
 	}
 }
