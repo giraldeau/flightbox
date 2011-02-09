@@ -35,8 +35,12 @@ public class TraceEventHandlerNet extends TraceEventHandlerBase {
 		Long cpu = event.getParentTracefile().getCpuNumber();
 		double eventTs = (double) event.getEventTime().getTime();
 		TraceEventHandlerProcess processHandler = (TraceEventHandlerProcess) reader.getHandler(TraceEventHandlerProcess.class);
-		KernelProcess proc = processHandler.getCurrentProcess(cpu);
-		System.out.println("ts=" + eventTs + " cpu=" + cpu + " pid=" + proc.getCmd() + " "  + eventName);
+		if (processHandler != null) {
+			KernelProcess proc = processHandler.getCurrentProcess(cpu);
+			System.out.println("ts=" + eventTs + " cpu=" + cpu + " pid=" + proc.getCmd() + " "  + eventName);
+		} else {
+			System.out.println("ts=" + eventTs + " cpu=" + cpu + " "  + eventName);
+		}
 	}
 
 	@Override

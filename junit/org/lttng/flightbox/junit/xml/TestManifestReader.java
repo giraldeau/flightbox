@@ -1,13 +1,14 @@
 package org.lttng.flightbox.junit.xml;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
+import org.jdom.xpath.XPath;
 import org.junit.Test;
 import org.lttng.flightbox.xml.ManifestReader;
 
@@ -24,6 +25,12 @@ public class TestManifestReader {
 		Document doc = reader.read(file, path);
 		Element root = doc.getRootElement();
 		assertTrue(root.getName().compareTo("manifest") == 0);
+		
+		// list all (channel,event)
+		XPath xpath = XPath.newInstance("/manifest/events/event");
+		List<Element> res = (List<Element>) xpath.selectNodes(doc);
+		assertEquals(res.size(),3);
+		
 	}
 	
 	@Test

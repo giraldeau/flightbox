@@ -23,5 +23,5 @@ This software is released under GPLv3
   ./run.sh tests/traces/burn-1x-1sec
 
 
-To run unittests for XML manifest, then you need to add jdom.jar to the
-classpath. On Ubuntu, it can be found in the package libjdom1-java
+To run unittests for XML manifest, then you need to add jdom1.jar and jaxen.jar to the
+classpath. On Ubuntu, it can be found in the package libjdom1-java libjaxen-java under /usr/share/java

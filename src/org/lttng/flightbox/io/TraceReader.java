@@ -119,18 +119,16 @@ public class TraceReader {
 			eventName = event.getMarkersMap().get(event.getEventMarkerId()).getName();
 			
 			hooks = getHookSetByIdArrayHashCode(traceFileName, traceFileName.hashCode(), eventName, eventId);
-					
+			
+			// FIXME: remove hook if an exception is raised
 			for (TraceHook h: hooks){
 				try {
 					h.method.invoke(h.instance, this, event);
 				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch (InvocationTargetException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}

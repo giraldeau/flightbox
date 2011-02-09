@@ -6,7 +6,6 @@
   </channels>
     <events>
     <event channel="kernel" name="bidon">
-      <field name="nofield" type="uint64"/>
     </event>
   </events>
 </manifest>
