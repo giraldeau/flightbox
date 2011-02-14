@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE manifest SYSTEM "manifest.dtd">
-<manifest name="linux_fail_metadata_unknown_channel" version="1">
-  <channels>
-    <channel name="bidon"/>
-  </channels>
+<manifest name="linux" version="2.6.35">
+  <channel name="foo">
+  </channel>
 </manifest>

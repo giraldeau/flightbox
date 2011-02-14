@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE manifest SYSTEM "manifest.dtd">
 <manifest name="linux" version="2.6.35">
-  <channels>
-    <channel name="kernel"/>
-  </channels>
-  <events>
-    <event channel="kernel" name="sched_schedule">
+  <channel name="kernel">
+    <event name="sched_schedule">
         <field name="prev_pid" type="uint64"/>
         <field name="next_pid" type="uint64"/>
         <field name="prev_state" type="uint64"/>
@@ -16,5 +14,5 @@
     <event channel="kernel" name="syscall_exit">
         <field name="ret" type="uint64"/>
     </event>
-  </events>
+  </channel>
 </manifest>

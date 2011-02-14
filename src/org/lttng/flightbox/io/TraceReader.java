@@ -1,5 +1,6 @@
 package org.lttng.flightbox.io;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,11 +13,12 @@ import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.eclipse.linuxtools.lttng.jni.factory.JniTraceFactory;
+import org.jdom.JDOMException;
 
 public class TraceReader {
 
 	private String tracePath;
-	private JniTrace trace; 
+	protected JniTrace trace; 
 	private Map<Class, ITraceEventHandler> handlers;
 	private Map<String, Map<String, Set<TraceHook>>> traceHookMap;
 	private Map<String, Map<Integer, Set<TraceHook>>> traceHookMapCache;
@@ -24,8 +26,8 @@ public class TraceReader {
 	private Map<Integer, ArrayList<Set<TraceHook>>> traceHookArrayCache;
 	private static Class[] argTypes = new Class[] { TraceReader.class, JniEvent.class };
 	
-	public TraceReader(String trace_path) {
-		this.tracePath = trace_path;
+	public TraceReader(String tracePath) {
+		this.tracePath = tracePath;
 		handlers = new HashMap<Class, ITraceEventHandler>();
 		traceHookMap = new TreeMap<String, Map<String, Set<TraceHook>>>();
 		traceHookMapCache = new TreeMap<String, Map<Integer, Set<TraceHook>>>();

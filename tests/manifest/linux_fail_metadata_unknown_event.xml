@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE manifest SYSTEM "manifest.dtd">
-<manifest name="linux_fail_metadata_unknown_event" version="1">
-  <channels>
-    <channel name="kernel"/>
-  </channels>
-    <events>
-    <event channel="kernel" name="bidon">
+<manifest name="linux" version="2.6.35">
+  <channel name="kernel">
+    <event name="foo">
+        <field name="prev_pid" type="uint64"/>
+        <field name="next_pid" type="uint64"/>
+        <field name="prev_state" type="uint64"/>
     </event>
-  </events>
+  </channel>
 </manifest>

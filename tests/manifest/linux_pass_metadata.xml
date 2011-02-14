@@ -1,21 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE manifest SYSTEM "manifest.dtd">
-<manifest name="linux_pass_metadata" version="1">
-  <channels>
-    <channel name="kernel"/>
-  </channels>
-  <events>
-    <event channel="kernel" name="sched_schedule">
-      <field name="prev_pid" type="uint64"/>
-      <field name="next_pid" type="uint64"/>
-      <field name="prev_state" type="uint64"/>
+<manifest name="linux" version="2.6.35">
+  <channel name="kernel">
+    <event name="sched_schedule">
+        <field name="prev_pid" type="uint64"/>
+        <field name="next_pid" type="uint64"/>
+        <field name="prev_state" type="uint64"/>
     </event>
-    <event channel="kernel" name="syscall_entry">
-      <field name="ip" type="uint64"/>
-      <field name="syscall_id" type="uint64"/>
+    <event name="syscall_entry">
+        <field name="ip" type="uint64"/>
+        <field name="syscall_id" type="uint64"/>
     </event>
-    <event channel="kernel" name="syscall_exit">
-      <field name="ret" type="uint64"/>
+    <event name="syscall_exit">
+        <field name="ret" type="uint64"/>
     </event>
-  </events>
+  </channel>
 </manifest>

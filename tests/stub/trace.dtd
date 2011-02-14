@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!ELEMENT manifest (channel)*>
-<!ELEMENT channel (event)*>
+<!ELEMENT trace (channel+,tracefile+)>
+<!ELEMENT channel (event)+>
 <!ELEMENT event (field)*>
 <!ELEMENT field EMPTY>
-<!ATTLIST manifest
-   name    CDATA       #REQUIRED
-   version CDATA       #REQUIRED
->
 <!ATTLIST channel
    name    CDATA       #REQUIRED
 >
@@ -15,6 +11,6 @@
 >
 <!ATTLIST field
    name    CDATA       #REQUIRED
-   type    CDATA       #REQUIRED
+   type    (Object|Long|Integer|Double|String)       "Object"
 >
 
