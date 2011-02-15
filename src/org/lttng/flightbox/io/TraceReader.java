@@ -1,6 +1,5 @@
 package org.lttng.flightbox.io;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,11 +12,10 @@ import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.eclipse.linuxtools.lttng.jni.factory.JniTraceFactory;
-import org.jdom.JDOMException;
 
 public class TraceReader {
 
-	private String tracePath;
+	protected String tracePath;
 	protected JniTrace trace; 
 	private Map<Class, ITraceEventHandler> handlers;
 	private Map<String, Map<String, Set<TraceHook>>> traceHookMap;
@@ -26,8 +24,8 @@ public class TraceReader {
 	private Map<Integer, ArrayList<Set<TraceHook>>> traceHookArrayCache;
 	private static Class[] argTypes = new Class[] { TraceReader.class, JniEvent.class };
 	
-	public TraceReader(String tracePath) {
-		this.tracePath = tracePath;
+	public TraceReader(String trace_path) {
+		this.tracePath = trace_path;
 		handlers = new HashMap<Class, ITraceEventHandler>();
 		traceHookMap = new TreeMap<String, Map<String, Set<TraceHook>>>();
 		traceHookMapCache = new TreeMap<String, Map<Integer, Set<TraceHook>>>();
@@ -49,7 +47,7 @@ public class TraceReader {
 		boolean isHookOk = true;
 		Set<TraceHook> eventHooks;
 		Map<String, Set<TraceHook>> channelHooks;
-		hook.instance = handler; 
+		hook.instance = handler;
 		try {
 			hook.method = handler.getClass().getMethod(methodName, argTypes);
 		} catch (SecurityException e) {

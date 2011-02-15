@@ -17,8 +17,6 @@ import org.lttng.flightbox.io.TraceReader;
  */
 public class StubTraceReader extends TraceReader {
 
-	private String tracePath;
-
 	public StubTraceReader(String tracePath) {
 		super(tracePath);
 	}
@@ -49,7 +47,4 @@ public class StubTraceReader extends TraceReader {
 	public void loadTrace() {
 		trace = getJniTrace(tracePath);
 	}
-	
-	
-	
 }

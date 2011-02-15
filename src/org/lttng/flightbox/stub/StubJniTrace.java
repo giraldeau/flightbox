@@ -46,7 +46,7 @@ public class StubJniTrace extends JniTrace {
 	}
 	
 	public JniEvent readNextEvent() {
-		if (events == null && pos >= events.size())
+		if (events == null || pos >= events.size())
 			return null;
 
 		String eventName;

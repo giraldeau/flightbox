@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
 import org.eclipse.linuxtools.lttng.jni.common.JniTime;
+import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.junit.Test;
+import org.lttng.flightbox.io.TraceEventHandlerCounter;
 import org.lttng.flightbox.stub.StubJniEvent;
 import org.lttng.flightbox.stub.StubJniTrace;
 import org.lttng.flightbox.stub.StubJniTracefile;
@@ -49,10 +51,15 @@ public class TestStubs {
 		assertEquals(eventName, "process_fork");
 		assertEquals(ev.parseFieldByName("child_pid"), "21207");
 		
-		/*
-		while((ev=trace.readNextEvent()) != null) {
-			System.out.println(ev.getEventMarkerId());
-			System.out.println(ev.getMarkersMap().get(ev.getEventMarkerId()).getName());
-		}*/
+	}
+	
+	@Test
+	public void testStubCountEvents() throws JniException {
+		String file = System.getenv("project_loc") + "/tests/stub/process_fork_exit.xml";
+		StubTraceReader reader = new StubTraceReader(file);
+		TraceEventHandlerCounter handler = new TraceEventHandlerCounter();
+		reader.register(handler);
+		reader.process();
+		assertEquals(4, handler.getCount());
 	}
 }
