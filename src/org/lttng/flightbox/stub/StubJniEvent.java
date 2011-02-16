@@ -55,7 +55,7 @@ public class StubJniEvent extends JniEvent {
 		markersMap.put(id, marker);
 	}
 
-	public void setFieldValue(String fieldName, String value) {
+	public void setFieldValue(String fieldName, Object value) {
 		fieldValues.put(fieldName, value);
 	}
 	

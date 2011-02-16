@@ -11,6 +11,6 @@
 >
 <!ATTLIST field
    name    CDATA       #REQUIRED
-   type    (Object|Long|Integer|Double|String)       "Object"
+   type    (Long|Integer|Double|String)       "Object"
 >
 

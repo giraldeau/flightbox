@@ -2,6 +2,7 @@ package org.lttng.flightbox.junit.stub;
 
 import static org.junit.Assert.*;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
@@ -49,7 +50,7 @@ public class TestStubs {
 		assertEquals(cpu, 0L);
 		String eventName = ev.getMarkersMap().get(ev.getEventMarkerId()).getName();
 		assertEquals(eventName, "process_fork");
-		assertEquals(ev.parseFieldByName("child_pid"), "21207");
+		assertEquals(((Long)ev.parseFieldByName("child_pid")).longValue(), 21207L);
 		
 	}
 	
@@ -62,4 +63,35 @@ public class TestStubs {
 		reader.process();
 		assertEquals(4, handler.getCount());
 	}
+	
+	@Test
+	public void testCasts() throws SecurityException, IllegalArgumentException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+		StubJniTrace trace = new StubJniTrace();
+		Object obj = null;
+
+		obj = trace.castString("1", Integer.class);
+		Integer expInteger = new Integer("1");
+		assertEquals(expInteger, obj);
+		
+		obj = trace.castString("1", Long.class);
+		Long expLong = new Long("1");
+		assertEquals(expLong , obj);
+		
+		obj = trace.castString("1", Double.class);
+		Double expDouble = new Double("1");
+		assertEquals(expDouble, obj);
+		
+		obj = trace.castString("1", String.class);
+		String expString = new String("1");
+		assertEquals(expString, obj);
+
+		Exception e = null;
+		try {
+			obj = trace.castString("foo", Double.class);
+		} catch (Exception x) {
+			e = x;
+		}
+		assertNotNull(e);
+	}
+	
 }

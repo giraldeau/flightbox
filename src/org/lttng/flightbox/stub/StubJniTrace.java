@@ -1,5 +1,7 @@
 package org.lttng.flightbox.stub;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +15,7 @@ import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
+import org.lttng.flightbox.io.TraceReader;
 
 public class StubJniTrace extends JniTrace {
 
@@ -67,11 +70,24 @@ public class StubJniTrace extends JniTrace {
 			} else if (a.getName().equals("cpu")){
 			} else if (a.getName().equals("ts")){
 			} else {
-				
-				event.setFieldValue(a.getName(), a.getValue());
+				Object val = null;
+				try {
+					val = castString(a.getValue(), fieldMap.get(a.getName()));
+				} catch (Exception exception) {
+					
+				}
+				event.setFieldValue(a.getName(), val);
 			}
 		}
 		return event;
+	}
+	
+	public Object castString(String s, Class type) throws SecurityException, NoSuchMethodException, IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
+		Class[] argTypes = new Class[] { String.class };
+		Constructor cst = type.getConstructor(argTypes);
+		if (cst == null) 
+			throw new ClassCastException("Unknown constructor " + type.toString() + "(String s)");
+		return cst.newInstance(s);
 	}
 	
 	public void setEventsSource(Document doc) {
