@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.management.RuntimeErrorException;
+
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
 import org.eclipse.linuxtools.lttng.jni.JniTracefile;
@@ -22,17 +24,13 @@ public class StubJniTrace extends JniTrace {
 	private List<Element> events;
 	private int pos;
 	StubJniEvent event;
-	Map<String, Class> fieldMap;
-	Map<String, ArrayList<String>> eventMap;
-	Map<String, ArrayList<String>> channelMap;
+	HashMap<String, HashMap<String, HashMap<String, Class>>> channelMap;
 	private int cpu;
 	
 	public StubJniTrace() {
 		 event = new StubJniEvent();
 		 event.setParentTracefile(new StubJniTracefile());
-		 fieldMap = new HashMap<String, Class>();
-		 eventMap = new HashMap<String, ArrayList<String>>();
-		 channelMap = new HashMap<String, ArrayList<String>>();
+		 channelMap = new HashMap<String, HashMap<String, HashMap<String, Class>>>();
 		 cpu = 0;
 	}
 	
@@ -71,8 +69,17 @@ public class StubJniTrace extends JniTrace {
 			} else if (a.getName().equals("ts")){
 			} else {
 				Object val = null;
+				HashMap<String, HashMap<String, Class>> eventMap = channelMap.get(traceFileName);
+				if (eventMap == null)
+					throw new RuntimeErrorException(null, "Definition for tracefile " + traceFileName + " not found");
+				HashMap<String, Class> fieldMap = eventMap.get(eventName);
+				if (fieldMap == null)
+					throw new RuntimeErrorException(null, "Definition for event " + eventName + " not found");
+				Class klass = fieldMap.get(a.getName());
+				if (klass == null)
+					throw new RuntimeErrorException(null, "Definition for event " + eventName + " not found");
 				try {
-					val = castString(a.getValue(), fieldMap.get(a.getName()));
+					val = castString(a.getValue(), klass);
 				} catch (Exception exception) {
 					
 				}
@@ -99,18 +106,27 @@ public class StubJniTrace extends JniTrace {
 		String fieldName;
 		Class fieldType;
 		for (Element channel: channels) {
+			
+			/* Add channel */
 			channelName = channel.getAttributeValue("name");
-			if (channelMap.get(channelName) == null) {
-				channelMap.put(channelName, new ArrayList<String>());
+			HashMap<String, HashMap<String, Class>> eventMap = channelMap.get(channelName); 
+			if (eventMap == null) {
+				eventMap = new HashMap<String, HashMap<String, Class>>();
+				channelMap.put(channelName, eventMap);
 			}
-			ArrayList<String> eventList = channelMap.get(channelName);
+
 			for (Element event: (List<Element>)channel.getChildren("event")) {
+				
+				/* Add event */
 				eventName = event.getAttributeValue("name");
-				eventList.add(eventName);
-				if (eventMap.get(eventName) == null) {
-					eventMap.put(eventName, new ArrayList<String>());
+				HashMap<String, Class> fieldMap = eventMap.get(eventName);
+				if (fieldMap == null) {
+					fieldMap = new HashMap<String, Class>();
+					eventMap.put(eventName, fieldMap);
 				}
+				
 				for (Element field: (List<Element>)event.getChildren("field")) {
+					/* Add field */
 					fieldName = field.getAttributeValue("name");
 					try {
 						fieldType = Class.forName("java.lang." + field.getAttributeValue("type"));

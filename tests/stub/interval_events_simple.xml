@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <trace cpus="2">
-  <channel name="mariadb">
+  <channel name="ust">
     <event name="ust_connection_start">
         <field name="id" type="Long"/>
     </event>
@@ -19,7 +19,7 @@
     </event>
   </channel>
   <events>
-    <event ts="1" cpu="0" channel="kernel" name="ust_connection_start" id="0"/>
-    <event ts="5" cpu="1" channel="kernel" name="ust_connection_done" id="0"/>
+    <event ts="1" cpu="0" channel="ust" name="ust_connection_start" id="0"/>
+    <event ts="5" cpu="1" channel="ust" name="ust_connection_done" id="0"/>
   </events>
 </trace>
