@@ -27,9 +27,9 @@ public class TraceReader {
 	public TraceReader(String trace_path) {
 		this.tracePath = trace_path;
 		handlers = new HashMap<Class, ITraceEventHandler>();
-		traceHookMap = new TreeMap<String, Map<String, Set<TraceHook>>>();
-		traceHookMapCache = new TreeMap<String, Map<Integer, Set<TraceHook>>>();
-		traceHookArrayCache = new TreeMap<Integer, ArrayList<Set<TraceHook>>>();
+		traceHookMap = new HashMap<String, Map<String, Set<TraceHook>>>();
+		traceHookMapCache = new HashMap<String, Map<Integer, Set<TraceHook>>>();
+		traceHookArrayCache = new HashMap<Integer, ArrayList<Set<TraceHook>>>();
 		catchAllHook = new HashSet<TraceHook>();
 	}
 	
@@ -67,7 +67,7 @@ public class TraceReader {
 		} else {
 			channelHooks = traceHookMap.get(hook.channelName);
 			if (channelHooks == null) {
-				channelHooks = new TreeMap<String, Set<TraceHook>>();
+				channelHooks = new HashMap<String, Set<TraceHook>>();
 				traceHookMap.put(hook.channelName, channelHooks);
 			}
 			eventHooks = channelHooks.get(hook.eventName);
@@ -159,7 +159,7 @@ public class TraceReader {
 		Set<TraceHook> hooks = null;
 		channelHooks = traceHookMap.get(channelName);
 		if (channelHooks == null) {
-			channelHooks = new TreeMap<String, Set<TraceHook>>();
+			channelHooks = new HashMap<String, Set<TraceHook>>();
 			traceHookMap.put(channelName, channelHooks);
 		}
 		hooks = channelHooks.get(eventName);

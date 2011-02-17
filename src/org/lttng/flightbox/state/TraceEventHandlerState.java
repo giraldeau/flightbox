@@ -24,6 +24,7 @@ public class TraceEventHandlerState extends TraceEventHandlerBase {
 	}
 	
 	public void handle_all_event(TraceReader reader, JniEvent event) {
+		
 		String eventName = event.getMarkersMap().get(event.getEventMarkerId()).getName();
 		Long eventTs = event.getEventTime().getTime();
 		Long connectionId = (Long) event.parseFieldByName("id");
@@ -38,8 +39,7 @@ public class TraceEventHandlerState extends TraceEventHandlerBase {
 			state.pop(eventTs);
 		}
 	}
-	
-	public void handleComplete(TraceReader reader) {
-		System.out.println(objectState);
+	public Map<Long, VersionizedStack<String>> getObjectState() {
+		return objectState;
 	}
 }

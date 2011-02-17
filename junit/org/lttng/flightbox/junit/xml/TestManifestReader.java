@@ -27,9 +27,9 @@ public class TestManifestReader {
 		assertTrue(root.getName().compareTo("manifest") == 0);
 		
 		// list all (channel,event)
-		XPath xpath = XPath.newInstance("/manifest/events/event");
+		XPath xpath = XPath.newInstance("/manifest/channel/event");
 		List<Element> res = (List<Element>) xpath.selectNodes(doc);
-		assertEquals(res.size(),3);
+		assertEquals(3, res.size());
 		
 	}
 	

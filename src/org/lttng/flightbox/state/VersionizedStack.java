@@ -88,4 +88,8 @@ public class VersionizedStack<T> {
 		builder.append(itemSet.toString());
 		return builder.toString();
 	}
+
+	public Object size() {
+		return itemSet.size();
+	}
 }
