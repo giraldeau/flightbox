@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!ELEMENT manifest (channel)*>
+<!ELEMENT manifest (channel|stack)*>
 <!ELEMENT channel (event)*>
 <!ELEMENT event (field)*>
 <!ELEMENT field EMPTY>
+<!ELEMENT stack (action)*>
+<!ELEMENT action EMPTY>
 <!ATTLIST manifest
    name    CDATA       #REQUIRED
    version CDATA       #REQUIRED
@@ -15,6 +17,13 @@
 >
 <!ATTLIST field
    name    CDATA       #REQUIRED
-   type    CDATA       #REQUIRED
+   type    (Long|Integer|Double|String)       "String"
 >
-
+<!ATTLIST stack
+   name    CDATA       #REQUIRED
+>
+<!ATTLIST action
+   type    (push|pop)  #REQUIRED
+   name    CDATA       #REQUIRED
+   event   CDATA       #REQUIRED
+>

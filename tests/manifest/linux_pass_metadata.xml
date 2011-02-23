@@ -3,16 +3,16 @@
 <manifest name="linux" version="2.6.35">
   <channel name="kernel">
     <event name="sched_schedule">
-        <field name="prev_pid" type="uint64"/>
-        <field name="next_pid" type="uint64"/>
-        <field name="prev_state" type="uint64"/>
+        <field name="prev_pid" type="Long"/>
+        <field name="next_pid" type="Long"/>
+        <field name="prev_state" type="Long"/>
     </event>
     <event name="syscall_entry">
-        <field name="ip" type="uint64"/>
-        <field name="syscall_id" type="uint64"/>
+        <field name="ip" type="Long"/>
+        <field name="syscall_id" type="Long"/>
     </event>
     <event name="syscall_exit">
-        <field name="ret" type="uint64"/>
+        <field name="ret" type="Long"/>
     </event>
   </channel>
 </manifest>

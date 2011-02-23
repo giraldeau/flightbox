@@ -3,9 +3,9 @@
 <manifest name="linux" version="2.6.35">
   <channel name="kernel">
     <event name="foo">
-        <field name="prev_pid" type="uint64"/>
-        <field name="next_pid" type="uint64"/>
-        <field name="prev_state" type="uint64"/>
+        <field name="prev_pid" type="Long"/>
+        <field name="next_pid" type="Long"/>
+        <field name="prev_state" type="Long"/>
     </event>
   </channel>
 </manifest>

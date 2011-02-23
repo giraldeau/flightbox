@@ -3,7 +3,7 @@
 <manifest name="linux" version="2.6.35">
   <channel name="kernel">
     <event name="sched_schedule">
-        <field name="foo" type="uint64"/>
+        <field name="foo" type="Long"/>
     </event>
   </channel>
 </manifest>

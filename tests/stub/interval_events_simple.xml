@@ -1,25 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <trace cpus="2">
   <channel name="ust">
-    <event name="ust_connection_start">
-        <field name="id" type="Long"/>
-    </event>
-      <event name="ust_connection_done">
-        <field name="id" type="Long"/>
-    </event>
-    <event name="ust_command_start">
-    </event>
-      <event name="ust_command_done">
-    </event>
-    <event name="ust_query_start">
-        <field name="id" type="Long"/>
-    </event>
-      <event name="ust_query_done">
-        <field name="id" type="Long"/>
-    </event>
+    <event name="ust_connection_start"/>
+    <event name="ust_connection_done"/>
+    <event name="ust_command_start"/>
+    <event name="ust_command_done"/>
+    <event name="ust_query_start"/>
+    <event name="ust_query_done"/>
   </channel>
   <events>
-    <event ts="1" cpu="0" channel="ust" name="ust_connection_start" id="0"/>
-    <event ts="5" cpu="1" channel="ust" name="ust_connection_done" id="0"/>
+    <event ts="1" cpu="0" channel="ust" name="ust_connection_start"/>
+    <event ts="5" cpu="1" channel="ust" name="ust_connection_done"/>
   </events>
 </trace>

@@ -34,7 +34,6 @@ public class TestTraceValidation {
 		}
 	}
 	
-	
 	@Test
 	public void testTraceValidateLinuxPass() throws JniException, JDOMException {
 		TraceReader reader = new TraceReader(trace_dir + "sleep-1x-1sec");

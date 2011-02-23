@@ -1,7 +1,9 @@
 package org.lttng.flightbox.state;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.Stack;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
@@ -12,34 +14,47 @@ import org.lttng.flightbox.io.TraceReader;
 
 public class TraceEventHandlerState extends TraceEventHandlerBase {
 
-	Map<Long, VersionizedStack<String>> objectState;
+	/* typing entropy: what can we do to better encapsulate? */
+	Map<String, StackMachine<String>> machines;
+	Map<String, VersionizedStack<String>> objectStates;
 	
 	public TraceEventHandlerState() {
 		super();
 		hooks.add(new TraceHook());
+		machines = new HashMap<String, StackMachine<String>>();
 	}
 
 	public void handleInit(TraceReader reader, JniTrace trace) {
-		objectState = new HashMap<Long, VersionizedStack<String>>();
+		objectStates = new HashMap<String, VersionizedStack<String>>();
+		for (String machineName: machines.keySet()) {
+			objectStates.put(machineName, new VersionizedStack<String>());
+		}
 	}
 	
 	public void handle_all_event(TraceReader reader, JniEvent event) {
 		
 		String eventName = event.getMarkersMap().get(event.getEventMarkerId()).getName();
 		Long eventTs = event.getEventTime().getTime();
-		Long connectionId = (Long) event.parseFieldByName("id");
-		VersionizedStack<String> state = objectState.get(connectionId);
-		if (state == null) {
-			state = new VersionizedStack<String>();
-			objectState.put(connectionId, state);
-		}
-		if(eventName.equals("ust_connection_start")) {
-			state.push("CONNECTED", eventTs);
-		} else if (eventName.equals("ust_connection_done")) {
-			state.pop(eventTs);
+		
+		for (StackMachine machine: machines.values()) {
+			VersionizedStack<String> stack = objectStates.get(machine.getName());
+			machine.step(stack, eventName, eventTs);
 		}
 	}
-	public Map<Long, VersionizedStack<String>> getObjectState() {
-		return objectState;
+	
+	public void handleComplete(TraceReader reader) {
+
+	}
+	
+	public Map<String, VersionizedStack<String>> getObjectState() {
+		return objectStates;
+	}
+	
+	public void addStackMachine(StackMachine machine) {
+		machines.put(machine.getName(), machine);
+	}
+
+	public void addAllStackMachine(Map<String, StackMachine<String>> machinesMap) {
+		machines.putAll(machinesMap);
 	}
 }

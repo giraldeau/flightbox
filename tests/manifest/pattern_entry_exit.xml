@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE manifest SYSTEM "manifest.dtd">
+<manifest name="ust" version="1">
+  <channel name="ust">
+    <event name="ust_connection_start"/>
+    <event name="ust_connection_done"/>
+    <event name="ust_command_start"/>
+    <event name="ust_command_done"/>
+    <event name="ust_query_start"/>
+    <event name="ust_query_done"/>
+  </channel>
+  <stack name="simple">
+  	<action type="push" name="CONNECTED" event="ust_connection_start"/>
+  	<action type="pop" name="CONNECTED" event="ust_connection_done"/>
+  </stack>
+  <stack name="detailed">
+  	<action type="push" name="CONNECTED" event="ust_connection_start"/>
+  	<action type="pop" name="CONNECTED" event="ust_connection_done"/>
+  	<action type="push" name="PROCESSING" event="ust_command_start"/>
+  	<action type="pop" name="PROCESSING" event="ust_command_done"/>
+  </stack>
+  <stack name="full">
+  	<action type="push" name="CONNECTED" event="ust_connection_start"/>
+  	<action type="pop" name="CONNECTED" event="ust_connection_done"/>
+  	<action type="push" name="PROCESSING" event="ust_command_start"/>
+  	<action type="pop" name="PROCESSING" event="ust_command_done"/>
+  	<action type="push" name="QUERYING" event="ust_query_start"/>
+  	<action type="pop" name="QUERYING" event="ust_query_done"/>
+  </stack>
+</manifest>
