@@ -1,4 +1,4 @@
-package org.lttng.flightbox.state;
+package org.lttng.flightbox.automaton;
 
 /**
  * Representation of transitions of automaton

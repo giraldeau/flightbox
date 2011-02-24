@@ -1,6 +1,5 @@
-package org.lttng.flightbox.state;
+package org.lttng.flightbox.automaton;
 
-import org.lttng.flightbox.state.Symbol;
 
 /**
  * Representation of states for hedge automata

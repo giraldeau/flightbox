@@ -1,13 +1,14 @@
 /**
  * 
  */
-package org.lttng.flightbox.state;
+package org.lttng.flightbox.automaton;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
+
 
 /**
  * Run automaton with a string

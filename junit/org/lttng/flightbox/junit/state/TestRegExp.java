@@ -11,11 +11,11 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.lttng.flightbox.state.Automaton;
-import org.lttng.flightbox.state.Event;
-import org.lttng.flightbox.state.RegExp;
-import org.lttng.flightbox.state.State;
-import org.lttng.flightbox.state.Symbol;
+import org.lttng.flightbox.automaton.Automaton;
+import org.lttng.flightbox.automaton.Event;
+import org.lttng.flightbox.automaton.RegExp;
+import org.lttng.flightbox.automaton.State;
+import org.lttng.flightbox.automaton.Symbol;
 
 public class TestRegExp {
 

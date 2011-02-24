@@ -1,9 +1,10 @@
-package org.lttng.flightbox.state;
+package org.lttng.flightbox.automaton;
 
 import java.util.Collection; 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+
 
 /**
  * Representation of an automaton state

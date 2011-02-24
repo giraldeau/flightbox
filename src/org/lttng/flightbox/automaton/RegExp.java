@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.lttng.flightbox.state;
+package org.lttng.flightbox.automaton;
 
 import java.util.List;
 import java.util.Map;
