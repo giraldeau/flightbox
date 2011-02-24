@@ -24,7 +24,7 @@ import org.lttng.flightbox.xml.ManifestReader;
 
 public class TestTraceEventHandlerState {
 
-	Map<String, StackMachine<String>> machines;
+	Map<String, StackMachine> machines;
 	
 	public static String manifestPath = "/tests/manifest/";
 	public static String stubPath = "/tests/stub/";
@@ -41,7 +41,7 @@ public class TestTraceEventHandlerState {
 		XPath xpath = XPath.newInstance("/manifest/stack");
 		List<Element> res = (List<Element>) xpath.selectNodes(doc);
 		
-		machines = new HashMap<String, StackMachine<String>>();
+		machines = new HashMap<String, StackMachine>();
 		
 		for(Element elem: res) {
 			StackMachine machine = StackMachineFactory.fromXml(elem);

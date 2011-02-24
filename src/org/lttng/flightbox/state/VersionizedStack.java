@@ -1,18 +1,16 @@
 package org.lttng.flightbox.state;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Stack;
 import java.util.TreeSet;
 
 public class VersionizedStack<T> {
 
-	public class Item<M> implements Comparable<Item> {
+	public class Item<M> implements Comparable<Item<M>> {
 		public M content;
 		public Long id;
 		
 		@Override
-		public int compareTo(Item other) {
+		public int compareTo(Item<M> other) {
 			return id.compareTo(other.id);
 		}
 		

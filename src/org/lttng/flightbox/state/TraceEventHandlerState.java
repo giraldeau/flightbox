@@ -15,13 +15,13 @@ import org.lttng.flightbox.io.TraceReader;
 public class TraceEventHandlerState extends TraceEventHandlerBase {
 
 	/* typing entropy: what can we do to better encapsulate? */
-	Map<String, StackMachine<String>> machines;
+	Map<String, StackMachine> machines;
 	Map<String, VersionizedStack<String>> objectStates;
 	
 	public TraceEventHandlerState() {
 		super();
 		hooks.add(new TraceHook());
-		machines = new HashMap<String, StackMachine<String>>();
+		machines = new HashMap<String, StackMachine>();
 	}
 
 	public void handleInit(TraceReader reader, JniTrace trace) {
@@ -37,7 +37,7 @@ public class TraceEventHandlerState extends TraceEventHandlerBase {
 		Long eventTs = event.getEventTime().getTime();
 		
 		for (StackMachine machine: machines.values()) {
-			VersionizedStack<String> stack = objectStates.get(machine.getName());
+			VersionizedStack stack = objectStates.get(machine.getName());
 			machine.step(stack, eventName, eventTs);
 		}
 	}
@@ -54,7 +54,7 @@ public class TraceEventHandlerState extends TraceEventHandlerBase {
 		machines.put(machine.getName(), machine);
 	}
 
-	public void addAllStackMachine(Map<String, StackMachine<String>> machinesMap) {
+	public void addAllStackMachine(Map<String, StackMachine> machinesMap) {
 		machines.putAll(machinesMap);
 	}
 }
