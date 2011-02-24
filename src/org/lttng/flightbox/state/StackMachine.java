@@ -33,7 +33,6 @@ public class StackMachine {
 	public boolean step(VersionizedStack<String> stack, String eventName, Long eventTs) {
 		/* get the required action, if any */
 		StackAction action = actions.get(eventName);
-		/* FIXME: the following code will work only for the type String */
 		if (action == null)
 			return true;
 		if (action.type.equals(StackAction.Type.PUSH)) {

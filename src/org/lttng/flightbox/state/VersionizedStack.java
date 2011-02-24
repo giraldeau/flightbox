@@ -1,6 +1,8 @@
 package org.lttng.flightbox.state;
 
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 import java.util.TreeSet;
 
 public class VersionizedStack<T> {
@@ -31,11 +33,13 @@ public class VersionizedStack<T> {
 	LinkedList<Item<T>> itemStack;
 	TreeSet<Item<T>> itemSet;
 	Item<T> item;
+	Set<T> symbols;
 	
 	public VersionizedStack () {
 		itemStack = new LinkedList<Item<T>>();
 		itemSet = new TreeSet<Item<T>>();
 		item = new Item<T>();
+		symbols = new HashSet<T>();
 	}
 	
 	public void push(T obj, Long i) {
@@ -89,5 +93,12 @@ public class VersionizedStack<T> {
 
 	public Object size() {
 		return itemSet.size();
+	}
+
+	public Set<T> getSymbols() {
+		return symbols;
+	}
+	public void setSymbols(Set<T> obj) {
+		this.symbols = obj;
 	}
 }

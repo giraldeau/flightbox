@@ -46,12 +46,9 @@ public class MainWindow {
 		
 		display = new Display();
 		shell = new Shell(display);
-		shell.setText("Line Chart Example");
+		shell.setText("Flightbox");
 		shell.setSize(800, 800);
-		shell.setLayout(new FillLayout());
-		
-		FillLayout layout = new FillLayout(SWT.VERTICAL);
-		shell.setLayout(layout);
+		shell.setLayout(new FillLayout(SWT.VERTICAL));
 		
 		cpuView = new CpuUsageView(shell, SWT.BORDER);
 		processView = new ProcessUsageView(shell, SWT.BORDER);
