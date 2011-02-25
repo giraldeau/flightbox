@@ -6,13 +6,13 @@ This software is released under GPLv3
 
   https://launchpad.net/~lttng/+archive/ppa
 
-* To run, you need those extra debian packages
+* To run flightbox, you need those extra debian packages
 
-  sudo apt-get install cpuburn libswt-cairo-gtk-3.5-jni libswt-gtk-3.5-java junit4 openjdk-6-jdk liblttvtraceread-jni
+  sudo apt-get install cpuburn libswt-cairo-gtk-3.5-jni libswt-gtk-3.5-java junit4 openjdk-6-jdk liblttvtraceread-loader-2.6 libjdom1-java libjaxen-java 
 
-* You also need the special SWT Chart library on github
+* Compile with ant: 
 
-  git@github.com:giraldeau/swtchart.git
+  ant jar-all
 
 * Then, generate the traces with the script tests/gen-traces.sh
 
@@ -20,8 +20,5 @@ This software is released under GPLv3
 
 * Compute the CPU usage for a trace: 
 
-  ./run.sh tests/traces/burn-1x-1sec
+  java -jar dist/flightbox-all.jar tests/traces/burn-1x-1sec
 
-
-To run unittests for XML manifest, then you need to add jdom1.jar and jaxen.jar to the
-classpath. On Ubuntu, it can be found in the package libjdom1-java libjaxen-java under /usr/share/java
