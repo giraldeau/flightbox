@@ -35,5 +35,9 @@ public class Colorizer {
 		}
 		return colorMap.get(obj);
 	}
+
+	public ArrayList<RGB> getPalette() {
+		return palette;
+	}
 	
 }

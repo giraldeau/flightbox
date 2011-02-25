@@ -2,8 +2,11 @@ package org.lttng.flightbox.junit.state;
 
 import static org.junit.Assert.*;
 
+import java.util.Iterator;
+
 
 import org.junit.Test;
+import org.lttng.flightbox.state.Interval;
 import org.lttng.flightbox.state.VersionizedStack;
 
 public class TestVersionizedStack {
@@ -61,5 +64,28 @@ public class TestVersionizedStack {
 		assertEquals(null, stack.peek(30L));
 	}
 	
+	@Test
+	public void testVersionStackIntervalIterator() {
+		VersionizedStack<String> stack;
+		stack = new VersionizedStack<String>();
+		stack.push("foo", 1L);
+		stack.push("bar", 10L);
+		stack.push("baz", 15L);
+		stack.pop(20L);
+		stack.pop(25L);
+		stack.pop(30L);
+		
+		int i = 0;
+		Interval prev = null;
+		for (Iterator<Interval> iter = stack.iterator(); iter.hasNext();) {
+			Interval curr = iter.next();
+			if (prev != null) {
+				assertEquals(prev.t2, curr.t1);
+			}
+			i++;
+		}
+		
+		assertEquals(5, i);
+	}
 }
 
