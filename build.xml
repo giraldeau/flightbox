@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="org.lttng.flightbox" default="all" basedir=".">
+
+	<property name="project" value="flightbox"/>
+	<property name="version" value="0.1.0" />
+
+	<property name="optimize" value="on" />
+	<property name="debug" value="off" />
+	<property name="reports.tests" value="tests/reports" />
+	<property name="src" value="src" />
+	<property name="build" value="build" />
+	<property name="src.tests" value="junit" />
+	<property name="build.tests" value="build-junit" />
+	
+	<property name="public" value="${user.home}/public_html/${project}" />
+	<property name="devel" value="${user.home}/public_html/${project}/devel" />
+
+	<path id="classpath">
+		<fileset dir="/usr/share/java" includes="*.jar"/>
+	</path>
+
+	<target name="all" depends="jar,doc" />
+
+	<target name="compile">
+		<mkdir dir="build" />
+		<mkdir dir="${build.tests}" />
+		<javac srcdir="src" includes="**" source="1.6" target="1.6" destdir="build" optimize="${optimize}" debug="${debug}">
+			<classpath refid="classpath"/>
+		</javac>
+	</target>
+	<target name="compile-tests" depends="compile">
+		<javac srcdir="junit" includes="**" source="1.6" target="1.6" destdir="${build.tests}" optimize="false" debug="${debug}">
+			<classpath refid="classpath"/>
+			<classpath path="${build}"/>
+		</javac>
+	</target>
+
+	<dependset>
+		<srcfilelist dir="src" />
+		<targetfilelist dir="dist" files="${project}.jar,${project}-all.jar" />
+	</dependset>
+
+	<target name="jar" depends="compile">
+		<mkdir dir="dist" />
+		<jar jarfile="dist/${project}.jar" basedir="build" includes="**" />
+	</target>
+
+	<target name="jar-all" depends="jar">
+		<mkdir dir="temp" />
+		<unzip src="/usr/share/java/jdom1.jar" dest="temp" />
+		<unzip src="/usr/share/java/jaxen.jar" dest="temp" />
+		<unzip src="/usr/share/java/swt.jar" dest="temp" />
+		<unzip src="dist/${project}.jar" dest="temp" />
+		<jar jarfile="dist/${project}-all.jar" manifest="manifest.txt" basedir="temp" includes="**/*.class" />
+		<delete dir="temp" />
+	</target>
+
+	<target name="clean">
+		<delete dir="build" />
+		<delete dir="test/build" />
+		<delete dir="doc" />
+		<delete dir="dist" />
+	</target>
+
+	<target name="tgz" depends="clean,all">
+		<property name="dir" value="${project}-${version}" />
+		<mkdir dir="${dir}" />
+		<copy todir="${dir}">
+			<fileset dir="." includes="README,COPYING,build.xml" />
+		</copy>
+		<mkdir dir="${dir}/dist" />
+		<copy file="dist/${project}.jar" todir="${dir}/dist" />
+		<mkdir dir="${dir}/doc" />
+		<copy todir="${dir}/doc">
+			<fileset dir="doc" />
+		</copy>
+		<mkdir dir="${dir}/src" />
+		<copy todir="${dir}/src">
+			<fileset dir="src" />
+		</copy>
+		<mkdir dir="${dir}/lib" />
+		<copy todir="${dir}/lib">
+			<fileset dir="lib" />
+		</copy>
+		<tar tarfile="${dir}.tar" basedir="." includes="${dir}/**" />
+		<gzip zipfile="${dir}.tar.gz" src="${dir}.tar" />
+		<delete file="${dir}.tar" />
+		<delete dir="${dir}" />
+	</target>
+
+	<target name="doc" depends="jar">
+		<mkdir dir="doc" />
+		<javadoc packagenames="org.lttng.flightbox,
+			org.lttng.flightbox.automaton,
+			org.lttng.flightbox.cpu,
+			org.lttng.flightbox.interval,
+			org.lttng.flightbox.io,
+			org.lttng.flightbox.net,
+			org.lttng.flightbox.state,
+			org.lttng.flightbox.stub,
+			org.lttng.flightbox.ui,
+			org.lttng.flightbox.xml"
+			overview="src/overview.html" 
+			sourcepath="src" 
+			destdir="doc" 
+			nodeprecated="true" 
+			author="true" 
+			notree="true" 
+			nohelp="true" 
+			windowtitle="org.lttng.flightbox">
+			<doctitle><![CDATA[org.lttng.flightbox]]></doctitle>
+			<bottom><![CDATA[<i> Copyright &#169; 2010-2011 Francis Giraldeau</i>]]></bottom>
+			<link href="http://java.sun.com/j2se/1.6/docs/api" />
+			<link href="http://www.lttng.org/" />
+			<classpath refid="classpath"/>
+		</javadoc>
+	</target>
+
+	<target name="publish" depends="tgz,jar-all">
+		<delete dir="${public}/doc" />
+		<mkdir dir="${public}/doc" />
+		<copy todir="${public}/doc">
+			<fileset dir="doc" />
+		</copy>
+		<mkdir dir="${public}/dist" />
+		<copy todir="${public}/dist">
+			<fileset dir="dist" includes="*" />
+		</copy>
+		<mkdir dir="${public}/lib" />
+		<copy todir="${public}/lib">
+			<fileset dir="lib" />
+		</copy>
+		<copy file="${project}-${version}.tar.gz" todir="${public}" />
+		<chmod dir="${public}" perm="go+r" includes="doc/**,doc,dist/**,dist,lib/**,lib,*.tar.gz" type="both" />
+		<chmod dir="${public}" perm="go+x" includes="doc/**,doc,dist/**,dist,lib/**,lib" type="dir" />
+	</target>
+
+	<target name="publish-devel" depends="clean,jar-all,doc">
+		<mkdir dir="${devel}" />
+		<delete dir="${devel}/doc" />
+		<mkdir dir="${devel}/doc" />
+		<copy todir="${devel}/doc">
+			<fileset dir="doc" />
+		</copy>
+		<copy file="dist/${project}-all.jar" todir="${devel}" />
+		<chmod dir="${devel}" perm="go+r" includes="doc/**,doc,*.jar" type="both" />
+		<chmod dir="${devel}" perm="go+x" includes="doc/**,doc,dist/**,." type="dir" />
+	</target>
+	
+	<target name="test" depends="compile">
+		<junit haltonerror="false" haltonfailure="false">
+			<classpath>
+				<pathelement path="${build}"/>
+				<pathelement path="${build.tests}"/>
+				<pathelement path="/usr/share/java/swt.jar"/>
+				<pathelement path="/usr/share/java/jaxen.jar"/>
+				<pathelement path="/usr/share/java/jdom1.jar"/>
+			</classpath>
+			<batchtest>
+				<fileset dir="${src.tests}">
+					<include name="**/*Test*.java"/>
+				</fileset>
+				<formatter type="plain" usefile="true"/>
+			</batchtest>
+		</junit>
+	</target>
+		
+</project>
