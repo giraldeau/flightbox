@@ -11,7 +11,7 @@ import org.lttng.flightbox.net.TraceEventHandlerNet;
 
 public class TestHandlerNet {
 
-	@Test
+	//@Test
 	public void testHandlerNetSimple() throws JniException {
 		String trace_path = new File("/home/francis/workspace/traces/client-server-depanalysis", "trace-cmd-deadbeef2227").toString();
 		// FIXME: the handler should provide the events it needs to the reader
