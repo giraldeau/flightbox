@@ -11,6 +11,7 @@
 	<property name="build" value="build" />
 	<property name="src.tests" value="junit" />
 	<property name="build.tests" value="build-junit" />
+	<property name="report.dir" value="junit-report" />
 	
 	<property name="public" value="${user.home}/public_html/${project}" />
 	<property name="devel" value="${user.home}/public_html/${project}/devel" />
@@ -24,12 +25,12 @@
 	<target name="compile">
 		<mkdir dir="build" />
 		<mkdir dir="${build.tests}" />
-		<javac srcdir="src" includes="**" source="1.6" target="1.6" destdir="build" optimize="${optimize}" debug="${debug}">
+		<javac includeAntRuntime="false" srcdir="src" includes="**" source="1.6" target="1.6" destdir="build" optimize="${optimize}" debug="${debug}">
 			<classpath refid="classpath"/>
 		</javac>
 	</target>
 	<target name="compile-tests" depends="compile">
-		<javac srcdir="junit" includes="**" source="1.6" target="1.6" destdir="${build.tests}" optimize="false" debug="${debug}">
+		<javac includeAntRuntime="false" srcdir="junit" includes="**" source="1.6" target="1.6" destdir="${build.tests}" optimize="false" debug="${debug}">
 			<classpath refid="classpath"/>
 			<classpath path="${build}"/>
 		</javac>
@@ -57,7 +58,7 @@
 
 	<target name="clean">
 		<delete dir="build" />
-		<delete dir="test/build" />
+		<delete dir="${build.test}" />
 		<delete dir="doc" />
 		<delete dir="dist" />
 	</target>
@@ -147,22 +148,35 @@
 		<chmod dir="${devel}" perm="go+x" includes="doc/**,doc,dist/**,." type="dir" />
 	</target>
 	
-	<target name="test" depends="compile">
-		<junit haltonerror="false" haltonfailure="false">
+	<target name="junit" depends="compile-tests">
+		<mkdir dir="${report.dir}"/>
+		<junit haltonerror="false" haltonfailure="false" printsummary="yes">
+			<formatter type="xml"/>
 			<classpath>
 				<pathelement path="${build}"/>
 				<pathelement path="${build.tests}"/>
 				<pathelement path="/usr/share/java/swt.jar"/>
 				<pathelement path="/usr/share/java/jaxen.jar"/>
 				<pathelement path="/usr/share/java/jdom1.jar"/>
+				<pathelement path="/usr/share/java/junit4.jar"/>
+				<pathelement path="/usr/share/java/hamcrest-core.jar"/>
 			</classpath>
-			<batchtest>
+			<batchtest todir="${report.dir}">
 				<fileset dir="${src.tests}">
 					<include name="**/*Test*.java"/>
 				</fileset>
-				<formatter type="plain" usefile="true"/>
 			</batchtest>
 		</junit>
 	</target>
-		
+	
+    <target name="junitreport" depends="junit">
+        <junitreport todir="${report.dir}">
+            <fileset dir="${report.dir}" includes="TEST-*.xml"/>
+            <report todir="${report.dir}"/>
+        </junitreport>
+    </target>
+
+    <target name="run" depends="jar-all">
+        <java jar="dist/flightbox-all.jar" fork="true"/>
+    </target>
 </project>

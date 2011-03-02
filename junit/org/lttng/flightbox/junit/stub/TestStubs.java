@@ -2,6 +2,7 @@ package org.lttng.flightbox.junit.stub;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
@@ -11,6 +12,7 @@ import org.eclipse.linuxtools.lttng.jni.common.JniTime;
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.junit.Test;
 import org.lttng.flightbox.io.TraceEventHandlerCounter;
+import org.lttng.flightbox.junit.Path;
 import org.lttng.flightbox.stub.StubJniEvent;
 import org.lttng.flightbox.stub.StubJniTrace;
 import org.lttng.flightbox.stub.StubJniTracefile;
@@ -20,8 +22,8 @@ public class TestStubs {
 
 	@Test
 	public void testStubJniTracefile() {
-		String file = System.getenv("project_loc") + "/tests/stub/process_fork_exit.xml";
-		JniTrace trace = StubTraceReader.getJniTrace(file);
+		File file = new File(Path.getTestStubDir(), "process_fork_exit.xml");
+		JniTrace trace = StubTraceReader.getJniTrace(file.getPath());
 		assertEquals(trace.getCpuNumber(), 2);
 	}
 	
@@ -37,8 +39,8 @@ public class TestStubs {
 	
 	@Test
 	public void testStubJniEvent2() {
-		String file = System.getenv("project_loc") + "/tests/stub/process_fork_exit.xml";
-		JniTrace trace = StubTraceReader.getJniTrace(file);
+		File file = new File(Path.getTestStubDir(), "process_fork_exit.xml");
+		JniTrace trace = StubTraceReader.getJniTrace(file.getPath());
 		JniEvent ev, ev1, ev2;
 		int eventId;
 		ArrayList<StubJniEvent> events = new ArrayList<StubJniEvent>();
@@ -56,8 +58,8 @@ public class TestStubs {
 	
 	@Test
 	public void testStubCountEvents() throws JniException {
-		String file = System.getenv("project_loc") + "/tests/stub/process_fork_exit.xml";
-		StubTraceReader reader = new StubTraceReader(file);
+		File file = new File(Path.getTestStubDir(), "process_fork_exit.xml");
+		StubTraceReader reader = new StubTraceReader(file.getPath());
 		TraceEventHandlerCounter handler = new TraceEventHandlerCounter();
 		reader.register(handler);
 		reader.process();

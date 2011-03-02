@@ -22,28 +22,16 @@ import org.lttng.flightbox.io.TraceReader;
 
 public class TestTraceReader {
 	
-	static String trace_dir;
-	static public String trace_dir_var = "TRACE_DIR";
-	static public String[] trace_names = {"sleep-1x-1sec", "burn-1x-1sec", "burn-8x-1sec"};
-	
-	@BeforeClass
-	public static void setUp() {
-		trace_dir = System.getenv(trace_dir_var);
-		if (trace_dir == null) {
-			throw new RuntimeException("TRACE_DIR not set");
-		}
-	}
-	
 	@Test
 	public void testLoadJiniTrace() throws JniException {
-		JniTrace trace = JniTraceFactory.getJniTrace(new File(trace_dir, "sleep-1x-1sec").toString());
+		JniTrace trace = JniTraceFactory.getJniTrace(new File(Path.getTraceDir(), "sleep-1x-1sec").toString());
 		assertEquals(2, trace.getLttMajorVersion());
 		assertEquals(6, trace.getLttMinorVersion());
 	}
 	
 	@Test
 	public void testReadAllEvents() throws JniException {
-		String trace_path = new File(trace_dir, "sleep-1x-1sec").toString();
+		String trace_path = new File(Path.getTraceDir(), "sleep-1x-1sec").toString();
 		JniTrace trace = JniTraceFactory.getJniTrace(trace_path);
 		TraceReader reader = new TraceReader(trace_path);
 		
@@ -61,7 +49,7 @@ public class TestTraceReader {
 	
 	@Test
 	public void testCpuTraceHandler() throws JniException {
-		String trace_path = new File(trace_dir, "burn-8x-1sec").toString();
+		String trace_path = new File(Path.getTraceDir(), "burn-8x-1sec").toString();
 		TraceEventHandlerStats cpu_handler = new TraceEventHandlerStats();
 		TraceReader reader = new TraceReader(trace_path);
 		reader.register(cpu_handler);
@@ -73,7 +61,7 @@ public class TestTraceReader {
 	
 	@Test
 	public void testProcTraceHandler() throws JniException {
-		String trace_path = new File(trace_dir, "burn-8x-1sec").toString();
+		String trace_path = new File(Path.getTraceDir(), "burn-8x-1sec").toString();
 		TraceEventHandlerProcess handler = new TraceEventHandlerProcess();
 		TraceReader reader = new TraceReader(trace_path);
 		reader.register(handler);

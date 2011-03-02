@@ -3,6 +3,7 @@ package org.lttng.flightbox.junit.state;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +16,7 @@ import org.jdom.JDOMException;
 import org.jdom.xpath.XPath;
 import org.junit.Before;
 import org.junit.Test;
+import org.lttng.flightbox.junit.Path;
 import org.lttng.flightbox.state.StackMachine;
 import org.lttng.flightbox.state.StackMachineFactory;
 import org.lttng.flightbox.state.TraceEventHandlerState;
@@ -26,17 +28,13 @@ public class TestTraceEventHandlerState {
 
 	Map<String, StackMachine> machines;
 	
-	public static String manifestPath = "/tests/manifest/";
-	public static String stubPath = "/tests/stub/";
-	public static String dtdPath = "/manifest/";
-	
 	@Before
 	public void testBuildStackMachine() throws JDOMException, IOException {
-		String file = System.getenv("project_loc") + manifestPath + "pattern_entry_exit.xml";
-		String path = System.getenv("project_loc") + dtdPath;
+		File file = new File(Path.getTestManifestDir(), "pattern_entry_exit.xml");
+		File path = new File(Path.getManifestDir(), "manifest.dtd");
 		
 		ManifestReader reader = new ManifestReader();
-		Document doc = reader.read(file, path);
+		Document doc = reader.read(file.getPath(), path.getPath());
 		
 		XPath xpath = XPath.newInstance("/manifest/stack");
 		List<Element> res = (List<Element>) xpath.selectNodes(doc);
@@ -55,8 +53,8 @@ public class TestTraceEventHandlerState {
 	
 	@Test
 	public void testTraceEventHandlerStateSimple() throws JniException {
-		String file = System.getenv("project_loc") + "/tests/stub/interval_events_simple.xml";
-		StubTraceReader reader = new StubTraceReader(file);
+		File file = new File(Path.getTestStubDir(), "interval_events_simple.xml");
+		StubTraceReader reader = new StubTraceReader(file.getPath());
 		TraceEventHandlerState handler = new TraceEventHandlerState();
 		handler.addAllStackMachine(machines);
 		reader.register(handler);
@@ -73,8 +71,8 @@ public class TestTraceEventHandlerState {
 	}
 	@Test
 	public void testTraceEventHandlerStateSequence() throws JniException {
-		String file = System.getenv("project_loc") + "/tests/stub/interval_events_sequence.xml";
-		StubTraceReader reader = new StubTraceReader(file);
+		File file = new File(Path.getTestStubDir(), "interval_events_sequence.xml");
+		StubTraceReader reader = new StubTraceReader(file.getPath());
 		TraceEventHandlerState handler = new TraceEventHandlerState();
 		handler.addAllStackMachine(machines);
 		reader.register(handler);
@@ -86,8 +84,8 @@ public class TestTraceEventHandlerState {
 	}
 	@Test
 	public void testTraceEventHandlerStateNested() throws JniException {
-		String file = System.getenv("project_loc") + "/tests/stub/interval_events_nested.xml";
-		StubTraceReader reader = new StubTraceReader(file);
+		File file = new File(Path.getTestStubDir(), "interval_events_nested.xml");
+		StubTraceReader reader = new StubTraceReader(file.getPath());
 		TraceEventHandlerState handler = new TraceEventHandlerState();
 		handler.addAllStackMachine(machines);
 		reader.register(handler);

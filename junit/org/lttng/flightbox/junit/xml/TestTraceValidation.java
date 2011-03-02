@@ -2,6 +2,7 @@ package org.lttng.flightbox.junit.xml;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -15,28 +16,17 @@ import org.jdom.xpath.XPath;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.lttng.flightbox.io.TraceReader;
+import org.lttng.flightbox.junit.Path;
 import org.lttng.flightbox.xml.ManifestReader;
 import org.lttng.flightbox.xml.MarkerSetOperations;
 import org.lttng.flightbox.xml.TraceEventHandlerInventory;
 
 public class TestTraceValidation {
 
-	static String trace_dir;
-	static public String trace_dir_var = "TRACE_DIR";
-	public static String manifestPath = "/tests/manifest/";
-	public static String dtdPath = "/manifest/";
-	
-	@BeforeClass
-	public static void setUp() {
-		trace_dir = System.getenv(trace_dir_var);
-		if (trace_dir == null) {
-			throw new RuntimeException("TRACE_DIR not set");
-		}
-	}
-	
 	@Test
 	public void testTraceValidateLinuxPass() throws JniException, JDOMException {
-		TraceReader reader = new TraceReader(trace_dir + "sleep-1x-1sec");
+		File file = new File(Path.getTraceDir(), "sleep-1x-1sec");
+		TraceReader reader = new TraceReader(file.getPath());
 		TraceEventHandlerInventory handler = new TraceEventHandlerInventory();
 		reader.register(handler);
 		reader.process();
@@ -62,18 +52,19 @@ public class TestTraceValidation {
 
 	@Test
 	public void testReadAndValidatePassSleep1() throws JDOMException, IOException, JniException {
-		String filePass = System.getenv("project_loc") + manifestPath + "linux_pass_metadata.xml";
-		String fileFail1 = System.getenv("project_loc") + manifestPath + "linux_fail_metadata_unknown_channel.xml";
-		String fileFail2 = System.getenv("project_loc") + manifestPath + "linux_fail_metadata_unknown_event.xml";
-		String fileFail3 = System.getenv("project_loc") + manifestPath + "linux_fail_metadata_unknown_field.xml";
-		String path = System.getenv("project_loc") + dtdPath;
+		File filePass = new File(Path.getTestManifestDir(), "linux_pass_metadata.xml");
+		File fileFail1 = new File(Path.getTestManifestDir(), "linux_fail_metadata_unknown_channel.xml");
+		File fileFail2 = new File(Path.getTestManifestDir(), "linux_fail_metadata_unknown_event.xml");
+		File fileFail3 = new File(Path.getTestManifestDir(), "linux_fail_metadata_unknown_field.xml");
+		File path = new File(Path.getManifestDir(), "manifest.dtd");
 		ManifestReader manifestReader = new ManifestReader();
-		Document manifestPass = manifestReader.read(filePass, path);
-		Document manifestFail1 = manifestReader.read(fileFail1, path);
-		Document manifestFail2 = manifestReader.read(fileFail2, path);
-		Document manifestFail3 = manifestReader.read(fileFail3, path);
+		Document manifestPass = manifestReader.read(filePass.getPath(), path.getPath());
+		Document manifestFail1 = manifestReader.read(fileFail1.getPath(), path.getPath());
+		Document manifestFail2 = manifestReader.read(fileFail2.getPath(), path.getPath());
+		Document manifestFail3 = manifestReader.read(fileFail3.getPath(), path.getPath());
 		
-		TraceReader reader = new TraceReader(trace_dir + "sleep-1x-1sec");
+		File file = new File(Path.getTraceDir(), "sleep-1x-1sec");
+		TraceReader reader = new TraceReader(file.getPath());
 		TraceEventHandlerInventory handler = new TraceEventHandlerInventory();
 		reader.register(handler);
 		reader.process();
