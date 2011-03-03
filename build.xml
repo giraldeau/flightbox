@@ -150,7 +150,7 @@
 	
 	<target name="junit" depends="compile-tests">
 		<mkdir dir="${report.dir}"/>
-		<junit haltonerror="false" haltonfailure="false" printsummary="yes">
+		<junit haltonerror="false" haltonfailure="false" printsummary="no">
 			<formatter type="xml"/>
 			<classpath>
 				<pathelement path="${build}"/>
