@@ -87,5 +87,39 @@ public class TestVersionizedStack {
 		
 		assertEquals(5, i);
 	}
+	
+	@Test
+	public void testVersionStackFixInitialState() {
+		VersionizedStack<String> stack;
+		stack = new VersionizedStack<String>();
+		stack.push("bar", 10L);
+		stack.pop("bar", 25L);
+		stack.pop("foo", 30L);
+		assertEquals("foo", stack.peek(1L));
+		assertEquals("bar", stack.peek(10L));
+		assertEquals("foo", stack.peek(29L));
+		assertEquals(null, stack.peek(30L));
+		assertEquals(4, stack.getHistory().size());
+	}
+	
+	@Test
+	public void testVersionStackFixInitialState2() {
+		VersionizedStack<String> stack;
+		stack = new VersionizedStack<String>();
+		stack.push("bar", 5L);
+		stack.pop("bar", 10L);
+		stack.push("bar", 15L);
+		stack.pop("bar", 20L);
+		stack.pop("foo", 25L);
+		stack.pop("baz", 30L);
+		assertEquals("foo", stack.peek(1L));
+		assertEquals("bar", stack.peek(6L));
+		assertEquals("foo", stack.peek(11L));
+		assertEquals("bar", stack.peek(16L));
+		assertEquals("foo", stack.peek(21L));
+		assertEquals("baz", stack.peek(26L));
+		assertEquals(null, stack.peek(31L));
+		assertEquals(7, stack.getHistory().size());
+	}
 }
 

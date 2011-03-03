@@ -37,6 +37,7 @@ public class VersionizedStack<T> {
 	Interval interval;
 	Set<T> symbols;
 	private boolean updateSymbols;
+	private boolean isInitialFixed;
 	
 	
 	public VersionizedStack () {
@@ -45,6 +46,7 @@ public class VersionizedStack<T> {
 		item = new Item<T>();
 		symbols = new HashSet<T>();
 		interval = new Interval();
+		isInitialFixed = false;
 	}
 	
 	public void push(T obj, Long i) {
@@ -88,6 +90,23 @@ public class VersionizedStack<T> {
 		if (ret != null)
 			return ret.content;
 		return null;
+	}
+	
+	public T pop(T obj, Long i) {
+		if (itemStack.isEmpty() && !isInitialFixed){
+			// fix initial state
+			Item<T> item = new Item<T>();
+			item.content = obj;
+			item.id = 0L;
+			itemStack.push(item);
+			itemSet.add(item);
+			for(Item<T> x: itemSet) {
+				if (x.content == null) {
+					x.content = obj;
+				}
+			}
+		}
+		return pop(i);
 	}
 	
 	public String toString() {
