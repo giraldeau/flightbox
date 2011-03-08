@@ -22,25 +22,55 @@ public class TraceEventHandlerNet extends TraceEventHandlerBase {
 	}
 
 	public void handle_net_dev_xmit_extended(TraceReader reader, JniEvent event) {
-		debugEvent(reader, event);
+		TraceEventHandlerProcess processHandler = (TraceEventHandlerProcess) reader.getHandler(TraceEventHandlerProcess.class);
+		/* we can't proceed without information about process */
+		if (processHandler == null)
+			return;
+		
+		double eventTs = (double) event.getEventTime().getTime();
+		Long cpu = event.getParentTracefile().getCpuNumber();
+		KernelProcess proc = processHandler.getCurrentProcess(cpu);
+		Long network_protocol = (Long) event.parseFieldByName("network_protocol");
+		Long transport_protocol = (Long) event.parseFieldByName("transport_protocol");
+		Long saddr = (Long) event.parseFieldByName("saddr");
+		Long daddr = (Long) event.parseFieldByName("daddr");
+		Long tot_len = (Long) event.parseFieldByName("tot_len");
+		Long ihl = (Long) event.parseFieldByName("ihl");
+		Long source = (Long) event.parseFieldByName("source");
+		Long dest = (Long) event.parseFieldByName("dest");
+		Long seq = (Long) event.parseFieldByName("seq");
+		Long ack_seq = (Long) event.parseFieldByName("ack_seq");
+		Long doff = (Long) event.parseFieldByName("doff");
+		Long ack = (Long) event.parseFieldByName("ack");
+		Long rst = (Long) event.parseFieldByName("rst");
+		Long syn = (Long) event.parseFieldByName("syn");
+		Long fin = (Long) event.parseFieldByName("fin");
+		System.out.println(proc.toString() + " xmit " + daddr + ":" + dest + " syn=" + syn + " ack=" + ack + " fin=" + fin);
 	}
 	
 	public void handle_net_tcpv4_rcv_extended(TraceReader reader, JniEvent event) {
-		debugEvent(reader, event);	
-	}
-
-	public void debugEvent(TraceReader reader, JniEvent event) {
-		String eventName = event.getMarkersMap().get(event.getEventMarkerId()).getName();
-
-		Long cpu = event.getParentTracefile().getCpuNumber();
-		double eventTs = (double) event.getEventTime().getTime();
 		TraceEventHandlerProcess processHandler = (TraceEventHandlerProcess) reader.getHandler(TraceEventHandlerProcess.class);
-		if (processHandler != null) {
-			KernelProcess proc = processHandler.getCurrentProcess(cpu);
-			System.out.println("ts=" + eventTs + " cpu=" + cpu + " pid=" + proc.getCmd() + " "  + eventName);
-		} else {
-			System.out.println("ts=" + eventTs + " cpu=" + cpu + " "  + eventName);
-		}
+		/* we can't proceed without information about process */
+		if (processHandler == null)
+			return;
+		
+		double eventTs = (double) event.getEventTime().getTime();
+		Long cpu = event.getParentTracefile().getCpuNumber();
+		KernelProcess proc = processHandler.getCurrentProcess(cpu);
+		Long saddr = (Long) event.parseFieldByName("saddr");
+		Long daddr = (Long) event.parseFieldByName("daddr");
+		Long tot_len = (Long) event.parseFieldByName("tot_len");
+		Long ihl = (Long) event.parseFieldByName("ihl");
+		Long source = (Long) event.parseFieldByName("source");
+		Long dest = (Long) event.parseFieldByName("dest");
+		Long seq = (Long) event.parseFieldByName("seq");
+		Long ack_seq = (Long) event.parseFieldByName("ack_seq");
+		Long doff = (Long) event.parseFieldByName("doff");
+		Long ack = (Long) event.parseFieldByName("ack");
+		Long rst = (Long) event.parseFieldByName("rst");
+		Long syn = (Long) event.parseFieldByName("syn");
+		Long fin = (Long) event.parseFieldByName("fin");
+		System.out.println(proc.toString() + " recv " + daddr + ":" + dest + " syn=" + syn + " ack=" + ack + " fin=" + fin);
 	}
 
 	@Override

@@ -194,7 +194,7 @@ public class TraceReader {
 	}
 	
 	public ITraceEventHandler getHandler(
-			Class<? extends TraceEventHandlerBase> class1) {
-		return null;
+			Class<? extends TraceEventHandlerBase> klass) {
+		return handlers.get(klass);
 	}
 }
