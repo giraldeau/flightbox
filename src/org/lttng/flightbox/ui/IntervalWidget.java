@@ -138,8 +138,7 @@ public class IntervalWidget extends Canvas {
 		Color color;
 		SortedSet<VersionizedStack<String>.Item<String>> range = stack.getRange(t1, t2);
 		String start = stack.peek(t1);
-		/* FIXME: this is not elegant to get the last state of the interval... */
-		String end = stack.peek(t2 - 1L);
+		String end = stack.peekInclusive(t2);
 
 		// if range is empty, draw only one interval
 		if (range.isEmpty()) {

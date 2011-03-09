@@ -67,6 +67,14 @@ public class VersionizedStack<T> {
 		return null;
 	}
 	
+	public T peekInclusive(long i) {
+		item.id = i;
+		Item<T> x = itemSet.lower(item);
+		if (x != null)
+			return x.content;
+		return null;
+	}
+	
 	public T peek() {
 		if (itemStack.isEmpty())
 			return null;

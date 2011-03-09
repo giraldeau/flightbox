@@ -62,6 +62,7 @@ public class TestVersionizedStack {
 		assertEquals("bar", stack.peek(20L));
 		assertEquals("foo", stack.peek(26L));
 		assertEquals(null, stack.peek(30L));
+		assertEquals("foo", stack.peekInclusive(30L));
 	}
 	
 	@Test
