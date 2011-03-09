@@ -20,7 +20,7 @@ import org.lttng.flightbox.state.StackMachine;
 import org.lttng.flightbox.state.StackMachineFactory;
 import org.lttng.flightbox.state.TraceEventHandlerState;
 import org.lttng.flightbox.state.VersionizedStack;
-import org.lttng.flightbox.ui.StackView;
+import org.lttng.flightbox.ui.IntervalView;
 import org.lttng.flightbox.xml.ManifestReader;
 
 public class MainStack {
@@ -64,7 +64,7 @@ public class MainStack {
 		
 		System.out.println(objectState);
 		
-		StackView view = new StackView(shell, SWT.NONE);
+		IntervalView view = new IntervalView(shell, SWT.NONE);
 		//view.setTimeInterval(reader2.getStartTime(), reader2.getEndTime());
 		view.setStack(objectState.get("default"));
 		

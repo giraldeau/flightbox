@@ -27,7 +27,7 @@ import org.lttng.flightbox.state.Interval;
 import org.lttng.flightbox.state.VersionizedStack;
 import org.lttng.flightbox.state.VersionizedStack.Item;
 
-public class StackWidget extends Canvas {
+public class IntervalPannel extends Canvas {
 
 	Image imageCache;
 	boolean updateImageCache;
@@ -48,7 +48,7 @@ public class StackWidget extends Canvas {
 		this.rowHeight = rowHeight;
 	}
 
-	public StackWidget(Composite parent, int style) {
+	public IntervalPannel(Composite parent, int style) {
 		super(parent, style);
 		updateImageCache = true;
 		Display display = getDisplay();
@@ -64,13 +64,13 @@ public class StackWidget extends Canvas {
 		
 	    addDisposeListener(new DisposeListener() {
 	    	public void widgetDisposed(DisposeEvent e) {
-	    		StackWidget.this.widgetDisposed(e);
+	    		IntervalPannel.this.widgetDisposed(e);
 	    	}
 	    });
 
 	    addPaintListener(new PaintListener() {
 	    	public void paintControl(PaintEvent e) {
-	    		StackWidget.this.paintControl(e);
+	    		IntervalPannel.this.paintControl(e);
 	    	}
 	    });
 	}
@@ -137,7 +137,7 @@ public class StackWidget extends Canvas {
 		}
 		if (imageCache != null && !imageCache.isDisposed()) {
             imageCache.dispose();
-        }		
+        }
 	}
 
 	public Collection<VersionizedStack<String>> getStacks() {

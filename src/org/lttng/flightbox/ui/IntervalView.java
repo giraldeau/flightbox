@@ -20,12 +20,12 @@ import org.eclipse.swt.widgets.List;
 import org.lttng.flightbox.state.VersionizedStack;
 import org.lttng.flightbox.state.VersionizedStack.Item;
 
-public class StackView extends Composite {
+public class IntervalView extends Composite {
 
-	StackWidget stackWidget;
+	IntervalPannel stackWidget;
 	List list;
 	
-	public StackView(Composite parent, int style) {
+	public IntervalView(Composite parent, int style) {
 		super(parent, style);
 
 		GridLayout gridLayout = new GridLayout();
@@ -42,7 +42,7 @@ public class StackView extends Composite {
 		list.setLayoutData(gridData);
 		
 		ScrolledComposite scrolledComposite = new ScrolledComposite(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-		stackWidget = new StackWidget(scrolledComposite, SWT.BORDER);
+		stackWidget = new IntervalPannel(scrolledComposite, SWT.BORDER);
 		stackWidget.setRowHeight(list.getItemHeight());
 		stackWidget.setSize(10000, 100);
 		scrolledComposite.setContent(stackWidget);

@@ -135,7 +135,7 @@ public class VersionizedStack<T> {
 	public void setSymbols(Set<T> obj) {
 		this.symbols = obj;
 	}
-	public SortedSet<Item<T>> getHistory() {
+	public TreeSet<Item<T>> getHistory() {
 		return this.itemSet;
 	}
 
@@ -174,5 +174,24 @@ public class VersionizedStack<T> {
 	
 	public Iterator<Interval> iterator() {
 		return new StackIterator(); 
+	}
+
+	public SortedSet<Item<T>> getRange(Long t1, Long t2) {
+		Item<T> i1 = new Item<T>();
+		i1.id = t1;
+		Item<T> i2 = new Item<T>();
+		i2.id = t2;
+		return itemSet.subSet(i1, i2);
+	}
+
+	public Long begin() {
+		if (itemSet.isEmpty())
+			return 0L;
+		return itemSet.first().id;
+	}
+	public Long end() {
+		if (itemSet.isEmpty())
+			return 0L;
+		return itemSet.last().id;
 	}
 }
