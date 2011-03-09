@@ -10,7 +10,7 @@ public class Path {
 	}
 
 	public static File getManifestDir() {
-		return new File("./manifest/"); 
+		return new File("./resources/manifest/"); 
 	}
 	
 	public static File getTestManifestDir() {

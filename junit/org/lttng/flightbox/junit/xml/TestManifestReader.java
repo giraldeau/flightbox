@@ -19,9 +19,8 @@ public class TestManifestReader {
 	@Test
 	public void testReadAndValidatePass() throws JDOMException, IOException {
 		File file = new File(Path.getTestManifestDir(), "linux_pass_metadata.xml");
-		File path = new File(Path.getManifestDir(), "manifest.dtd");
 		ManifestReader reader = new ManifestReader();
-		Document doc = reader.read(file.getPath(), path.getPath());
+		Document doc = reader.read(file.getPath());
 		Element root = doc.getRootElement();
 		assertTrue(root.getName().compareTo("manifest") == 0);
 		
@@ -35,13 +34,12 @@ public class TestManifestReader {
 	@Test
 	public void testReadAndValidateFail() throws IOException {
 		File file = new File(Path.getTestManifestDir(), "linux_fail_validation.xml");
-		File path = new File(Path.getManifestDir(), "manifest.dtd");
 		
 		Exception eJDOMException = null;
 		
 		ManifestReader reader = new ManifestReader();
 		try {
-			reader.read(file.getPath(), path.getPath());
+			reader.read(file.getPath());
 		} catch (JDOMException e) {
 			eJDOMException = e;
 		}

@@ -31,10 +31,9 @@ public class TestTraceEventHandlerState {
 	@Before
 	public void testBuildStackMachine() throws JDOMException, IOException {
 		File file = new File(Path.getTestManifestDir(), "pattern_entry_exit.xml");
-		File path = new File(Path.getManifestDir(), "manifest.dtd");
 		
 		ManifestReader reader = new ManifestReader();
-		Document doc = reader.read(file.getPath(), path.getPath());
+		Document doc = reader.read(file.getPath());
 		
 		XPath xpath = XPath.newInstance("/manifest/stack");
 		List<Element> res = (List<Element>) xpath.selectNodes(doc);

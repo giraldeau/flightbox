@@ -10,6 +10,7 @@ import java.util.TreeMap;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
+import org.eclipse.linuxtools.lttng.jni.common.JniTime;
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.eclipse.linuxtools.lttng.jni.factory.JniTraceFactory;
 
@@ -196,5 +197,13 @@ public class TraceReader {
 	public ITraceEventHandler getHandler(
 			Class<? extends TraceEventHandlerBase> klass) {
 		return handlers.get(klass);
+	}
+	
+	public Long getStartTime() {
+		return trace.getStartTime().getTime();
+	}
+	
+	public Long getEndTime() {
+		return trace.getEndTime().getTime();
 	}
 }

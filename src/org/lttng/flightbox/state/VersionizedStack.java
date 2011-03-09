@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 public class VersionizedStack<T> {
@@ -134,7 +135,7 @@ public class VersionizedStack<T> {
 	public void setSymbols(Set<T> obj) {
 		this.symbols = obj;
 	}
-	public Set<Item<T>> getHistory() {
+	public SortedSet<Item<T>> getHistory() {
 		return this.itemSet;
 	}
 

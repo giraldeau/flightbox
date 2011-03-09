@@ -58,7 +58,7 @@ public class StackWidget extends Canvas {
 		stacks = new ArrayList<VersionizedStack<String>>();
 		
 		t1 = 0L;
-		t2 = 100L;
+		t2 = 0L;
 		rowHeight = 23;
 		padding = 6;
 		
@@ -105,7 +105,7 @@ public class StackWidget extends Canvas {
 		for (VersionizedStack<String> stack: stacks) {
 			drawOneStack(gc, stack, y1, y2);
 			y1 += rowHeight;
-			y2 += rowHeight;	
+			y2 += rowHeight;
 		}
 		
 	}
@@ -126,7 +126,7 @@ public class StackWidget extends Canvas {
 	public int getPixedCoordinate(Long t) {
 		Rectangle clientArea = getClientArea();
 		Long ts = t2 - t1;
-		int res = (int) (((double)t / (double)ts) * clientArea.width);
+		int res = (int) (((double)(t - t1) * clientArea.width) / (double)ts);
 		return res;
 	}
 	
@@ -158,6 +158,7 @@ public class StackWidget extends Canvas {
 			Color c = new Color(display, rgb);
 			legend.put(sym, c);
 		}
+		
 		redraw();
 	}
 	
@@ -177,6 +178,7 @@ public class StackWidget extends Canvas {
 			width = wHint;
 		if (hHint != SWT.DEFAULT)
 			height = hHint;
+		System.out.println(width + " " + height);
 		return new Point(width, height);
 	}
 	
@@ -205,6 +207,7 @@ public class StackWidget extends Canvas {
     public void redraw() {
         super.redraw();
         updateImageCache = true;
+        System.out.println("supposed to redraw");
     }
 
     /*
@@ -214,5 +217,5 @@ public class StackWidget extends Canvas {
     public void dispose() {
         super.dispose();
     }
-	
+
 }

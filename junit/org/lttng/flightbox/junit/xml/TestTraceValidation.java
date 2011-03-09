@@ -56,12 +56,11 @@ public class TestTraceValidation {
 		File fileFail1 = new File(Path.getTestManifestDir(), "linux_fail_metadata_unknown_channel.xml");
 		File fileFail2 = new File(Path.getTestManifestDir(), "linux_fail_metadata_unknown_event.xml");
 		File fileFail3 = new File(Path.getTestManifestDir(), "linux_fail_metadata_unknown_field.xml");
-		File path = new File(Path.getManifestDir(), "manifest.dtd");
 		ManifestReader manifestReader = new ManifestReader();
-		Document manifestPass = manifestReader.read(filePass.getPath(), path.getPath());
-		Document manifestFail1 = manifestReader.read(fileFail1.getPath(), path.getPath());
-		Document manifestFail2 = manifestReader.read(fileFail2.getPath(), path.getPath());
-		Document manifestFail3 = manifestReader.read(fileFail3.getPath(), path.getPath());
+		Document manifestPass = manifestReader.read(filePass.getPath());
+		Document manifestFail1 = manifestReader.read(fileFail1.getPath());
+		Document manifestFail2 = manifestReader.read(fileFail2.getPath());
+		Document manifestFail3 = manifestReader.read(fileFail3.getPath());
 		
 		File file = new File(Path.getTraceDir(), "sleep-1x-1sec");
 		TraceReader reader = new TraceReader(file.getPath());

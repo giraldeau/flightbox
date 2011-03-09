@@ -28,6 +28,9 @@
 		<javac includeAntRuntime="false" srcdir="src" includes="**" source="1.6" target="1.6" destdir="build" optimize="${optimize}" debug="${debug}">
 			<classpath refid="classpath"/>
 		</javac>
+		<copy todir="build">
+			<fileset dir="resources" />
+		</copy>
 	</target>
 	<target name="compile-tests" depends="compile">
 		<javac includeAntRuntime="false" srcdir="junit" includes="**" source="1.6" target="1.6" destdir="${build.tests}" optimize="false" debug="${debug}">
