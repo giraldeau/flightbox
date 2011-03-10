@@ -38,13 +38,7 @@ public class IntervalWidget extends Canvas {
 	int rowHeight;
 	HashMap<String, Color> legend;
 	
-	public int getRowHeight() {
-		return rowHeight;
-	}
-
-	public void setRowHeight(int rowHeight) {
-		this.rowHeight = rowHeight;
-	}
+	ImageProxy imageProxy;
 	
 	public IntervalWidget(Composite parent, int opts) {
 		super(parent, opts);
@@ -58,6 +52,8 @@ public class IntervalWidget extends Canvas {
 		rowHeight = 23;
 		padding = 6;
 		legend = new HashMap<String, Color>();
+		imageProxy = new ImageProxy();
+		imageProxy.setRender(new IntervalRender());
 		
 	    addDisposeListener(new DisposeListener() {
 	    	public void widgetDisposed(DisposeEvent e) {
@@ -191,6 +187,7 @@ public class IntervalWidget extends Canvas {
 	}
 
 	public void setStack(VersionizedStack<String> stack) {
+		imageProxy.setData(stack);
 		this.stack = stack;
 		Display display = getDisplay();
 		for (String sym: stack.getSymbols()) {
@@ -199,6 +196,15 @@ public class IntervalWidget extends Canvas {
 			legend.put(sym, c);
 		}
 		setRange(stack.begin(), stack.end());
+		redraw();
+	}
+
+	public int getRowHeight() {
+		return rowHeight;
+	}
+
+	public void setRowHeight(int rowHeight) {
+		this.rowHeight = rowHeight;
 		redraw();
 	}
 	
