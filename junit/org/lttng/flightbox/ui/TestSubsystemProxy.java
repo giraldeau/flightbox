@@ -7,7 +7,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.lttng.flightbox.state.VersionizedStack;
 
@@ -46,29 +45,33 @@ public class TestSubsystemProxy {
 		File translateDir = new File("./tests/interval-render/translate/");
 		translateDir.mkdirs();
 
+		int x = 0;
 		// zooming
 		for (int i = 0; i < 5000; i = i + 100) {
 			img = r.render((long) i, 10000 - (long) i, 400, 23);
-			saveImage(img, zoomDir.getPath() + "/" + String.format("%05d", i)
+			saveImage(img, zoomDir.getPath() + "/" + String.format("%05d", x)
 					+ ".bmp");
+			x++;
 		}
 
+		x = 0;
 		// translation
 		for (int i = 0; i < 8000; i = i + 100) {
 			img = r.render((long) i, (long) i + 2000, 400, 23);
 			saveImage(img,
-					translateDir.getPath() + "/" + String.format("%05d", i)
+					translateDir.getPath() + "/" + String.format("%05d", x)
 							+ ".bmp");
+			x++;
 		}
 
 		if (img != null && !img.isDisposed()) {
 			img.dispose();
 		}
 	}
-	
+
 	@Test
 	public void testIntervalProxy() {
-		
+
 	}
 
 }
