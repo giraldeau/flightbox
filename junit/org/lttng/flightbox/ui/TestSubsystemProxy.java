@@ -65,5 +65,10 @@ public class TestSubsystemProxy {
 			img.dispose();
 		}
 	}
+	
+	@Test
+	public void testIntervalProxy() {
+		
+	}
 
 }

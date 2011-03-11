@@ -15,10 +15,18 @@ public class Colorizer {
 	
 	static int next = 0;
 	
-	public Colorizer() {
+	private static class InstanceHolder {
+		public static final Colorizer instance = new Colorizer();
+	}
+	
+	private Colorizer() {
 		colorMap = new HashMap<Object, RGB>();
 		palette = new ArrayList<RGB>();
 		loadPalette();
+	}
+
+	public static Colorizer getInstance() {
+		return InstanceHolder.instance;
 	}
 	
 	private void loadPalette() {

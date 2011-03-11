@@ -47,7 +47,7 @@ public class IntervalWidget extends Canvas {
 		t2 = 0L;
 		Display display = getDisplay();
 		bgColor = display.getSystemColor(SWT.COLOR_BLACK);
-		colorizer = new Colorizer();
+		colorizer = Colorizer.getInstance();
 		legend = new HashMap<String, Color>();
 		rowHeight = 23;
 		padding = 6;

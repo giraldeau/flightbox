@@ -13,7 +13,7 @@ public class TestColorizer {
 
 	@Test
 	public void testColorizer() {
-		Colorizer colorizer = new Colorizer();
+		Colorizer colorizer = Colorizer.getInstance();
 		RGB c1 = colorizer.getColor(new String("FOO"));
 		RGB c2 = colorizer.getColor(new String("FOO"));
 		assertEquals(c1, c2);
@@ -25,7 +25,7 @@ public class TestColorizer {
 
 	@Test
 	public void testAllColors() {
-		Colorizer colorizer = new Colorizer();
+		Colorizer colorizer = Colorizer.getInstance();
 		ArrayList<RGB> palette = colorizer.getPalette();
 		Integer max = palette.size() * 2;
 		

@@ -19,7 +19,7 @@ public class TestIntervalWidget {
 	 */
 	@Test
 	public void testIntervalWidgetBasic() {
-		Display display = new Display();
+		Display display = Display.getDefault();
 		Shell shell = new Shell(display);
 		int size = 100;
 		shell.setSize(size, size);

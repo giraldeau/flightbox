@@ -30,7 +30,7 @@ public class IntervalRender implements ImageRender {
 		setWidth(0);
 		setHeight(23);
 		setPadding(6);
-		colorizer = new Colorizer();
+		colorizer = Colorizer.getInstance();
 		legend = new HashMap<String, Color>();
 	}
 

@@ -53,7 +53,7 @@ public class IntervalPannel extends Canvas {
 		updateImageCache = true;
 		Display display = getDisplay();
 		bgColor = display.getSystemColor(SWT.COLOR_BLACK);
-		colorizer = new Colorizer();
+		colorizer = Colorizer.getInstance();
 		legend = new HashMap<String, Color>();
 		stacks = new ArrayList<VersionizedStack<String>>();
 		
