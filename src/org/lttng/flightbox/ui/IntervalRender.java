@@ -23,7 +23,7 @@ public class IntervalRender implements ImageRender {
 	int barHeight;
 	long t1;
 	long t2;
-	
+
 	public IntervalRender() {
 		t1 = 0;
 		t2 = 0;
@@ -33,7 +33,7 @@ public class IntervalRender implements ImageRender {
 		colorizer = new Colorizer();
 		legend = new HashMap<String, Color>();
 	}
-	
+
 	/* caller must dispose the image */
 	@Override
 	public Image render(long ts1, long ts2, int width, int height) {
@@ -41,27 +41,23 @@ public class IntervalRender implements ImageRender {
 		setHeight(height);
 		return render(ts1, ts2);
 	}
-	
+
 	public Image render(long ts1, long ts2) {
+		setRange(ts1, ts2);
 		Color color;
 
-		if (ts1 < t1) {
-			ts1 = t1;
-		}
-		if (ts2 > t2) {
-			ts2 = t2;
-		}
-		
 		Display display = Display.getCurrent();
 		Image image = new Image(display, width, height);
 		GC gc = new GC(image);
-		
-		if (data == null) {
+
+		// no data or interval has no duration
+		if (data == null || ts1 >= ts2) {
 			gc.dispose();
 			return image;
 		}
-		
-		SortedSet<VersionizedStack<String>.Item<String>> range = data.getRange(ts1, ts2);
+
+		SortedSet<VersionizedStack<String>.Item<String>> range = data.getRange(
+				ts1, ts2);
 		String start = data.peek(ts1);
 		String end = data.peekInclusive(ts2);
 
@@ -74,34 +70,38 @@ public class IntervalRender implements ImageRender {
 			if (!start.equals(end)) {
 				gc.dispose();
 				image.dispose();
-				throw new RuntimeException("state doesn't match: " + start + " " + end);
+				throw new RuntimeException("state doesn't match: " + start
+						+ " " + end);
 			}
 			drawInterval(gc, ts1, ts2, start);
 		}
-		
+
 		// draw first interval
 		drawInterval(gc, ts1, range.first().id, start);
-		
+
 		// draw middle intervals
 		VersionizedStack<String>.Item<String> prev, curr;
 		Iterator<VersionizedStack<String>.Item<String>> iter = range.iterator();
 		prev = iter.next();
-		
-		while(iter.hasNext()) {
+
+		while (iter.hasNext()) {
 			curr = iter.next();
 			drawInterval(gc, prev.id, curr.id, prev.content);
 			prev = curr;
 		}
-		
+
 		// draw last interval
 		drawInterval(gc, range.last().id, ts2, end);
 
 		gc.dispose();
 		return image;
-		
+
 	}
-	
+
 	public void drawInterval(GC gc, long ts1, long ts2, String s) {
+		// don't draw interval without a state
+		if (s == null)
+			return;
 		Color color = legend.get(s);
 		gc.setBackground(color);
 		int x1 = getPixedCoordinate(ts1);
@@ -112,19 +112,19 @@ public class IntervalRender implements ImageRender {
 
 	public int getPixedCoordinate(long t) {
 		Long ts = t2 - t1;
-		int res = (int) (((double)(t - t1) * width) / (double)ts);
+		int res = (int) (((double) (t - t1) * width) / (double) ts);
 		return res;
 	}
 
 	public void updateLegend() {
 		Display display = Display.getCurrent();
-		for (String sym: data.getSymbols()) {
+		for (String sym : data.getSymbols()) {
 			RGB rgb = colorizer.getColor(sym);
 			Color c = new Color(display, rgb);
 			legend.put(sym, c);
 		}
 	}
-	
+
 	@Override
 	public void setDataObject(Object obj) {
 		data = (VersionizedStack<String>) obj;
@@ -132,12 +132,13 @@ public class IntervalRender implements ImageRender {
 		t2 = data.end();
 		updateLegend();
 	}
-	
+
 	public void dispose() {
-		for (Color c: legend.values()) {
+		for (Color c : legend.values()) {
 			c.dispose();
 		}
 	}
+
 	public int getWidth() {
 		return width;
 	}
@@ -154,6 +155,7 @@ public class IntervalRender implements ImageRender {
 		this.height = height;
 		this.barHeight = height - padding * 2;
 	}
+
 	public int getPadding() {
 		return padding;
 	}
@@ -168,6 +170,5 @@ public class IntervalRender implements ImageRender {
 		this.t1 = t1;
 		this.t2 = t2;
 	}
-
 
 }
