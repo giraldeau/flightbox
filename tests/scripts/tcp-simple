@@ -2,6 +2,7 @@
 
 IFACE=$(route -n | tail -n 1 | awk {'print $8'})
 IP=$(ip -f inet addr show $IFACE | grep inet| awk {'print $2'} | cut -d/ -f1)
+
 netcat -l $IP 8765 > /dev/null & 
 
 echo "lttng" | netcat $IP 8765
