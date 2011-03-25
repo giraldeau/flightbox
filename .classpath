@@ -8,5 +8,7 @@
 	<classpathentry kind="lib" path="/usr/share/java/jdom1.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jaxen.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/swt.jar"/>
+	<classpathentry kind="lib" path="lib/libstatehistory-java.jar"/>
+	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
