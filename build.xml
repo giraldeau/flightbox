@@ -18,6 +18,7 @@
 
 	<path id="classpath">
 		<fileset dir="/usr/share/java" includes="*.jar"/>
+		<fileset dir="lib/" includes="*.jar"/>
 	</path>
 
 	<target name="all" depends="jar,doc" />
@@ -54,6 +55,8 @@
 		<unzip src="/usr/share/java/jdom1.jar" dest="temp" />
 		<unzip src="/usr/share/java/jaxen.jar" dest="temp" />
 		<unzip src="/usr/share/java/swt.jar" dest="temp" />
+		<unzip src="lib/commons-cli-1.2.jar" dest="temp" />
+		<unzip src="lib/libstatehistory-java.jar" dest="temp" />
 		<unzip src="dist/${project}.jar" dest="temp" />
 		<jar jarfile="dist/${project}-all.jar" manifest="manifest.txt" basedir="temp" includes="**/*.class" />
 		<delete dir="temp" />
@@ -163,6 +166,7 @@
 				<pathelement path="/usr/share/java/jdom1.jar"/>
 				<pathelement path="/usr/share/java/junit4.jar"/>
 				<pathelement path="/usr/share/java/hamcrest-core.jar"/>
+				<fileset dir="lib/" includes="*.jar"/>
 			</classpath>
 			<batchtest todir="${report.dir}">
 				<fileset dir="${src.tests}">

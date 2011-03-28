@@ -1,6 +1,5 @@
 package org.lttng.flightbox.automaton;
 
-import java.util.Collection; 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,24 +15,26 @@ public class State {
 
 	/** unique id of this state */
 	int id;
-	
+
 	/** static counter for this state */
 	static int counter = 0;
-	
+
 	/** accepting state */
 	boolean accept;
-	
+
+	String label;
+
 	/** set of transitions to other states */
 	//Set<Transition> transitions;
 	HashMap<Symbol, HashSet<State>> transitions;
-	
+
 	/**
-	 * Construct a new state, and sets the id to the next available 
+	 * Construct a new state, and sets the id to the next available
 	 */
 	public State(){
 		this(counter++);
 	}
-	
+
 	/**
 	 * Construct a new state
 	 * @param id id of the state
@@ -42,14 +43,19 @@ public class State {
 		this.id = id;
 		clearTransitions();
 	}
-	
+
+	public State(String label) {
+		this();
+		this.label = label;
+	}
+
 	/**
 	 * Clear all transitions set
 	 */
 	public void clearTransitions(){
 		transitions = new HashMap<Symbol, HashSet<State>>();
 	}
-	
+
 	/**
 	 * Add a transition to a state triggered by a symbol
 	 * @param symbol
@@ -63,7 +69,7 @@ public class State {
 		Set<State> s = transitions.get(symbol);
 		s.add(state);
 	}
-	
+
 	/**
 	 * Remove a transition from the transitions set
 	 * @param symbol
@@ -71,12 +77,12 @@ public class State {
 	public void removeTransition(Symbol symbol){
 		transitions.remove(symbol);
 	}
-	
+
 	/**
 	 * Replace a src states to dst states in the transition set
 	 * @param src state
 	 * @param dst state
-	 * @return number of states replaced  
+	 * @return number of states replaced
 	 */
 	public int remplaceTransitions(State src, State dst){
 		int nb_replaced = 0;
@@ -89,12 +95,12 @@ public class State {
 		}
 		return nb_replaced;
 	}
-	
+
 	/**
 	 * Returns the transitions set
 	 * @returns transition set
 	 */
-	
+
 	public Set<State> getTransitions(Symbol symbol){
 		Set<State> x = transitions.get(symbol);
 		if (x == null){
@@ -110,11 +116,11 @@ public class State {
 		Set<State> s = transitions.get(symbol);
 		return (State)s.toArray()[0];
 	}
-	
+
 	public Set<Symbol> getTransitionSymbols(){
 		return transitions.keySet();
 	}
-	
+
 	public Set<State> getReachableStates(){
 		HashSet<State> set = new HashSet<State>();
 		for (Set<State> s : transitions.values()){
@@ -122,7 +128,7 @@ public class State {
 		}
 		return set;
 	}
-	
+
 	/**
 	 * Set the accept property of this state
 	 * @param accept
@@ -130,7 +136,7 @@ public class State {
 	public void setAccept(boolean accept){
 		this.accept = accept;
 	}
-	
+
 	/**
 	 * Returns if this state is accepting
 	 * @return accept
@@ -138,7 +144,7 @@ public class State {
 	public boolean isAccept(){
 		return accept;
 	}
-	
+
 	/**
 	 * Returns the id of this state
 	 * @return id
@@ -146,7 +152,7 @@ public class State {
 	public int getId() {
 		return id;
 	}
-	
+
 	/**
 	 * Set the id of this state
 	 * @param id
@@ -154,15 +160,21 @@ public class State {
 	public void setId(int id) {
 		this.id = id;
 	}
-	
+
 	public void resetCounter(){
 		counter = 0;
 	}
-	
+
+	@Override
 	public String toString(){
-		return Integer.toString(id);
+		if (label != null){
+			return label;
+		} else {
+			return Integer.toString(id);
+		}
 	}
-	
+
+	@Override
 	public boolean equals(Object obj){
 		if (obj instanceof State){
 			State s = (State)obj;
@@ -170,7 +182,8 @@ public class State {
 		}
 		return false;
 	}
-	
+
+	@Override
 	public int hashCode(){
 		return this.id * 3;
 	}
@@ -182,7 +195,7 @@ public class State {
 		}
 		return count;
 	}
-	
+
 	public boolean isDeterministic(){
 		for (HashSet<State> set: transitions.values()){
 			if (set.size()>1){
