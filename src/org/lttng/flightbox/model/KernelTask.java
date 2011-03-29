@@ -2,13 +2,12 @@ package org.lttng.flightbox.model;
 
 import java.util.List;
 import java.util.Stack;
-
+import java.util.Vector;
 
 /**
- * @author Francis Giraldeau
- *
  * Model of a kernel task 
  *
+ * @author Francis Giraldeau
  */
 public class KernelTask implements Comparable<KernelTask> {
 
@@ -27,11 +26,13 @@ public class KernelTask implements Comparable<KernelTask> {
 	private Stack<TaskState> stateStack;
 	
 	public KernelTask(int pid, long createTs) {
+		this();
 		this.processId = pid;
 		this.createTime = createTs;
 	}
 	
 	public KernelTask() {
+		stateStack = new Stack<TaskState>();
 	}
 	
 	public boolean equals(Object other) {
@@ -117,6 +118,9 @@ public class KernelTask implements Comparable<KernelTask> {
 	}
 	
 	public void addChild(KernelTask child) {
+		if (childrenProcess == null) {
+			childrenProcess = new Vector<KernelTask>();
+		}
 		childrenProcess.add(child);
 	}
 	
@@ -126,5 +130,17 @@ public class KernelTask implements Comparable<KernelTask> {
 	
 	public boolean hasChild(KernelTask child) {
 		return childrenProcess.contains(child);
+	}
+	
+	public void pushState(TaskState state) {
+		stateStack.push(state);
+	}
+	
+	public void popState() {
+		stateStack.pop();
+	}
+	
+	public TaskState peekState() {
+		return stateStack.peek();
 	}
 }
