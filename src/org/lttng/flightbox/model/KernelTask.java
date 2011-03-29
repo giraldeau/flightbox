@@ -14,6 +14,7 @@ public class KernelTask implements Comparable<KernelTask> {
 	private int processId;
 	private int threadGroupId;
 	private int parentProcessId;
+	private int exitStatus;
 	private String cmd;
 	
 	public KernelTask(int pid, long createTs) {
@@ -96,6 +97,14 @@ public class KernelTask implements Comparable<KernelTask> {
 
 	public void setParentProcessId(int parentProcessId) {
 		this.parentProcessId = parentProcessId;
+	}
+
+	public void setExitStatus(int exitStatus) {
+		this.exitStatus = exitStatus;
+	}
+
+	public int getExitStatus() {
+		return exitStatus;
 	}
 	
 }
