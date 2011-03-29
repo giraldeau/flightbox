@@ -3,9 +3,8 @@ package org.lttng.flightbox.junit;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.lttng.flightbox.GlobalState.KernelMode;
 import org.lttng.flightbox.UsageStats;
-import org.lttng.flightbox.model.KernelTask;
+import org.lttng.flightbox.model.KernelTask.TaskState;
 
 public class TestUsageStats {
 
@@ -14,7 +13,7 @@ public class TestUsageStats {
 	@Test
 	public void testAddInterval() {
 		UsageStats<Long> stats = new UsageStats<Long>(0L, 30L, 100);
-		KernelMode mode = KernelMode.USER;
+		TaskState mode = TaskState.USER;
 		stats.addInterval(10L, 20L, 0L, mode);
 		stats.addInterval(15L, 16L, 1L, mode);
 		// total for all items
@@ -37,7 +36,7 @@ public class TestUsageStats {
 	@Test
 	public void testAddIntervalAvg() {
 		UsageStats<Long> stats = new UsageStats<Long>(0L, 30L, 100);
-		KernelMode mode = KernelMode.USER;
+		TaskState mode = TaskState.USER;
 		stats.addInterval(10L, 20L, 0L, mode);
 		stats.addInterval(15L, 16L, 1L, mode);
 		// total for all cpus
@@ -60,7 +59,7 @@ public class TestUsageStats {
 	@Test
 	public void testProcessAddInterval() {
 		UsageStats<Long> stats = new UsageStats<Long>(0L, 30L, 100);
-		KernelMode mode = KernelMode.USER;
+		TaskState mode = TaskState.USER;
 		Long p1 = 1234L;
 		Long p2 = 5678L;
 		stats.addInterval(10L, 20L, p1, mode);

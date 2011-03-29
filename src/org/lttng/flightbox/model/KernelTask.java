@@ -1,5 +1,8 @@
 package org.lttng.flightbox.model;
 
+import java.util.List;
+import java.util.Stack;
+
 
 /**
  * @author Francis Giraldeau
@@ -9,13 +12,19 @@ package org.lttng.flightbox.model;
  */
 public class KernelTask implements Comparable<KernelTask> {
 
+	public enum TaskState {
+		USER, SYSCALL, TRAP, INTERRUPTED, PREEMPTED
+	}
+	
 	private long createTime;
 	private long exitTime;
 	private int processId;
 	private int threadGroupId;
-	private int parentProcessId;
+	private KernelTask parentProcess;
+	private List<KernelTask> childrenProcess;
 	private int exitStatus;
 	private String cmd;
+	private Stack<TaskState> stateStack;
 	
 	public KernelTask(int pid, long createTs) {
 		this.processId = pid;
@@ -91,12 +100,12 @@ public class KernelTask implements Comparable<KernelTask> {
 		this.threadGroupId = threadGroupId;
 	}
 
-	public int getParentProcessId() {
-		return parentProcessId;
+	public KernelTask getParentProcess() {
+		return parentProcess;
 	}
 
-	public void setParentProcessId(int parentProcessId) {
-		this.parentProcessId = parentProcessId;
+	public void setParentProcess(KernelTask parentProcess) {
+		this.parentProcess = parentProcess;
 	}
 
 	public void setExitStatus(int exitStatus) {
@@ -107,4 +116,15 @@ public class KernelTask implements Comparable<KernelTask> {
 		return exitStatus;
 	}
 	
+	public void addChild(KernelTask child) {
+		childrenProcess.add(child);
+	}
+	
+	public boolean removeChild(KernelTask child) {
+		return childrenProcess.remove(child);
+	}
+	
+	public boolean hasChild(KernelTask child) {
+		return childrenProcess.contains(child);
+	}
 }

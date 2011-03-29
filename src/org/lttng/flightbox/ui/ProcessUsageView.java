@@ -13,10 +13,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
-import org.lttng.flightbox.GlobalState.KernelMode;
 import org.lttng.flightbox.TimeStats;
 import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.model.KernelTask;
+import org.lttng.flightbox.model.KernelTask.TaskState;
 
 public class ProcessUsageView extends Composite {
 
@@ -126,7 +126,7 @@ public class ProcessUsageView extends Composite {
 			TableData elem = new TableData();
 			elem.cmd = procInfo.get(pid).getCmd();
 			elem.pid = pid;
-			elem.time = procStats.getStats(pid).getSum(t1, t2).getTime(KernelMode.USER); 
+			elem.time = procStats.getStats(pid).getSum(t1, t2).getTime(TaskState.USER); 
 			dataSet.add(elem);
 		}
 		sortTable();

@@ -9,9 +9,7 @@ import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.eclipse.linuxtools.lttng.jni.factory.JniTraceFactory;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import org.lttng.flightbox.GlobalState.KernelMode;
 import org.lttng.flightbox.TimeStats;
 import org.lttng.flightbox.TimeStatsBucket;
 import org.lttng.flightbox.UsageStats;
@@ -19,6 +17,7 @@ import org.lttng.flightbox.cpu.TraceEventHandlerProcess;
 import org.lttng.flightbox.cpu.TraceEventHandlerStats;
 import org.lttng.flightbox.io.TraceEventHandlerCounter;
 import org.lttng.flightbox.io.TraceReader;
+import org.lttng.flightbox.model.KernelTask.TaskState;
 
 public class TestTraceReader {
 	
@@ -56,7 +55,7 @@ public class TestTraceReader {
 		reader.process();
 		TimeStatsBucket total = cpu_handler.getUsageStats().getTotalAvg();
 		TimeStats sum = total.getSum();
-		assertEquals(1 * TimeStats.NANO, sum.getTime(KernelMode.USER), 0.5 * TimeStats.NANO);
+		assertEquals(1 * TimeStats.NANO, sum.getTime(TaskState.USER), 0.5 * TimeStats.NANO);
 	}
 	
 	@Test

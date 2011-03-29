@@ -4,13 +4,13 @@ import java.util.TreeMap;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
-import org.lttng.flightbox.GlobalState.KernelMode;
 import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.io.EventData;
 import org.lttng.flightbox.io.TraceEventHandlerBase;
 import org.lttng.flightbox.io.TraceHook;
 import org.lttng.flightbox.io.TraceReader;
 import org.lttng.flightbox.model.KernelTask;
+import org.lttng.flightbox.model.KernelTask.TaskState;
 
 public class TraceEventHandlerProcess extends TraceEventHandlerBase {
 	
@@ -77,7 +77,7 @@ public class TraceEventHandlerProcess extends TraceEventHandlerBase {
 
 		currentCpuProcess.put(cpu, next_pid);
 		
-		procStats.addInterval(t, eventTs, prev_pid, KernelMode.USER);
+		procStats.addInterval(t, eventTs, prev_pid, TaskState.USER);
 		// update history to keep track of previous event
 		eventHistory.get(prev_pid).update(event);
 		eventHistory.get(next_pid).update(event);
@@ -92,7 +92,7 @@ public class TraceEventHandlerProcess extends TraceEventHandlerBase {
 			proc.setCmd((String) event.parseFieldByName("name"));
 			procInfo.put(pid, proc);
 			/* FIXME: adding empty interval should not be required */
-			procStats.addInterval(eventTs, eventTs, pid, KernelMode.USER);
+			procStats.addInterval(eventTs, eventTs, pid, TaskState.USER);
 	}
 	
 	public void handle_fs_exec(TraceReader reader, JniEvent event) {
@@ -123,7 +123,7 @@ public class TraceEventHandlerProcess extends TraceEventHandlerBase {
 			event = cpuHistory.get(cpu);
 			long eventTs = event.getTime();
 			Long next_pid = (Long) event.get("next_pid");
-			procStats.addInterval(eventTs, end, next_pid, KernelMode.USER);
+			procStats.addInterval(eventTs, end, next_pid, TaskState.USER);
 		}
 	}
 	

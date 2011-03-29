@@ -2,7 +2,7 @@ package org.lttng.flightbox;
 
 import java.util.ArrayList;
 
-import org.lttng.flightbox.GlobalState.KernelMode;
+import org.lttng.flightbox.model.KernelTask.TaskState;
 
 public class TimeStatsBucket {
 
@@ -101,7 +101,7 @@ public class TimeStatsBucket {
 		return index;
 	}
 	
-	public void addInterval(double t1, double t2, KernelMode mode) {
+	public void addInterval(double t1, double t2, TaskState mode) {
 		int index_start = getIntervalIndex(t1);
 		int index_end = getIntervalIndex(t2);
 		for(int i=index_start; i<=index_end; i++) {
@@ -121,7 +121,7 @@ public class TimeStatsBucket {
 		return dataX;
 	}
 	
-	public double[] getYSeries(KernelMode mode) {
+	public double[] getYSeries(TaskState mode) {
 		double[] dataY = new double[buckets.size()];
 		for(int i=0; i<buckets.size(); i++) {
 			dataY[i] = getInterval(i).getAvg(mode);

@@ -3,7 +3,7 @@ package org.lttng.flightbox;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.lttng.flightbox.GlobalState.KernelMode;
+import org.lttng.flightbox.model.KernelTask.TaskState;
 
 public class UsageStats <T> {
 
@@ -23,7 +23,7 @@ public class UsageStats <T> {
 		nbBuckets = precision;		
 	}
 	
-	public void addInterval(double ts1, double ts2, T id, KernelMode mode) {
+	public void addInterval(double ts1, double ts2, T id, TaskState mode) {
 		if (!timeStats.containsKey(id)) {
 			timeStats.put(id, new TimeStatsBucket(start, end, nbBuckets));
 		}
@@ -99,7 +99,7 @@ public class UsageStats <T> {
 		return timeStats.get(id).getXSeries();
 	}
 	
-	public double[] getYSeries(T id, KernelMode mode) {
+	public double[] getYSeries(T id, TaskState mode) {
 		return timeStats.get(id).getYSeries(mode);
 	}
 	

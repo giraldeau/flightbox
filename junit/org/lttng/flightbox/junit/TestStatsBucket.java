@@ -1,11 +1,11 @@
 package org.lttng.flightbox.junit;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.lttng.flightbox.GlobalState.KernelMode;
-import org.lttng.flightbox.TimeStatsBucket;
 import org.lttng.flightbox.TimeStats;
+import org.lttng.flightbox.TimeStatsBucket;
+import org.lttng.flightbox.model.KernelTask.TaskState;
 
 public class TestStatsBucket {
 
@@ -37,17 +37,17 @@ public class TestStatsBucket {
 		TimeStats t1 = s.getIntervalByTime(0.65);
 		assertEquals(0.6, t1.getStartTime(), p);
 		assertEquals(0.7, t1.getEndTime(), p);
-		t1.addTime(0.1, KernelMode.USER);
+		t1.addTime(0.1, TaskState.USER);
 		TimeStats t2 = s.getIntervalByTime(0.75);
-		t2.addTime(0.2, KernelMode.USER);
-		assertEquals(t1.getTime(KernelMode.USER) + 
-		t2.getTime(KernelMode.USER), 
-		s.getSum().getTime(KernelMode.USER), p);
+		t2.addTime(0.2, TaskState.USER);
+		assertEquals(t1.getTime(TaskState.USER) +
+					 t2.getTime(TaskState.USER),
+					 s.getSum().getTime(TaskState.USER), p);
 	}
 	
 	@Test
 	public void testAddInterval() {
-		KernelMode mode = KernelMode.USER;
+		TaskState mode = TaskState.USER;
 		TimeStatsBucket s = new TimeStatsBucket();
 		s.init(0.1, 0.7, 6);
 		s.addInterval(0.0, 1.0, mode);

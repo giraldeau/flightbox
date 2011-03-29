@@ -1,17 +1,15 @@
 package org.lttng.flightbox.cpu;
 
 import java.util.HashMap;
-import java.util.Set;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
-import org.lttng.flightbox.GlobalState.KernelMode;
 import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.io.EventData;
-import org.lttng.flightbox.io.ITraceEventHandler;
 import org.lttng.flightbox.io.TraceEventHandlerBase;
 import org.lttng.flightbox.io.TraceHook;
 import org.lttng.flightbox.io.TraceReader;
+import org.lttng.flightbox.model.KernelTask.TaskState;
 
 public class TraceEventHandlerStats extends TraceEventHandlerBase {
 	
@@ -58,7 +56,7 @@ public class TraceEventHandlerStats extends TraceEventHandlerBase {
 			cpuHistory.put(cpu, new EventData());
 		}
 		if (prev_pid > 0) {
-			cpuStats.addInterval(t, eventTs, cpu, KernelMode.USER);
+			cpuStats.addInterval(t, eventTs, cpu, TaskState.USER);
 		}
 		// update history to keep track of previous event
 		cpuHistory.get(cpu).update(event);
@@ -74,7 +72,7 @@ public class TraceEventHandlerStats extends TraceEventHandlerBase {
 			long eventTs = event.getTime();
 			Long next_pid = (Long) event.get("next_pid");
 			if(next_pid > 0) {
-				cpuStats.addInterval(eventTs, end, cpu, KernelMode.USER);
+				cpuStats.addInterval(eventTs, end, cpu, TaskState.USER);
 			}
 		}
 	}

@@ -5,8 +5,8 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-import org.lttng.flightbox.GlobalState.KernelMode;
 import org.lttng.flightbox.UsageStats;
+import org.lttng.flightbox.model.KernelTask.TaskState;
 import org.lttng.flightbox.ui.ChartHighlighter.TimeInterval;
 import org.swtchart.Chart;
 import org.swtchart.ILineSeries;
@@ -98,7 +98,7 @@ public class CpuUsageView extends Composite {
 			// recompute the chart
 			for(int i=0; i<stats.getNumEntry(); i++) {
 				double[] dataX = stats.getXSeries(new Long(i));
-				double[] dataY = stats.getYSeries(new Long(i), KernelMode.USER);
+				double[] dataY = stats.getYSeries(new Long(i), TaskState.USER);
 				ILineSeries lineSeries = (ILineSeries) chart.getSeriesSet()
 				.createSeries(SeriesType.LINE, "CPU " + i);
 				lineSeries.setSymbolType(PlotSymbolType.NONE);

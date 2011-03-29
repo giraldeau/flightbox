@@ -2,13 +2,13 @@ package org.lttng.flightbox;
 
 import java.util.EnumMap;
 
-import org.lttng.flightbox.GlobalState.KernelMode;
+import org.lttng.flightbox.model.KernelTask.TaskState;
 
 public class TimeStats {
 
 	private double t1;
 	private double t2;
-	private EnumMap<KernelMode, Double> dataMap;
+	private EnumMap<TaskState, Double> dataMap;
 	public static double NANO = 1000000000;
 	
 	public TimeStats() {
@@ -18,23 +18,23 @@ public class TimeStats {
 	public TimeStats(double t1, double t2) {
 		this.setStartTime(t1);
 		this.setEndTime(t2);
-		dataMap = new EnumMap<KernelMode, Double>(KernelMode.class);
+		dataMap = new EnumMap<TaskState, Double>(TaskState.class);
 		clear();
 	}
 	
 	public void clear() {
-		for(KernelMode mode: KernelMode.values()) {
+		for(TaskState mode: TaskState.values()) {
 			dataMap.put(mode, 0.0);
 		}
 	}
 	
-	public void addTime(double time, KernelMode mode) {
+	public void addTime(double time, TaskState mode) {
 		Double t = dataMap.get(mode);
 		t += time;
 		dataMap.put(mode, t);
 	}
 	
-	public double getTime(KernelMode mode) {
+	public double getTime(TaskState mode) {
 		return dataMap.get(mode).doubleValue();
 	}
 	
@@ -55,14 +55,13 @@ public class TimeStats {
 	}
 	
 	public double getSystem() {
-		return 	dataMap.get(KernelMode.IRQ) +
-				dataMap.get(KernelMode.TRAP) +
-				dataMap.get(KernelMode.SYSCALL) +
-				dataMap.get(KernelMode.SOFTIRQ);
+		return 	dataMap.get(TaskState.TRAP) +
+				dataMap.get(TaskState.SYSCALL) +
+				dataMap.get(TaskState.INTERRUPTED);
 	}
 	
 	public double getTotal() {
-		return getSystem() + dataMap.get(KernelMode.USER);
+		return getSystem() + dataMap.get(TaskState.USER);
 	}
 	
 	public double getDuration() {
@@ -77,7 +76,7 @@ public class TimeStats {
 		return getTotal() / getDuration();
 	}
 	
-	public double getAvg(KernelMode mode) {
+	public double getAvg(TaskState mode) {
 		return dataMap.get(mode) / getDuration();
 	}
 	
@@ -96,7 +95,7 @@ public class TimeStats {
 		if (other.getEndTime() > t2) {
 			this.t2 = other.getEndTime();
 		}
-		for (KernelMode mode: other.dataMap.keySet()) {
+		for (TaskState mode: other.dataMap.keySet()) {
 			Double d = dataMap.get(mode);
 			d += other.dataMap.get(mode);
 			dataMap.put(mode, d);
@@ -106,12 +105,12 @@ public class TimeStats {
 	public String toString() {
 		StringBuilder b = new StringBuilder();
 		b.append("enlaps=" + getDuration());
-		b.append(" user=" + getTime(KernelMode.USER));
+		b.append(" user=" + getTime(TaskState.USER));
 		b.append(" system=" + getSystem());
 		return b.toString();
 	}
 
-	public void addInterval(double x1, double x2, KernelMode mode) {
+	public void addInterval(double x1, double x2, TaskState mode) {
 		// verify that this interval is part of our time 
 		if (x2 <= t1 || x1 >= t2)
 			return;
@@ -132,7 +131,7 @@ public class TimeStats {
 	}
 
 	public TimeStats mul(double factor) {
-		for (KernelMode mode: dataMap.keySet()) {
+		for (TaskState mode: dataMap.keySet()) {
 			Double d = dataMap.get(mode);
 			dataMap.put(mode, d * factor);
 		}
