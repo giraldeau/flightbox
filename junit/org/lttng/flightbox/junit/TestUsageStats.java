@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.lttng.flightbox.GlobalState.KernelMode;
 import org.lttng.flightbox.UsageStats;
-import org.lttng.flightbox.cpu.KernelProcess;
+import org.lttng.flightbox.model.KernelTask;
 
 public class TestUsageStats {
 

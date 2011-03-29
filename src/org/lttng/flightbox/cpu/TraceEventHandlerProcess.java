@@ -1,6 +1,5 @@
 package org.lttng.flightbox.cpu;
 
-import java.util.Set;
 import java.util.TreeMap;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
@@ -8,11 +7,10 @@ import org.eclipse.linuxtools.lttng.jni.JniTrace;
 import org.lttng.flightbox.GlobalState.KernelMode;
 import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.io.EventData;
-import org.lttng.flightbox.io.EventQuery;
-import org.lttng.flightbox.io.ITraceEventHandler;
 import org.lttng.flightbox.io.TraceEventHandlerBase;
 import org.lttng.flightbox.io.TraceHook;
 import org.lttng.flightbox.io.TraceReader;
+import org.lttng.flightbox.model.KernelTask;
 
 public class TraceEventHandlerProcess extends TraceEventHandlerBase {
 	
@@ -22,7 +20,7 @@ public class TraceEventHandlerProcess extends TraceEventHandlerBase {
 	TreeMap<Long, EventData> cpuHistory;
 	TreeMap<Long, EventData> eventHistory;
 	UsageStats<Long> procStats;
-	TreeMap<Long, KernelProcess> procInfo;
+	TreeMap<Long, KernelTask> procInfo;
 	TreeMap<Long, Long> currentCpuProcess; // (cpu, pid) 
 	private int numCpu;
 	private double start;
@@ -47,7 +45,7 @@ public class TraceEventHandlerProcess extends TraceEventHandlerBase {
 		start = (double) trace.getStartTime().getTime();
 		end = (double) trace.getEndTime().getTime();
 		procStats = new UsageStats<Long>((long)start, (long)end, 50);
-		procInfo = new TreeMap<Long, KernelProcess>();
+		procInfo = new TreeMap<Long, KernelTask>();
 		currentCpuProcess = new TreeMap<Long, Long>();
 	}
 	
@@ -87,10 +85,10 @@ public class TraceEventHandlerProcess extends TraceEventHandlerBase {
 	}
 	
 	public void handle_task_state_process_state(TraceReader reader, JniEvent event) {
-			KernelProcess proc = new KernelProcess();
+			KernelTask proc = new KernelTask();
 			double eventTs = (double) event.getEventTime().getTime();
 			Long pid = (Long) event.parseFieldByName("pid");
-			proc.setPid(pid);
+			proc.setProcessId(pid.intValue());
 			proc.setCmd((String) event.parseFieldByName("name"));
 			procInfo.put(pid, proc);
 			/* FIXME: adding empty interval should not be required */
@@ -101,8 +99,8 @@ public class TraceEventHandlerProcess extends TraceEventHandlerBase {
 			Long cpu = event.getParentTracefile().getCpuNumber();
 			Long pid = (Long) cpuHistory.get(cpu).get("next_pid");
 			String filename = (String) event.parseFieldByName("filename");
-			KernelProcess proc = new KernelProcess();
-			proc.setPid(pid);
+			KernelTask proc = new KernelTask();
+			proc.setProcessId(pid.intValue());
 			proc.setCmd(filename);
 			procInfo.put(pid, proc);
 	}
@@ -110,8 +108,8 @@ public class TraceEventHandlerProcess extends TraceEventHandlerBase {
 	public void handle_kernel_process_fork(TraceReader reader, JniEvent event) {
 		Long parent_pid = (Long) event.parseFieldByName("parent_pid");
 		Long child_pid = (Long) event.parseFieldByName("child_pid");
-		KernelProcess proc = new KernelProcess();
-		proc.setPid(child_pid);
+		KernelTask proc = new KernelTask();
+		proc.setProcessId(child_pid.intValue());
 		proc.setCmd(procInfo.get(parent_pid).getCmd());
 		procInfo.put(child_pid, proc);
 	}
@@ -132,11 +130,11 @@ public class TraceEventHandlerProcess extends TraceEventHandlerBase {
 	public UsageStats<Long> getUsageStats() {
 		return procStats;
 	}
-	public TreeMap<Long, KernelProcess> getProcInfo() {
+	public TreeMap<Long, KernelTask> getProcInfo() {
 		return procInfo;
 	}
 	
-	public KernelProcess getCurrentProcess(Long cpu) {
+	public KernelTask getCurrentProcess(Long cpu) {
 		Long pid = currentCpuProcess.get(cpu);
 		return procInfo.get(pid);
 	}

@@ -1,8 +1,5 @@
 package org.lttng.flightbox.junit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
@@ -15,7 +12,7 @@ public class TestNetHandler {
 
 	@Test
 	public void testNetHandler() throws JniException {
-		String trace_path = new File(Path.getTraceDir(), "net-simple").toString();
+		String trace_path = new File(Path.getTraceDir(), "tcp-simple").toString();
 		TraceEventHandlerProcess handlerProc = new TraceEventHandlerProcess();
 		TraceEventHandlerNet handlerNet = new TraceEventHandlerNet();
 		TraceReader reader = new TraceReader(trace_path);

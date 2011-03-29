@@ -15,11 +15,11 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.lttng.flightbox.UsageStats;
-import org.lttng.flightbox.cpu.KernelProcess;
 import org.lttng.flightbox.cpu.TraceEventHandlerProcess;
 import org.lttng.flightbox.cpu.TraceEventHandlerStats;
 import org.lttng.flightbox.io.EventQuery;
 import org.lttng.flightbox.io.TraceReader;
+import org.lttng.flightbox.model.KernelTask;
 
 public class MainWindow {
 
@@ -139,7 +139,7 @@ public class MainWindow {
 		cpuView.resetHighlight();
 
 		UsageStats<Long> procStats = proc_handler.getUsageStats();
-		TreeMap<Long, KernelProcess> procInfo = proc_handler.getProcInfo();
+		TreeMap<Long, KernelTask> procInfo = proc_handler.getProcInfo();
 		processView.setStats(procStats, procInfo);
 		processView.resetSumInterval();
 	}
