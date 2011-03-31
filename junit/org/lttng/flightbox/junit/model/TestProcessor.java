@@ -29,7 +29,7 @@ public class TestProcessor {
 			public boolean nextpm = false;
 			@Override
 			public void stateChange(Processor processor, ProcessorState nextState) {
-				prev = processor.getState();
+				prev = processor.peekState();
 				next = nextState;
 			}
 			@Override
@@ -41,11 +41,11 @@ public class TestProcessor {
 		Klass listener = new Klass();
 		p1.addListener(listener);
 		
-		p1.setState(ProcessorState.IRQ);
+		p1.pushState(ProcessorState.IRQ);
 		assertEquals(null, listener.prev);
 		assertEquals(ProcessorState.IRQ, listener.next);
 		
-		p1.setState(ProcessorState.SOFTIRQ);
+		p1.pushState(ProcessorState.SOFTIRQ);
 		assertEquals(ProcessorState.IRQ, listener.prev);
 		assertEquals(ProcessorState.SOFTIRQ, listener.next);
 		
@@ -64,7 +64,7 @@ public class TestProcessor {
 		listener.prev = null;
 		listener.next = null;
 		p1.removeListener(listener);
-		p1.setState(ProcessorState.SYSCALL);
+		p1.pushState(ProcessorState.SYSCALL);
 		assertEquals(null, listener.prev);
 		assertEquals(null, listener.next);
 	}

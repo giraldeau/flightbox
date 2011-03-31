@@ -1,7 +1,7 @@
 package org.lttng.flightbox.model;
 
-import java.util.List;
-import java.util.Vector;
+import java.util.HashSet;
+import java.util.Stack;
 
 
 /**
@@ -17,8 +17,8 @@ public class Processor implements Comparable<Processor> {
 
 	private boolean isLowPowerMode;
 	private int id;
-	private ProcessorState state;
-	private List<IProcessorListener> listeners;
+	private Stack<ProcessorState> state;
+	private HashSet<IProcessorListener> listeners;
 	
 	public Processor(int id) {
 		this();
@@ -26,7 +26,8 @@ public class Processor implements Comparable<Processor> {
 	}
 
 	public Processor() {
-		listeners = new Vector<IProcessorListener>();
+		listeners = new HashSet<IProcessorListener>();
+		state = new Stack<ProcessorState>();
 	}
 	
 	public boolean isLowPowerMode() {
@@ -46,15 +47,24 @@ public class Processor implements Comparable<Processor> {
 		this.id = id;
 	}
 
-	public ProcessorState getState() {
-		return state;
+	public ProcessorState peekState() {
+		if (state.isEmpty())
+			return null;
+		return state.peek();
 	}
 
-	public void setState(ProcessorState state) {
-		fireStateChange(state);
-		this.state = state;
+	public void pushState(ProcessorState newState) {
+		fireStateChange(newState);
+		state.push(newState);
 	}
 
+	public void popState() {
+		if (state.isEmpty())
+			return;
+		fireStateChange(state.get(state.size()-1));
+		state.pop();
+	}
+	
 	private void fireStateChange(ProcessorState nextState) {
 		for (IProcessorListener l: listeners) {
 			l.stateChange(this, nextState);
