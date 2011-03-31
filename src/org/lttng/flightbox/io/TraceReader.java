@@ -6,11 +6,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
-import org.eclipse.linuxtools.lttng.jni.common.JniTime;
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.eclipse.linuxtools.lttng.jni.factory.JniTraceFactory;
 
@@ -24,6 +22,7 @@ public class TraceReader {
 	private Set<TraceHook> catchAllHook;
 	private Map<Integer, ArrayList<Set<TraceHook>>> traceHookArrayCache;
 	private static Class[] argTypes = new Class[] { TraceReader.class, JniEvent.class };
+	private TimeKeeper timeKeeper;
 	
 	public TraceReader(String trace_path) {
 		this.tracePath = trace_path;
@@ -32,6 +31,7 @@ public class TraceReader {
 		traceHookMapCache = new HashMap<String, Map<Integer, Set<TraceHook>>>();
 		traceHookArrayCache = new HashMap<Integer, ArrayList<Set<TraceHook>>>();
 		catchAllHook = new HashSet<TraceHook>();
+		timeKeeper = TimeKeeper.getInstance();
 	}
 	
 	public void loadTrace() throws JniException {
@@ -107,12 +107,12 @@ public class TraceReader {
 		String eventName;
 		String traceFileName;
 		
-		
 		for(ITraceEventHandler handler: handlers.values()) {
 			handler.handleInit(this, trace);
 		}
 		
 		while((event=trace.readNextEvent()) != null) {
+			timeKeeper.setCurrentTime(event.getEventTime().getTime());
 			nbEvents++;
 			//eventId = event.getEventMarkerId();
 			traceFileName = event.getParentTracefile().getTracefileName();
@@ -206,4 +206,5 @@ public class TraceReader {
 	public Long getEndTime() {
 		return trace.getEndTime().getTime();
 	}
+	
 }

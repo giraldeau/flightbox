@@ -1,5 +1,8 @@
 package org.lttng.flightbox.model;
 
+import java.util.List;
+import java.util.Vector;
+
 
 /**
  * Model of a computer processor
@@ -15,6 +18,7 @@ public class Processor implements Comparable<Processor> {
 	private boolean isLowPowerMode;
 	private int id;
 	private ProcessorState state;
+	private List<IProcessorListener> listeners;
 	
 	public Processor(int id) {
 		this();
@@ -22,14 +26,16 @@ public class Processor implements Comparable<Processor> {
 	}
 
 	public Processor() {
+		listeners = new Vector<IProcessorListener>();
 	}
 	
 	public boolean isLowPowerMode() {
 		return isLowPowerMode;
 	}
 
-	public void setLowPowerMode(boolean isLowPowerMode) {
-		this.isLowPowerMode = isLowPowerMode;
+	public void setLowPowerMode(boolean nextLowPowerMode) {
+		fireLowPowerModeChange(nextLowPowerMode);
+		this.isLowPowerMode = nextLowPowerMode;
 	}
 
 	public int getId() {
@@ -45,9 +51,30 @@ public class Processor implements Comparable<Processor> {
 	}
 
 	public void setState(ProcessorState state) {
+		fireStateChange(state);
 		this.state = state;
 	}
 
+	private void fireStateChange(ProcessorState nextState) {
+		for (IProcessorListener l: listeners) {
+			l.stateChange(this, nextState);
+		}
+	}
+
+	private void fireLowPowerModeChange(boolean nextLowPowerMode) {
+		for (IProcessorListener l: listeners) {
+			l.lowPowerModeChange(this, nextLowPowerMode);
+		}
+	}
+	
+	public void addListener(IProcessorListener listener) {
+		listeners.add(listener);
+	}
+	
+	public void removeListener(IProcessorListener listener) {
+		listeners.remove(listener);
+	}
+	
 	public boolean equals(Object other) {
 		if (other instanceof Processor) {
 			Processor p = (Processor) other;

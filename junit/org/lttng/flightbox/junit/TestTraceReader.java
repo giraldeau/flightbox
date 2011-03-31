@@ -15,7 +15,10 @@ import org.lttng.flightbox.TimeStatsBucket;
 import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.cpu.TraceEventHandlerProcess;
 import org.lttng.flightbox.cpu.TraceEventHandlerStats;
+import org.lttng.flightbox.io.TimeKeeper;
+import org.lttng.flightbox.io.TraceEventHandlerBase;
 import org.lttng.flightbox.io.TraceEventHandlerCounter;
+import org.lttng.flightbox.io.TraceHook;
 import org.lttng.flightbox.io.TraceReader;
 import org.lttng.flightbox.model.KernelTask.TaskState;
 
@@ -74,5 +77,25 @@ public class TestTraceReader {
 			}
 		}
 		assertEquals(stats.getNumEntry(), handler.getProcInfo().size());
+	}
+
+	public class TraceAssertTime extends TraceEventHandlerBase {
+		public TraceAssertTime() {
+			super();
+			hooks.add(new TraceHook());
+		}
+		public void handle_all_event(TraceReader reader, JniEvent event) {
+			TimeKeeper instance = TimeKeeper.getInstance();
+			assertEquals(event.getEventTime().getTime(), instance.getCurrentTime());
+		}
+	}
+	
+	@Test
+	public void testTimeKeeper() throws JniException {
+		String trace_path = new File(Path.getTraceDir(), "burn-8x-1sec").toString();
+		TraceAssertTime handler = new TraceAssertTime();
+		TraceReader reader = new TraceReader(trace_path);
+		reader.register(handler);
+		reader.process();
 	}
 }
