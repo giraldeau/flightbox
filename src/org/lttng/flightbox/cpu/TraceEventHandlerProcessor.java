@@ -5,12 +5,12 @@ import org.eclipse.linuxtools.lttng.jni.JniTrace;
 import org.lttng.flightbox.io.TraceEventHandlerBase;
 import org.lttng.flightbox.io.TraceHook;
 import org.lttng.flightbox.io.TraceReader;
-import org.lttng.flightbox.model.KernelSystem;
+import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Processor;
 
 public class TraceEventHandlerProcessor extends TraceEventHandlerBase {
 
-	private KernelSystem systemModel;
+	private SystemModel systemModel;
 
 	public TraceEventHandlerProcessor() {
 		super();

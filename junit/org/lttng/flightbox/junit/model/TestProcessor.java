@@ -40,15 +40,15 @@ public class TestProcessor {
 		};
 		Klass listener = new Klass();
 		p1.addListener(listener);
-		
+
 		p1.pushState(ProcessorState.IRQ);
 		assertEquals(null, listener.prev);
 		assertEquals(ProcessorState.IRQ, listener.next);
-		
+
 		p1.pushState(ProcessorState.SOFTIRQ);
 		assertEquals(ProcessorState.IRQ, listener.prev);
 		assertEquals(ProcessorState.SOFTIRQ, listener.next);
-		
+
 		p1.setLowPowerMode(false);
 		assertEquals(false, listener.prevpm);
 		assertEquals(false, listener.nextpm);
@@ -60,11 +60,11 @@ public class TestProcessor {
 		p1.setLowPowerMode(false);
 		assertEquals(true, listener.prevpm);
 		assertEquals(false, listener.nextpm);
-		
+
 		listener.prev = null;
 		listener.next = null;
 		p1.removeListener(listener);
-		p1.pushState(ProcessorState.SYSCALL);
+		p1.pushState(ProcessorState.BUSY);
 		assertEquals(null, listener.prev);
 		assertEquals(null, listener.next);
 	}

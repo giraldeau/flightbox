@@ -6,7 +6,7 @@ import org.lttng.flightbox.cpu.TraceEventHandlerProcess;
 import org.lttng.flightbox.io.TraceEventHandlerBase;
 import org.lttng.flightbox.io.TraceHook;
 import org.lttng.flightbox.io.TraceReader;
-import org.lttng.flightbox.model.KernelTask;
+import org.lttng.flightbox.model.Task;
 
 public class TraceEventHandlerNet extends TraceEventHandlerBase {
 
@@ -29,7 +29,7 @@ public class TraceEventHandlerNet extends TraceEventHandlerBase {
 		
 		double eventTs = (double) event.getEventTime().getTime();
 		Long cpu = event.getParentTracefile().getCpuNumber();
-		KernelTask proc = processHandler.getCurrentProcess(cpu);
+		Task proc = processHandler.getCurrentProcess(cpu);
 		Long network_protocol = (Long) event.parseFieldByName("network_protocol");
 		Long transport_protocol = (Long) event.parseFieldByName("transport_protocol");
 		Long saddr = (Long) event.parseFieldByName("saddr");
@@ -56,7 +56,7 @@ public class TraceEventHandlerNet extends TraceEventHandlerBase {
 		
 		double eventTs = (double) event.getEventTime().getTime();
 		Long cpu = event.getParentTracefile().getCpuNumber();
-		KernelTask proc = processHandler.getCurrentProcess(cpu);
+		Task proc = processHandler.getCurrentProcess(cpu);
 		Long saddr = (Long) event.parseFieldByName("saddr");
 		Long daddr = (Long) event.parseFieldByName("daddr");
 		Long tot_len = (Long) event.parseFieldByName("tot_len");

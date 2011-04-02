@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.lttng.flightbox.UsageStats;
-import org.lttng.flightbox.model.KernelTask.TaskState;
+import org.lttng.flightbox.model.Task.TaskState;
 
 public class TestUsageStats {
 

@@ -6,7 +6,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.lttng.flightbox.UsageStats;
-import org.lttng.flightbox.model.KernelTask.TaskState;
+import org.lttng.flightbox.model.Task.TaskState;
 import org.lttng.flightbox.ui.ChartHighlighter.TimeInterval;
 import org.swtchart.Chart;
 import org.swtchart.ILineSeries;

@@ -19,7 +19,7 @@ import org.lttng.flightbox.cpu.TraceEventHandlerProcess;
 import org.lttng.flightbox.cpu.TraceEventHandlerStats;
 import org.lttng.flightbox.io.EventQuery;
 import org.lttng.flightbox.io.TraceReader;
-import org.lttng.flightbox.model.KernelTask;
+import org.lttng.flightbox.model.Task;
 
 public class MainWindow {
 
@@ -139,7 +139,7 @@ public class MainWindow {
 		cpuView.resetHighlight();
 
 		UsageStats<Long> procStats = proc_handler.getUsageStats();
-		TreeMap<Long, KernelTask> procInfo = proc_handler.getProcInfo();
+		TreeMap<Long, Task> procInfo = proc_handler.getProcInfo();
 		processView.setStats(procStats, procInfo);
 		processView.resetSumInterval();
 	}

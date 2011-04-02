@@ -9,17 +9,17 @@ import java.util.Stack;
  *
  * @author francis
  */
-public class Processor implements Comparable<Processor> {
+public class Processor extends SystemResource implements Comparable<Processor> {
 
 	public enum ProcessorState {
-		USER, SYSCALL, TRAP, IRQ, SOFTIRQ, IDLE
+		IDLE, BUSY, TRAP, IRQ, SOFTIRQ
 	}
 
 	private boolean isLowPowerMode;
 	private int id;
-	private Stack<ProcessorState> state;
-	private HashSet<IProcessorListener> listeners;
-	
+	private final Stack<ProcessorState> state;
+	private final HashSet<IProcessorListener> listeners;
+
 	public Processor(int id) {
 		this();
 		this.id = id;
@@ -29,7 +29,7 @@ public class Processor implements Comparable<Processor> {
 		listeners = new HashSet<IProcessorListener>();
 		state = new Stack<ProcessorState>();
 	}
-	
+
 	public boolean isLowPowerMode() {
 		return isLowPowerMode;
 	}
@@ -64,27 +64,36 @@ public class Processor implements Comparable<Processor> {
 		fireStateChange(state.get(state.size()-1));
 		state.pop();
 	}
-	
+
 	private void fireStateChange(ProcessorState nextState) {
-		for (IProcessorListener l: listeners) {
-			l.stateChange(this, nextState);
+		if (parent != null) {
+			parent.stateChange(this, nextState);
+		} else {
+			for (IProcessorListener l: listeners) {
+				l.stateChange(this, nextState);
+			}
 		}
 	}
 
 	private void fireLowPowerModeChange(boolean nextLowPowerMode) {
-		for (IProcessorListener l: listeners) {
-			l.lowPowerModeChange(this, nextLowPowerMode);
+		if (parent != null) {
+			parent.lowPowerModeChange(this, nextLowPowerMode);
+		} else {
+			for (IProcessorListener l: listeners) {
+				l.lowPowerModeChange(this, nextLowPowerMode);
+			}
 		}
 	}
-	
+
 	public void addListener(IProcessorListener listener) {
 		listeners.add(listener);
 	}
-	
+
 	public void removeListener(IProcessorListener listener) {
 		listeners.remove(listener);
 	}
-	
+
+	@Override
 	public boolean equals(Object other) {
 		if (other instanceof Processor) {
 			Processor p = (Processor) other;
@@ -94,11 +103,12 @@ public class Processor implements Comparable<Processor> {
 		}
 		return false;
 	}
-	
+
+	@Override
 	public int hashCode() {
 		return this.id;
 	}
-	
+
 	@Override
 	public int compareTo(Processor other) {
 		final int BEFORE = -1;
@@ -108,6 +118,6 @@ public class Processor implements Comparable<Processor> {
 		if (this.id < other.id) return BEFORE;
 		if (this.id > other.id) return AFTER;
 		return EQUAL;
-	}	
-	
+	}
+
 }

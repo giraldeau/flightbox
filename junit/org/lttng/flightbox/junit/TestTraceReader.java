@@ -20,7 +20,7 @@ import org.lttng.flightbox.io.TraceEventHandlerBase;
 import org.lttng.flightbox.io.TraceEventHandlerCounter;
 import org.lttng.flightbox.io.TraceHook;
 import org.lttng.flightbox.io.TraceReader;
-import org.lttng.flightbox.model.KernelTask.TaskState;
+import org.lttng.flightbox.model.Task.TaskState;
 
 public class TestTraceReader {
 	

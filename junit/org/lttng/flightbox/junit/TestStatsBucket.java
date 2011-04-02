@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.lttng.flightbox.TimeStats;
 import org.lttng.flightbox.TimeStatsBucket;
-import org.lttng.flightbox.model.KernelTask.TaskState;
+import org.lttng.flightbox.model.Task.TaskState;
 
 public class TestStatsBucket {
 

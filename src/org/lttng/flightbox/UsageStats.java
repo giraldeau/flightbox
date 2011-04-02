@@ -3,7 +3,7 @@ package org.lttng.flightbox;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.lttng.flightbox.model.KernelTask.TaskState;
+import org.lttng.flightbox.model.Task.TaskState;
 
 public class UsageStats <T> {
 

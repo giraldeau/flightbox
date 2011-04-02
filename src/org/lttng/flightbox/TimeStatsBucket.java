@@ -2,7 +2,7 @@ package org.lttng.flightbox;
 
 import java.util.ArrayList;
 
-import org.lttng.flightbox.model.KernelTask.TaskState;
+import org.lttng.flightbox.model.Task.TaskState;
 
 public class TimeStatsBucket {
 

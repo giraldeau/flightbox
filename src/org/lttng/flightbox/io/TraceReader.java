@@ -11,7 +11,7 @@ import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.eclipse.linuxtools.lttng.jni.factory.JniTraceFactory;
-import org.lttng.flightbox.model.KernelSystem;
+import org.lttng.flightbox.model.SystemModel;
 
 public class TraceReader {
 
@@ -24,7 +24,7 @@ public class TraceReader {
 	private Map<Integer, ArrayList<Set<TraceHook>>> traceHookArrayCache;
 	private static Class[] argTypes = new Class[] { TraceReader.class, JniEvent.class };
 	private TimeKeeper timeKeeper;
-	private KernelSystem systemModel;
+	private SystemModel systemModel;
 	
 	public TraceReader(String trace_path) {
 		this.tracePath = trace_path;
@@ -38,7 +38,7 @@ public class TraceReader {
 	
 	public void loadTrace() throws JniException {
 		trace = JniTraceFactory.getJniTrace(tracePath);
-		systemModel = new KernelSystem();
+		systemModel = new SystemModel();
 		systemModel.initProcessors(trace.getCpuNumber());
 	}
 
@@ -211,7 +211,7 @@ public class TraceReader {
 		return trace.getEndTime().getTime();
 	}
 	
-	public KernelSystem getSystemModel() {
+	public SystemModel getSystemModel() {
 		return systemModel;
 	}
 }

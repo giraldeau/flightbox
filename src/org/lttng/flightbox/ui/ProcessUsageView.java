@@ -15,13 +15,13 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.lttng.flightbox.TimeStats;
 import org.lttng.flightbox.UsageStats;
-import org.lttng.flightbox.model.KernelTask;
-import org.lttng.flightbox.model.KernelTask.TaskState;
+import org.lttng.flightbox.model.Task;
+import org.lttng.flightbox.model.Task.TaskState;
 
 public class ProcessUsageView extends Composite {
 
 	private Table table;
-	private TreeMap<Long, KernelTask> procInfo;
+	private TreeMap<Long, Task> procInfo;
 	private UsageStats<Long> procStats;
 	private ArrayList<TableData> dataSet;
 	private Comparator cmp;
@@ -110,7 +110,7 @@ public class ProcessUsageView extends Composite {
 	}
 	
 	public void setStats(UsageStats<Long> procStats,
-			TreeMap<Long, KernelTask> procInfo) {
+			TreeMap<Long, Task> procInfo) {
 		
 		this.procStats = procStats;
 		this.procInfo = procInfo;
