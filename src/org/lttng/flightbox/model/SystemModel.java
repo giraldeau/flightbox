@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.lttng.flightbox.model.Processor.ProcessorState;
-import org.lttng.flightbox.model.Task.TaskState;
 
 public class SystemModel implements IProcessorListener, ITaskListener {
 
@@ -99,14 +98,14 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 	}
 
 	@Override
-	public void pushState(Task task, TaskState nextState) {
+	public void pushState(Task task, StateInfo nextState) {
 		for (ITaskListener listener: taskListeners) {
 			listener.pushState(task, nextState);
 		}
 	}
 
 	@Override
-	public void popState(Task task, TaskState nextState) {
+	public void popState(Task task, StateInfo nextState) {
 		for (ITaskListener listener: taskListeners) {
 			listener.popState(task, nextState);
 		}

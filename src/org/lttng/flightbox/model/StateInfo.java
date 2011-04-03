@@ -1,9 +1,38 @@
 package org.lttng.flightbox.model;
 
+import org.lttng.flightbox.model.Task.TaskState;
 
-public abstract class StateInfo implements Resetable {
+
+public abstract class StateInfo {
+
+	private TaskState taskState;
+	private long start;
+	private long end;
 
 	public StateInfo() {
-		reset();
+	}
+
+	public void setTaskState(TaskState taskState) {
+		this.taskState = taskState;
+	}
+
+	public TaskState getTaskState() {
+		return taskState;
+	}
+
+	public void setStartTime(long start) {
+		this.start = start;
+	}
+
+	public long getStartTime() {
+		return start;
+	}
+
+	public void setEndTime(long end) {
+		this.end = end;
+	}
+
+	public long getEndTime() {
+		return end;
 	}
 }

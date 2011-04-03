@@ -16,11 +16,20 @@ public class StateInfoFactory {
 		case SYSCALL:
 			info = new SyscallInfo();
 			break;
+		case WAIT:
+			info = new WaitInfo();
+			break;
 		case TRAP:
+			info = new TrapInfo();
+			break;
 		case ZOMBIE:
-		case READY:
+			info = new ZombieInfo();
+			break;
 		case USER:
+			info = new UserInfo();
+			break;
 		case EXIT:
+			info = new ExitInfo();
 			break;
 		default:
 			break;

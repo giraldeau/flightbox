@@ -1,9 +1,7 @@
 package org.lttng.flightbox.model;
 
-import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -15,7 +13,7 @@ import java.util.Vector;
 public class Task extends SystemResource implements Comparable<Task> {
 
 	public enum TaskState {
-		READY, USER, IRQ, SOFTIRQ, SYSCALL, TRAP, ZOMBIE, EXIT
+		WAIT, USER, IRQ, SOFTIRQ, SYSCALL, TRAP, ZOMBIE, EXIT
 	}
 
 	private long createTime;
@@ -26,9 +24,7 @@ public class Task extends SystemResource implements Comparable<Task> {
 	private List<Task> childrenProcess;
 	private int exitStatus;
 	private String cmd;
-	private final Stack<TaskState> stateStack;
-	private final Map<TaskState, Stack<StateInfo>> stateInfo;
-	private final Map<TaskState, Stack<StateInfo>> stateInfoCache;
+	private final Stack<StateInfo> stateStack;
 	private final HashSet<ITaskListener> listeners;
 
 	public Task(int pid, long createTs) {
@@ -38,14 +34,8 @@ public class Task extends SystemResource implements Comparable<Task> {
 	}
 
 	public Task() {
-		stateStack = new Stack<TaskState>();
+		stateStack = new Stack<StateInfo>();
 		listeners = new HashSet<ITaskListener>();
-		stateInfo = new EnumMap<TaskState, Stack<StateInfo>>(TaskState.class);
-		stateInfoCache = new EnumMap<TaskState, Stack<StateInfo>>(TaskState.class);
-		for (TaskState state: TaskState.values()) {
-			stateInfo.put(state, new Stack<StateInfo>());
-			stateInfoCache.put(state, new Stack<StateInfo>());
-		}
 	}
 
 	@Override
@@ -148,56 +138,25 @@ public class Task extends SystemResource implements Comparable<Task> {
 		return childrenProcess.contains(child);
 	}
 
-	public StateInfo setupStateInfo(TaskState state) {
-		Stack<StateInfo> stack = stateInfo.get(state);
-		Stack<StateInfo> oldStack = stateInfoCache.get(state);
-		StateInfo info = null;
-		if (stack.size() == oldStack.size()) {
-			info = StateInfoFactory.makeStateInfo(state);
-		} else if (stack.size() < oldStack.size()) {
-			info = oldStack.get(stack.size() - 1);
-			if (info != null)
-				info.reset();
-		} else {
-			throw new RuntimeException("size of state info cache should never be less than current stack size");
-		}
-		if (info != null)
-			stack.push(info);
-		return info;
+	public void pushState(StateInfo info) {
+		firePushState(info);
+		stateStack.push(info);
 	}
 
-	public void pushState(TaskState state) {
-		firePushState(state);
-		stateStack.push(state);
-	}
-
-	public void popState() {
+	public StateInfo popState() {
 		if (stateStack.isEmpty())
-			return;
+			return null;
 		firePopState();
-		TaskState state = stateStack.peek();
-		Stack<StateInfo> stack = stateInfo.get(state);
-		if (!stack.isEmpty())
-			stack.pop();
-		stateStack.pop();
+		return stateStack.pop();
 	}
 
-	public TaskState peekState() {
+	public StateInfo peekState() {
 		if (stateStack.isEmpty())
 			return null;
 		return stateStack.peek();
 	}
 
-	public StateInfo peekStateInfo(TaskState state) {
-		if (state == null)
-			return null;
-		Stack<StateInfo> stack = stateInfo.get(state);
-		if (stack.isEmpty())
-			return null;
-		return stack.peek();
-	}
-
-	public void firePushState(TaskState nextState) {
+	public void firePushState(StateInfo nextState) {
 		if (parent != null) {
 			parent.pushState(this, nextState);
 		} else {
@@ -208,7 +167,7 @@ public class Task extends SystemResource implements Comparable<Task> {
 	}
 
 	private void firePopState() {
-		TaskState nextState = null;
+		StateInfo nextState = null;
 		if (stateStack.size() > 1) {
 			nextState = stateStack.get(stateStack.size() - 2);
 		}
@@ -227,11 +186,5 @@ public class Task extends SystemResource implements Comparable<Task> {
 
 	public void removeListener(ITaskListener listener) {
 		listeners.remove(listener);
-	}
-
-	public StateInfo getCurrentStateInfo() {
-		if (stateStack.isEmpty())
-			return null;
-		return stateInfo.get(stateStack.peek()).peek();
 	}
 }

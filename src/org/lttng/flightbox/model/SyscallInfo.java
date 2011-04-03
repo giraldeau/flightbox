@@ -3,6 +3,8 @@ package org.lttng.flightbox.model;
 import java.util.EnumMap;
 import java.util.Map;
 
+import org.lttng.flightbox.model.Task.TaskState;
+
 public class SyscallInfo extends StateInfo {
 
 	public enum Field {
@@ -16,7 +18,7 @@ public class SyscallInfo extends StateInfo {
 	private Map<Field, Object> fieldInfo;
 
 	public SyscallInfo() {
-		super();
+		setTaskState(TaskState.SYSCALL);
 	}
 
 	public void setField(Field key, Object value) {
@@ -45,11 +47,4 @@ public class SyscallInfo extends StateInfo {
 		return syscallId;
 	}
 
-	@Override
-	public void reset() {
-		if (fieldInfo != null)
-			fieldInfo.clear();
-		syscallId = 0;
-		retCode = 0;
-	}
 }
