@@ -67,7 +67,7 @@ public class MainDependency {
 
 		// output report
 		StringBuilder str = new StringBuilder();
-		BlockingReport.printReport(str, listener.getBlockingItems());
+		BlockingReport.printReport(str, listener.getAllBlockingItems());
 		System.out.println(str.toString());
 		
 		long t2 = System.currentTimeMillis();
