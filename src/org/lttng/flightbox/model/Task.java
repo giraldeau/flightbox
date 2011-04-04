@@ -21,7 +21,7 @@ public class Task extends SystemResource implements Comparable<Task> {
 	private int processId;
 	private int threadGroupId;
 	private Task parentProcess;
-	private List<Task> childrenProcess;
+	private List<Task> childrenTask;
 	private int exitStatus;
 	private String cmd;
 	private final Stack<StateInfo> stateStack;
@@ -124,18 +124,22 @@ public class Task extends SystemResource implements Comparable<Task> {
 	}
 
 	public void addChild(Task child) {
-		if (childrenProcess == null) {
-			childrenProcess = new Vector<Task>();
+		if (childrenTask == null) {
+			childrenTask = new Vector<Task>();
 		}
-		childrenProcess.add(child);
+		childrenTask.add(child);
 	}
 
 	public boolean removeChild(Task child) {
-		return childrenProcess.remove(child);
+		return childrenTask.remove(child);
 	}
 
 	public boolean hasChild(Task child) {
-		return childrenProcess.contains(child);
+		return childrenTask.contains(child);
+	}
+
+	public List<Task> getChildren() {
+		return childrenTask;
 	}
 
 	public void pushState(StateInfo info) {
@@ -154,6 +158,14 @@ public class Task extends SystemResource implements Comparable<Task> {
 		if (stateStack.isEmpty())
 			return null;
 		return stateStack.peek();
+	}
+
+	public StateInfo peekState(int i) {
+		if (i > 0)
+			return null;
+		if (stateStack.size() <= Math.abs(i))
+			return null;
+		return stateStack.get((stateStack.size()-1)+i);
 	}
 
 	public void firePushState(StateInfo nextState) {
@@ -187,4 +199,5 @@ public class Task extends SystemResource implements Comparable<Task> {
 	public void removeListener(ITaskListener listener) {
 		listeners.remove(listener);
 	}
+
 }

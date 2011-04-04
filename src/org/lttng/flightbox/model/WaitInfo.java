@@ -10,8 +10,8 @@ public class WaitInfo extends StateInfo {
 
 	private WaitType wait;
 	private StateInfo wakeUp;
-	private StateInfo waitParent;
 	private boolean isBlocking;
+	private SyscallInfo waitingSyscall;
 
 	public WaitInfo() {
 		setTaskState(TaskState.WAIT);
@@ -43,12 +43,12 @@ public class WaitInfo extends StateInfo {
 		return isBlocking;
 	}
 
-	public void setWaitParent(StateInfo waitParent) {
-		this.waitParent = waitParent;
+	public SyscallInfo getWaitingSyscall() {
+		return this.waitingSyscall;
 	}
 
-	public StateInfo getWaitParent() {
-		return waitParent;
+	public void setWaitingSyscall(SyscallInfo syscallInfo) {
+		this.waitingSyscall = syscallInfo;
 	}
 
 }

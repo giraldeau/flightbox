@@ -158,7 +158,7 @@ public class TestTask {
 		 */
 		time.setCurrentTime(30);
 		WaitInfo info2 = (WaitInfo) StateInfoFactory.makeStateInfo(TaskState.WAIT);
-		info2.setWaitParent(t1.peekState());
+		info2.setWaitingSyscall((SyscallInfo)t1.peekState());
 		t1.pushState(info2);
 		t2.popState();
 
@@ -198,6 +198,6 @@ public class TestTask {
 		assertEquals(WaitType.TIMER, wait.getWait());
 		assertEquals(0, ((IRQInfo)wait.getWakeUp()).getIRQId());
 		assertEquals(true, wait.isBlocking());
-		assertEquals(162, ((SyscallInfo)wait.getWaitParent()).getSyscallId());
+		assertEquals(162, wait.getWaitingSyscall().getSyscallId());
 	}
 }

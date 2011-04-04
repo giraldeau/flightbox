@@ -2,8 +2,8 @@ package org.lttng.flightbox.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
+import java.util.TreeSet;
 
 import org.lttng.flightbox.model.Processor.ProcessorState;
 
@@ -12,7 +12,7 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 	/**
 	 * Current process list
 	 */
-	private final HashMap<Integer, HashSet<Task>> tasks;
+	private final HashMap<Integer, TreeSet<Task>> tasksByPid;
 
 	/**
 	 * All processors
@@ -40,7 +40,7 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 		processorListeners = new ArrayList<IProcessorListener>();
 		taskListeners = new ArrayList<ITaskListener>();
 		syscallTable = new SyscallTable();
-		tasks = new HashMap<Integer, HashSet<Task>>();
+		tasksByPid = new HashMap<Integer, TreeSet<Task>>();
 	}
 
 	public void initProcessors(int numOfProcessors) {
@@ -66,17 +66,17 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 
 	public void addTask(Task t1) {
 		int pid = t1.getProcessId();
-		HashSet<Task> taskSet = tasks.get(pid);
+		TreeSet<Task> taskSet = tasksByPid.get(pid);
 		if (taskSet == null) {
-			taskSet = new HashSet<Task>();
-			tasks.put(pid, taskSet);
+			taskSet = new TreeSet<Task>();
+			tasksByPid.put(pid, taskSet);
 		}
 		taskSet.add(t1);
 		t1.setParent(this);
 	}
 
 	public void removeTask(Task t1) {
-		HashSet<Task> taskSet = tasks.get(t1.getProcessId());
+		TreeSet<Task> taskSet = tasksByPid.get(t1.getProcessId());
 		if (taskSet != null && taskSet.contains(t1)) {
 			taskSet.remove(t1);
 		}
@@ -123,4 +123,41 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 		return syscallTable;
 	}
 
+	public HashMap<Integer, TreeSet<Task>> getTasks() {
+		return tasksByPid;
+	}
+
+	public Task getLatestTaskByPID(int pid) {
+		Task task = null;
+		TreeSet<Task> taskSet = tasksByPid.get(pid);
+		if (taskSet != null)
+			task = taskSet.last();
+		return task;
+	}
+
+	public Task getLatestTaskByCmd(String cmd, boolean basename) {
+		TreeSet<Task> resultSet = new TreeSet<Task>();
+		for (TreeSet<Task> set: tasksByPid.values()) {
+			for (Task t: set) {
+				if (basename) {
+					if (t.getCmd().endsWith(cmd)) {
+						resultSet.add(t);
+					}
+				} else {
+					if (t.getCmd().equals(cmd)) {
+						resultSet.add(t);
+					}
+				}
+			}
+		}
+		return resultSet.last();
+	}
+
+	public Task getLatestTaskByCmd(String cmd) {
+		return getLatestTaskByCmd(cmd, false);
+	}
+
+	public Task getLatestTaskByCmdBasename(String cmd) {
+		return getLatestTaskByCmd(cmd, true);
+	}
 }

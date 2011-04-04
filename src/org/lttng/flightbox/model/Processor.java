@@ -19,6 +19,7 @@ public class Processor extends SystemResource implements Comparable<Processor> {
 	private int id;
 	private final Stack<ProcessorState> state;
 	private final HashSet<IProcessorListener> listeners;
+	private Task currentTask;
 
 	public Processor(int id) {
 		this();
@@ -118,6 +119,14 @@ public class Processor extends SystemResource implements Comparable<Processor> {
 		if (this.id < other.id) return BEFORE;
 		if (this.id > other.id) return AFTER;
 		return EQUAL;
+	}
+
+	public void setCurrentTask(Task currentTask) {
+		this.currentTask = currentTask;
+	}
+
+	public Task getCurrentTask() {
+		return currentTask;
 	}
 
 }

@@ -16,16 +16,17 @@ import org.lttng.flightbox.model.SystemModel;
 public class TraceReader {
 
 	protected String tracePath;
-	protected JniTrace trace; 
-	private Map<Class, ITraceEventHandler> handlers;
-	private Map<String, Map<String, Set<TraceHook>>> traceHookMap;
-	private Map<String, Map<Integer, Set<TraceHook>>> traceHookMapCache;
-	private Set<TraceHook> catchAllHook;
-	private Map<Integer, ArrayList<Set<TraceHook>>> traceHookArrayCache;
+	protected JniTrace trace;
+	private final Map<Class, ITraceEventHandler> handlers;
+	private final Map<String, Map<String, Set<TraceHook>>> traceHookMap;
+	private final Map<String, Map<Integer, Set<TraceHook>>> traceHookMapCache;
+	private final Set<TraceHook> catchAllHook;
+	private final Map<Integer, ArrayList<Set<TraceHook>>> traceHookArrayCache;
 	private static Class[] argTypes = new Class[] { TraceReader.class, JniEvent.class };
-	private TimeKeeper timeKeeper;
+	private final TimeKeeper timeKeeper;
 	private SystemModel systemModel;
-	
+	private boolean cancel;
+
 	public TraceReader(String trace_path) {
 		this.tracePath = trace_path;
 		handlers = new HashMap<Class, ITraceEventHandler>();
@@ -35,7 +36,7 @@ public class TraceReader {
 		catchAllHook = new HashSet<TraceHook>();
 		timeKeeper = TimeKeeper.getInstance();
 	}
-	
+
 	public void loadTrace() throws JniException {
 		trace = JniTraceFactory.getJniTrace(tracePath);
 		systemModel = new SystemModel();
@@ -60,13 +61,12 @@ public class TraceReader {
 			e.printStackTrace();
 			isHookOk = false;
 		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Error: hook " + handler.getClass() + "." + methodName + " doesn't exist, disabling");
 			isHookOk = false;
 		}
 		if (!isHookOk)
 			return;
-		
+
 		if(hook.isAllEvent()) {
 			catchAllHook.add(hook);
 		} else {
@@ -81,27 +81,25 @@ public class TraceReader {
 				channelHooks.put(hook.eventName, eventHooks);
 			}
 			eventHooks.add(hook);
-		}	
+		}
 	}
-	
+
 	public void register(ITraceEventHandler handler) {
 		Set<TraceHook> handlerHooks = handler.getHooks();
-		
+
 		/* If handlerHooks is null then add no hooks */
 		if (handlerHooks == null || handlerHooks.size() == 0) {
 			return;
 		}
-		
+
 		/* register individual hooks */
 		for (TraceHook hook: handlerHooks) {
 			registerHook(handler, hook);
 		}
 
-		/* FIXME: should we remove the handler if an exception 
-		 * occur in registering hooks? */
 		handlers.put(handler.getClass(), handler);
 	}
-	
+
 	public void process() throws JniException {
 		loadTrace();
 		JniEvent event;
@@ -110,21 +108,22 @@ public class TraceReader {
 		Set<TraceHook> hooks;
 		String eventName;
 		String traceFileName;
-		
+		cancel = false;
+
 		for(ITraceEventHandler handler: handlers.values()) {
 			handler.handleInit(this, trace);
 		}
-		
-		while((event=trace.readNextEvent()) != null) {
+
+		while((event=trace.readNextEvent()) != null && cancel != true) {
 			timeKeeper.setCurrentTime(event.getEventTime().getTime());
 			nbEvents++;
 			//eventId = event.getEventMarkerId();
 			traceFileName = event.getParentTracefile().getTracefileName();
 			eventId = event.getEventMarkerId();
 			eventName = event.getMarkersMap().get(event.getEventMarkerId()).getName();
-			
+
 			hooks = getHookSetByIdArrayHashCode(traceFileName, traceFileName.hashCode(), eventName, eventId);
-			
+
 			// FIXME: remove hook if an exception is raised
 			for (TraceHook h: hooks){
 				try {
@@ -137,7 +136,7 @@ public class TraceReader {
 					e.printStackTrace();
 				}
 			}
-			
+
 			for (TraceHook h: catchAllHook) {
 				try {
 					h.method.invoke(h.instance, this, event);
@@ -153,12 +152,12 @@ public class TraceReader {
 				}
 			}
 		}
-		
+
 		for(ITraceEventHandler handler: handlers.values()) {
 			handler.handleComplete(this);
 		}
 	}
-	
+
 	public Set<TraceHook> getHookSetByName(String channelName, String eventName) {
 		Map<String, Set<TraceHook>> channelHooks;
 		Set<TraceHook> hooks = null;
@@ -179,7 +178,7 @@ public class TraceReader {
 		ArrayList<Set<TraceHook>> channelHooksCache;
 		Set<TraceHook> hooks = null;
 		channelHooksCache = traceHookArrayCache.get(channelHC);
-		
+
 		if (channelHooksCache == null) {
 			channelHooksCache = new ArrayList<Set<TraceHook>>();
 			traceHookArrayCache.put(channelHC, channelHooksCache);
@@ -197,21 +196,25 @@ public class TraceReader {
 		}
 		return hooks;
 	}
-	
+
 	public ITraceEventHandler getHandler(
 			Class<? extends TraceEventHandlerBase> klass) {
 		return handlers.get(klass);
 	}
-	
+
 	public Long getStartTime() {
 		return trace.getStartTime().getTime();
 	}
-	
+
 	public Long getEndTime() {
 		return trace.getEndTime().getTime();
 	}
-	
+
 	public SystemModel getSystemModel() {
 		return systemModel;
+	}
+
+	public void cancel() {
+		this.cancel = true;
 	}
 }
