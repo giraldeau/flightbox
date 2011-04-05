@@ -51,6 +51,10 @@ public class TraceEventHandlerModelMeta extends TraceEventHandlerBase {
 	}
 
 	public void handle_irq_state_idt_table(TraceReader reader, JniEvent event) {
+		Long id = (Long) event.parseFieldByName("irq");
+		String symbol = (String) event.parseFieldByName("symbol");
+		String[] sym = symbol.split("[+]");
+		model.getInterruptTable().add(id.intValue(), sym[0]);
 	}
 
 	public void handle_irq_state_interrupt(TraceReader reader, JniEvent event) {
@@ -63,7 +67,7 @@ public class TraceEventHandlerModelMeta extends TraceEventHandlerBase {
 		Long id = (Long) event.parseFieldByName("id");
 		String symbol = (String) event.parseFieldByName("symbol");
 		String[] sym = symbol.split("[+]");
-		model.getSyscallTable().addSyscall(id.intValue(), sym[0]);
+		model.getSyscallTable().add(id.intValue(), sym[0]);
 	}
 
 	public void handle_module_state_list_module(TraceReader reader, JniEvent event) {

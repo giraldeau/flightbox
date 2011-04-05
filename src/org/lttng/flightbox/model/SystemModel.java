@@ -33,13 +33,16 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 	 * System calls table
 	 */
 
-	private final SyscallTable syscallTable;
+	private final SymbolTable syscallTable;
+
+	private final SymbolTable interruptTable;
 
 	public SystemModel() {
 		processors = new ArrayList<Processor>();
 		processorListeners = new ArrayList<IProcessorListener>();
 		taskListeners = new ArrayList<ITaskListener>();
-		syscallTable = new SyscallTable();
+		syscallTable = new SymbolTable();
+		interruptTable = new SymbolTable();
 		tasksByPid = new HashMap<Integer, TreeSet<Task>>();
 	}
 
@@ -119,8 +122,12 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 		taskListeners.remove(listener);
 	}
 
-	public SyscallTable getSyscallTable() {
+	public SymbolTable getSyscallTable() {
 		return syscallTable;
+	}
+
+	public SymbolTable getInterruptTable() {
+		return interruptTable;
 	}
 
 	public HashMap<Integer, TreeSet<Task>> getTasks() {

@@ -13,7 +13,7 @@ import org.lttng.flightbox.io.TraceEventHandlerModel;
 import org.lttng.flightbox.io.TraceEventHandlerModelMeta;
 import org.lttng.flightbox.io.TraceReader;
 import org.lttng.flightbox.junit.Path;
-import org.lttng.flightbox.model.SyscallTable;
+import org.lttng.flightbox.model.SymbolTable;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
 
@@ -34,10 +34,15 @@ public class TestModelHandler {
 		readerMeta.register(handlerMeta);
 		readerMeta.process();
 
-		SyscallTable syscalls = model.getSyscallTable();
+		SymbolTable syscalls = model.getSyscallTable();
+		SymbolTable interrupts = model.getInterruptTable();
 
-		assertEquals("sys_restart_syscall", syscalls.getSyscallName(0));
-		assertTrue(syscalls.getSyscallsMap().size() > 300);
+		// FIXME: will this work on another architecture than x86?
+		assertEquals("sys_restart_syscall", syscalls.get(0));
+		assertTrue(syscalls.getMap().size() > 300);
+
+		assertEquals("apic_timer_interrupt", interrupts.get(239));
+		assertEquals(256, interrupts.getMap().size());
 	}
 
 	@Test
