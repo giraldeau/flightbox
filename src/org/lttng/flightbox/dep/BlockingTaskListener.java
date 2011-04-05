@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.lttng.flightbox.model.StateInfo;
 import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.model.TaskListener;
-import org.lttng.flightbox.model.WaitInfo;
+import org.lttng.flightbox.model.state.StateInfo;
+import org.lttng.flightbox.model.state.WaitInfo;
 
 public class BlockingTaskListener extends TaskListener {
 

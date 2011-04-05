@@ -9,17 +9,17 @@ import java.util.HashMap;
 
 import org.junit.Test;
 import org.lttng.flightbox.io.TimeKeeper;
-import org.lttng.flightbox.model.IRQInfo;
-import org.lttng.flightbox.model.StateInfo;
 import org.lttng.flightbox.model.StateInfoFactory;
-import org.lttng.flightbox.model.SyscallInfo;
-import org.lttng.flightbox.model.SyscallInfo.Field;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.model.Task.TaskState;
 import org.lttng.flightbox.model.TaskListener;
-import org.lttng.flightbox.model.WaitInfo;
-import org.lttng.flightbox.model.WaitInfo.WaitType;
+import org.lttng.flightbox.model.state.IRQInfo;
+import org.lttng.flightbox.model.state.StateInfo;
+import org.lttng.flightbox.model.state.SyscallInfo;
+import org.lttng.flightbox.model.state.WaitInfo;
+import org.lttng.flightbox.model.state.SyscallInfo.Field;
+import org.lttng.flightbox.model.state.WaitInfo.WaitType;
 
 public class TestTask {
 

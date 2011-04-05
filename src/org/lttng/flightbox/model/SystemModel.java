@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.TreeSet;
 
 import org.lttng.flightbox.model.Processor.ProcessorState;
+import org.lttng.flightbox.model.state.StateInfo;
 
 public class SystemModel implements IProcessorListener, ITaskListener {
 

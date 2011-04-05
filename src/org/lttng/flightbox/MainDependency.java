@@ -17,7 +17,7 @@ import org.lttng.flightbox.model.SystemModel;
 public class MainDependency {
 
 	static Options options;
-	
+
 	public static void main(String[] args) {
 		options = new Options();
 		options.addOption("h", "help", false, "this help");
@@ -67,19 +67,19 @@ public class MainDependency {
 
 		// output report
 		StringBuilder str = new StringBuilder();
-		BlockingReport.printReport(str, listener.getAllBlockingItems());
+		BlockingReport.printReport(str, listener.getAllBlockingItems(), model);
 		System.out.println(str.toString());
-		
+
 		long t2 = System.currentTimeMillis();
 
 		System.out.println("Analysis time: " + (t2 - t1) + "ms");
 		System.out.println("Done");
 
 	}
-	
+
 	private static void printUsage() {
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp("MainDependency", options);
 	}
-	
+
 }

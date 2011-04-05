@@ -1,4 +1,4 @@
-package org.lttng.flightbox.model;
+package org.lttng.flightbox.model.state;
 
 import java.util.EnumMap;
 import java.util.Map;

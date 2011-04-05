@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Stack;
 import java.util.Vector;
 
+import org.lttng.flightbox.model.state.StateInfo;
+
 /**
  * Model of a kernel task
  *

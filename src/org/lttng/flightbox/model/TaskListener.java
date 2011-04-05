@@ -1,5 +1,7 @@
 package org.lttng.flightbox.model;
 
+import org.lttng.flightbox.model.state.StateInfo;
+
 
 public class TaskListener implements ITaskListener {
 

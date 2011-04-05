@@ -1,4 +1,4 @@
-package org.lttng.flightbox.model;
+package org.lttng.flightbox.model.state;
 
 import org.lttng.flightbox.model.Task.TaskState;
 
@@ -34,5 +34,10 @@ public abstract class StateInfo {
 
 	public long getEndTime() {
 		return end;
+	}
+
+	@Override
+	public String toString() {
+		return taskState.toString();
 	}
 }

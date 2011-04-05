@@ -1,7 +1,7 @@
 package org.lttng.flightbox.dep;
 
 import org.lttng.flightbox.model.Task;
-import org.lttng.flightbox.model.WaitInfo;
+import org.lttng.flightbox.model.state.WaitInfo;
 
 public class BlockingItem {
 

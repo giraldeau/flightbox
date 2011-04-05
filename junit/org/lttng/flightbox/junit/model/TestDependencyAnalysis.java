@@ -1,6 +1,7 @@
 package org.lttng.flightbox.junit.model;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
@@ -14,7 +15,7 @@ import org.lttng.flightbox.io.ModelBuilder;
 import org.lttng.flightbox.junit.Path;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
-import org.lttng.flightbox.model.WaitInfo;
+import org.lttng.flightbox.model.state.WaitInfo;
 
 public class TestDependencyAnalysis {
 
@@ -59,6 +60,14 @@ public class TestDependencyAnalysis {
 		WaitInfo info = taskItems.get(0).getWaitInfo();
 		double duration = info.getEndTime() - info.getStartTime();
 		assertEquals(400000000.0, duration, 10000000.0);
+
+		// verify recovered blocking information
+		Task master = foundTask.getParentProcess().getParentProcess();
+		List<BlockingItem> masterItems = listener.getBlockingItemsForTask(master);
+		assertEquals(2, masterItems.size());
+		for (BlockingItem item: masterItems) {
+			assertNotNull(item.getWaitInfo().getWakeUp());
+		}
 	}
 
 }

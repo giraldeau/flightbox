@@ -1,6 +1,15 @@
 package org.lttng.flightbox.model;
 
 import org.lttng.flightbox.model.Task.TaskState;
+import org.lttng.flightbox.model.state.ExitInfo;
+import org.lttng.flightbox.model.state.IRQInfo;
+import org.lttng.flightbox.model.state.SoftIRQInfo;
+import org.lttng.flightbox.model.state.StateInfo;
+import org.lttng.flightbox.model.state.SyscallInfo;
+import org.lttng.flightbox.model.state.TrapInfo;
+import org.lttng.flightbox.model.state.UserInfo;
+import org.lttng.flightbox.model.state.WaitInfo;
+import org.lttng.flightbox.model.state.ZombieInfo;
 
 public class StateInfoFactory {
 
