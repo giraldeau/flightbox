@@ -156,6 +156,8 @@ public class TraceReader {
 		for(ITraceEventHandler handler: handlers.values()) {
 			handler.handleComplete(this);
 		}
+
+		trace.closeTrace();
 	}
 
 	public Set<TraceHook> getHookSetByName(String channelName, String eventName) {
