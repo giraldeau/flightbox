@@ -36,13 +36,17 @@ public class TestModelHandler {
 
 		SymbolTable syscalls = model.getSyscallTable();
 		SymbolTable interrupts = model.getInterruptTable();
+		SymbolTable softirq = model.getSoftIRQTable();
 
 		// FIXME: will this work on another architecture than x86?
 		assertEquals("sys_restart_syscall", syscalls.get(0));
-		assertTrue(syscalls.getMap().size() > 300);
+		assertTrue(syscalls.getMap().size() > 300); // was 336
 
 		assertEquals("apic_timer_interrupt", interrupts.get(239));
 		assertEquals(256, interrupts.getMap().size());
+
+		assertEquals("tasklet_hi_action", softirq.get(0));
+		assertTrue(softirq.getMap().size() > 30); // was 32
 	}
 
 	@Test

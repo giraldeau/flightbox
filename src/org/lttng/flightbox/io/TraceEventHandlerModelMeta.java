@@ -61,6 +61,10 @@ public class TraceEventHandlerModelMeta extends TraceEventHandlerBase {
 	}
 
 	public void handle_softirq_state_softirq_vec(TraceReader reader, JniEvent event) {
+		Long id = (Long) event.parseFieldByName("id");
+		String symbol = (String) event.parseFieldByName("symbol");
+		String[] sym = symbol.split("[+]");
+		model.getSoftIRQTable().add(id.intValue(), sym[0]);
 	}
 
 	public void handle_syscall_state_sys_call_table(TraceReader reader, JniEvent event) {

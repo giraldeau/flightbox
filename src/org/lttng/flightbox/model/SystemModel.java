@@ -37,12 +37,15 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 
 	private final SymbolTable interruptTable;
 
+	private final SymbolTable softirqTable;
+
 	public SystemModel() {
 		processors = new ArrayList<Processor>();
 		processorListeners = new ArrayList<IProcessorListener>();
 		taskListeners = new ArrayList<ITaskListener>();
 		syscallTable = new SymbolTable();
 		interruptTable = new SymbolTable();
+		softirqTable = new SymbolTable();
 		tasksByPid = new HashMap<Integer, TreeSet<Task>>();
 	}
 
@@ -128,6 +131,10 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 
 	public SymbolTable getInterruptTable() {
 		return interruptTable;
+	}
+
+	public SymbolTable getSoftIRQTable() {
+		return softirqTable;
 	}
 
 	public HashMap<Integer, TreeSet<Task>> getTasks() {
