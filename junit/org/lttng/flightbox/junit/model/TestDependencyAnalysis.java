@@ -1,6 +1,7 @@
 package org.lttng.flightbox.junit.model;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.List;
@@ -37,10 +38,10 @@ public class TestDependencyAnalysis {
 
 	@Test
 	public void testInception() throws JniException {
-		File file = new File(Path.getTraceDir(), "inception-3x-100ms");
-		if (!file.isDirectory() || !file.canRead()) {
-			return;
-		}
+		String trace = "inception-3x-100ms";
+		File file = new File(Path.getTraceDir(), trace);
+		// make sure we have this trace
+		assertTrue("Missing trace " + trace, file.isDirectory());
 
 		String tracePath = file.getPath();
 		SystemModel model = new SystemModel();
