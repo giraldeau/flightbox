@@ -18,4 +18,8 @@ public class SyscallTable {
 	public String getSyscallName(int id) {
 		return syscalls.get(id);
 	}
+
+	public Map<Integer, String> getSyscallsMap() {
+		return syscalls;
+	}
 }

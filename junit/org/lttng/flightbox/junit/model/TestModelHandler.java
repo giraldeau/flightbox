@@ -2,6 +2,7 @@ package org.lttng.flightbox.junit.model;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.lttng.flightbox.io.TraceEventHandlerModel;
 import org.lttng.flightbox.io.TraceEventHandlerModelMeta;
 import org.lttng.flightbox.io.TraceReader;
 import org.lttng.flightbox.junit.Path;
+import org.lttng.flightbox.model.SyscallTable;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
 
@@ -19,6 +21,24 @@ public class TestModelHandler {
 
 	static double nanosec = 1000000000;
 	static double p = 100000000.0;
+
+	@Test
+	public void testSyscallTable() throws JniException {
+		String tracePath = new File(Path.getTraceDir(), "sleep-1x-1sec").getPath();
+		SystemModel model = new SystemModel();
+
+		// read metadata and statedump
+		TraceEventHandlerModelMeta handlerMeta = new TraceEventHandlerModelMeta();
+		handlerMeta.setModel(model);
+		TraceReader readerMeta = new TraceReader(tracePath);
+		readerMeta.register(handlerMeta);
+		readerMeta.process();
+
+		SyscallTable syscalls = model.getSyscallTable();
+
+		assertEquals("sys_restart_syscall", syscalls.getSyscallName(0));
+		assertTrue(syscalls.getSyscallsMap().size() > 300);
+	}
 
 	@Test
 	public void testModelHandler() throws JniException {

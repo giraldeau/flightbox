@@ -60,6 +60,10 @@ public class TraceEventHandlerModelMeta extends TraceEventHandlerBase {
 	}
 
 	public void handle_syscall_state_sys_call_table(TraceReader reader, JniEvent event) {
+		Long id = (Long) event.parseFieldByName("id");
+		String symbol = (String) event.parseFieldByName("symbol");
+		String[] sym = symbol.split("[+]");
+		model.getSyscallTable().addSyscall(id.intValue(), sym[0]);
 	}
 
 	public void handle_module_state_list_module(TraceReader reader, JniEvent event) {
