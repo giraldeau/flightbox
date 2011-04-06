@@ -150,7 +150,7 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 		return task;
 	}
 
-	public Task getLatestTaskByCmd(String cmd, boolean basename) {
+	public TreeSet<Task> getTaskByCmd(String cmd, boolean basename) {
 		TreeSet<Task> resultSet = new TreeSet<Task>();
 		for (TreeSet<Task> set: tasksByPid.values()) {
 			for (Task t: set) {
@@ -165,14 +165,16 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 				}
 			}
 		}
-		return resultSet.last();
+		return resultSet;
 	}
 
 	public Task getLatestTaskByCmd(String cmd) {
-		return getLatestTaskByCmd(cmd, false);
+		return getTaskByCmd(cmd, false).last();
 	}
 
 	public Task getLatestTaskByCmdBasename(String cmd) {
-		return getLatestTaskByCmd(cmd, true);
+		return getTaskByCmd(cmd, true).last();
 	}
+
+
 }

@@ -145,6 +145,7 @@ public class Task extends SystemResource implements Comparable<Task> {
 	}
 
 	public void pushState(StateInfo info) {
+		info.setTask(this);
 		firePushState(info);
 		stateStack.push(info);
 	}

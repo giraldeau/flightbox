@@ -1,6 +1,8 @@
 package org.lttng.flightbox;
 
 import java.io.File;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -11,8 +13,10 @@ import org.apache.commons.cli.PosixParser;
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.lttng.flightbox.dep.BlockingReport;
 import org.lttng.flightbox.dep.BlockingTaskListener;
+import org.lttng.flightbox.dep.BlockingTree;
 import org.lttng.flightbox.io.ModelBuilder;
 import org.lttng.flightbox.model.SystemModel;
+import org.lttng.flightbox.model.Task;
 
 public class MainDependency {
 
@@ -66,8 +70,11 @@ public class MainDependency {
 		}
 
 		// output report
+		TreeSet<Task> foundTask = model.getTaskByCmd("inception", true);
+		Task task = foundTask.first();
+		SortedSet<BlockingTree> taskItems = listener.getBlockingItemsForTask(task);
 		StringBuilder str = new StringBuilder();
-		BlockingReport.printReport(str, listener.getAllBlockingItems(), model);
+		BlockingReport.printReport(str, taskItems, model);
 		System.out.println(str.toString());
 
 		long t2 = System.currentTimeMillis();

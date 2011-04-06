@@ -17,9 +17,8 @@ import org.lttng.flightbox.model.TaskListener;
 import org.lttng.flightbox.model.state.IRQInfo;
 import org.lttng.flightbox.model.state.StateInfo;
 import org.lttng.flightbox.model.state.SyscallInfo;
-import org.lttng.flightbox.model.state.WaitInfo;
 import org.lttng.flightbox.model.state.SyscallInfo.Field;
-import org.lttng.flightbox.model.state.WaitInfo.WaitType;
+import org.lttng.flightbox.model.state.WaitInfo;
 
 public class TestTask {
 
@@ -173,7 +172,6 @@ public class TestTask {
 		IRQInfo stateInfo2 = (IRQInfo) t2.peekState();
 		// if the task is waiting, then we know what wake it up
 		stateInfo1.setWakeUp(stateInfo2);
-		stateInfo1.setWait(WaitType.TIMER);
 		stateInfo1.setBlocking(true);
 
 		t1.popState();
@@ -195,7 +193,6 @@ public class TestTask {
 		t1.popState();
 
 		WaitInfo wait = listener.blockingInfo.get(t1);
-		assertEquals(WaitType.TIMER, wait.getWait());
 		assertEquals(0, ((IRQInfo)wait.getWakeUp()).getIRQId());
 		assertEquals(true, wait.isBlocking());
 		assertEquals(162, wait.getWaitingSyscall().getSyscallId());

@@ -43,6 +43,8 @@ public class StateInfoFactory {
 		default:
 			break;
 		}
+		if (info != null)
+			info.setTaskState(state);
 		return info;
 	}
 
