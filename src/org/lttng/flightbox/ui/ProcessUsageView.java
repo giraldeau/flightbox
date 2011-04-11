@@ -1,5 +1,6 @@
 package org.lttng.flightbox.ui;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -20,7 +21,7 @@ import org.lttng.flightbox.model.Task.TaskState;
 
 public class ProcessUsageView extends Composite {
 
-	private Table table;
+	private final Table table;
 	private TreeMap<Long, Task> procInfo;
 	private UsageStats<Long> procStats;
 	private ArrayList<TableData> dataSet;
@@ -28,12 +29,11 @@ public class ProcessUsageView extends Composite {
 	private Boolean isReverse;
 	private double t1;
 	private double t2;
-	private CpuUsageView cpuView;
-	
+
 	public ProcessUsageView(Composite parent, int style) {
 		super(parent, style);
 		this.setLayout(new FillLayout());
-		
+
 		table = new Table(this, SWT.BORDER);
 		TableColumn tc1 = new TableColumn(table, SWT.LEFT);
 		TableColumn tc2 = new TableColumn(table, SWT.LEFT);
@@ -49,7 +49,7 @@ public class ProcessUsageView extends Composite {
 		cmp = new TimeComparator();
 		dataSet = new ArrayList<TableData>();
 		isReverse = true;
-		
+
 		tc1.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
@@ -81,7 +81,7 @@ public class ProcessUsageView extends Composite {
 		public Long pid;
 		public Double time;
 	}
-	
+
 	class CmdComparator implements Comparator {
 		@Override
 		public int compare(Object obj1, Object obj2) {
@@ -90,7 +90,7 @@ public class ProcessUsageView extends Composite {
 			return d1.cmd.compareTo(d2.cmd);
 		}
 	}
-	
+
 	class PidComparator implements Comparator {
 		@Override
 		public int compare(Object obj1, Object obj2) {
@@ -99,7 +99,7 @@ public class ProcessUsageView extends Composite {
 			return d1.pid.compareTo(d2.pid);
 		}
 	}
-	
+
 	class TimeComparator implements Comparator {
 		@Override
 		public int compare(Object obj1, Object obj2) {
@@ -108,10 +108,10 @@ public class ProcessUsageView extends Composite {
 			return d1.time.compareTo(d2.time);
 		}
 	}
-	
+
 	public void setStats(UsageStats<Long> procStats,
 			TreeMap<Long, Task> procInfo) {
-		
+
 		this.procStats = procStats;
 		this.procInfo = procInfo;
 	}
@@ -126,41 +126,45 @@ public class ProcessUsageView extends Composite {
 			TableData elem = new TableData();
 			elem.cmd = procInfo.get(pid).getCmd();
 			elem.pid = pid;
-			elem.time = procStats.getStats(pid).getSum(t1, t2).getTime(TaskState.USER); 
+			elem.time = procStats.getStats(pid).getSum(t1, t2).getTime(TaskState.USER);
 			dataSet.add(elem);
 		}
 		sortTable();
 	}
-	
+
 	public void sortTable() {
 		Collections.sort(dataSet, cmp);
-		
+
 		table.removeAll();
-		
+
 		if (isReverse) {
-			TableData elem;
 			for (int i=dataSet.size()-1;i>=0;i--) {
-				TableItem item = new TableItem(table, SWT.NONE);
-				elem = dataSet.get(i);
-				item.setText(new String[] {elem.pid.toString(), elem.cmd, new Double(elem.time/TimeStats.NANO).toString()});			
+				addDataItem(i);
 			}
 		} else {
-			for (TableData elem: dataSet) {
-				TableItem item = new TableItem(table, SWT.NONE);
-				item.setText(new String[] {elem.pid.toString(), elem.cmd, new Double(elem.time/TimeStats.NANO).toString()});			
+			for (int i=0; i < dataSet.size()-1; i++) {
+				addDataItem(i);
 			}
 		}
 
 	}
-	
+
+	public void addDataItem(int index) {
+		TableItem item = new TableItem(table, SWT.NONE);
+		TableData elem = dataSet.get(index);
+		String cmd = new File(elem.cmd).getName();
+		item.setText(new String[] {elem.pid.toString(), cmd, new Double(elem.time/TimeStats.NANO).toString()});
+		item.setData(elem);
+	}
+
 	public void setComparator(Comparator cmp) {
 		this.cmp = cmp;
 	}
-	
+
 	private void toggleSortOrder() {
 		isReverse = !isReverse;
 	}
-	
+
 	public void resetSumInterval() {
 		if (procStats != null) {
 			t1 = procStats.getStart();
@@ -169,10 +173,6 @@ public class ProcessUsageView extends Composite {
 		}
 	}
 
-	public void setCpuView(CpuUsageView cpuView) {
-		this.cpuView = cpuView;
-	}
-	
 	public void setSumInterval(double t1, double t2) {
 		if (t2 > t1) {
 			this.t1 = t1;
@@ -185,5 +185,9 @@ public class ProcessUsageView extends Composite {
 			updateDataSet();
 		}
 	}
-	
+
+	public Table getTable() {
+		return table;
+	}
+
 }

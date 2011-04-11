@@ -14,6 +14,7 @@ public class BlockingTree implements Comparable<BlockingTree> {
 	private long startTime;
 	private long endTime;
 	private TreeSet<BlockingTree> children;
+	private BlockingTree parent;
 
 	public Task getTask() {
 		return task;
@@ -49,7 +50,16 @@ public class BlockingTree implements Comparable<BlockingTree> {
 		return children;
 	}
 	public void setChildren(TreeSet<BlockingTree> children) {
+		for (BlockingTree child: children) {
+			child.setParent(this);
+		}
 		this.children = children;
+	}
+	public void setParent(BlockingTree blockingTree) {
+		this.parent = blockingTree;
+	}
+	public BlockingTree getParent() {
+		return this.parent;
 	}
 	@Override
 	public int compareTo(BlockingTree o) {

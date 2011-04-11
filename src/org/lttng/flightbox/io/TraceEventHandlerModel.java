@@ -257,8 +257,10 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 
 		// pop the syscall state
 		SyscallInfo syscallExit = (SyscallInfo) currentTask.peekState();
-		syscallExit.setEndTime(eventTs);
-		currentTask.popState();
+		if (syscallExit != null) {
+			syscallExit.setEndTime(eventTs);
+			currentTask.popState();
+		}
 
 		// push the exit state
 		ExitInfo exitInfo = (ExitInfo) StateInfoFactory.makeStateInfo(TaskState.EXIT);

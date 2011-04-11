@@ -169,11 +169,17 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 	}
 
 	public Task getLatestTaskByCmd(String cmd) {
-		return getTaskByCmd(cmd, false).last();
+		TreeSet<Task> taskByCmd = getTaskByCmd(cmd, false);
+		if (taskByCmd.isEmpty())
+			return null;
+		return taskByCmd.last();
 	}
 
 	public Task getLatestTaskByCmdBasename(String cmd) {
-		return getTaskByCmd(cmd, true).last();
+		TreeSet<Task> taskByCmd = getTaskByCmd(cmd, true);
+		if (taskByCmd.isEmpty())
+			return null;
+		return taskByCmd.last();
 	}
 
 
