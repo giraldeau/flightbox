@@ -1,6 +1,7 @@
 package org.lttng.flightbox;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -68,20 +69,26 @@ public class MainDependency {
 			System.out.println("Error while reading the trace");
 			System.out.println(e.getMessage());
 		}
+		long t2 = System.currentTimeMillis();
 
 		// output report
+		/* this pattern could be used for filtering on a known executable
 		TreeSet<Task> foundTask = model.getTaskByCmd("inception", true);
 		Task task = foundTask.first();
 		SortedSet<BlockingTree> taskItems = listener.getBlockingItemsForTask(task);
+		 */
+
+		HashMap<Integer, TreeSet<Task>> tasks = model.getTasks();
 		StringBuilder str = new StringBuilder();
-		BlockingReport.printReport(str, taskItems, model);
+		for(TreeSet<Task> set: tasks.values()) {
+			for (Task t: set) {
+				SortedSet<BlockingTree> taskItems = listener.getBlockingItemsForTask(t);
+				BlockingReport.printReport(str, taskItems, model);
+			}
+		}
 		System.out.println(str.toString());
-
-		long t2 = System.currentTimeMillis();
-
 		System.out.println("Analysis time: " + (t2 - t1) + "ms");
 		System.out.println("Done");
-
 	}
 
 	private static void printUsage() {

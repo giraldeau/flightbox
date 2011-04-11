@@ -23,12 +23,14 @@ public class BlockingReport {
 
 			str.append("pid=" + item.getTask().getProcessId());
 			str.append(" cmd=" + item.getTask().getCmd());
-			//str.append(" start=" + item.getStartTime());
-			//str.append(" end=" + item.getEndTime());
+			str.append(" start=" + item.getStartTime());
+			str.append(" end=" + item.getEndTime());
 			str.append(" wait=" + (item.getEndTime() - item.getStartTime())/1000000 + "ms");
 			int syscallId = item.getWaitingSyscall().getSyscallId();
 			str.append(" syscall=" + model.getSyscallTable().get(syscallId));
-			str.append(" wakeup=" + item.getWakeUp().toString());
+			if (item.getWakeUp() != null) {
+				str.append(" wakeup=" + item.getWakeUp().toString());
+			}
 			str.append("\n");
 			printReport(str, item.getChildren(), model, indent + 1);
 		}

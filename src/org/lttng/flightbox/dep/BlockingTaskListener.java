@@ -67,7 +67,10 @@ public class BlockingTaskListener extends TaskListener {
 	}
 
 	public SortedSet<BlockingTree> getBlockingItemsForTask(Task task) {
-		return blockingItems.get(task);
+		SortedSet<BlockingTree> result = null;
+		if (blockingItems.containsKey(task))
+			result = blockingItems.get(task);
+		return result;
 	}
 
 }
