@@ -47,9 +47,13 @@ public class BlockingReport {
 		HashMap<Integer, SummaryStatistics> stat = stats.getSyscallStats();
 		SymbolTable sys = model.getSyscallTable();
 		str.append("Summary for task pid=" + task.getProcessId() + " cmd=" + task.getCmd() + "\n");
+		str.append(String.format("%1$20s%2$12s%3$12s%4$12s\n", "Syscall", "Sum (ms)", "Mean (ms)", "Stddev (ms)"));
 		for (Integer i: stat.keySet()) {
 			SummaryStatistics s = stat.get(i);
-			str.append(sys.get(i) + " sum=" + s.getSum() / 1000000 + "ms mean=" + s.getMean() / 1000000 + "ms stddev=" + s.getStandardDeviation() / 1000000 + "ms\n");
+			String sum = String.format("%1$10.3f", s.getSum()/1000000);
+			String mean = String.format("%1$10.3f", s.getMean()/1000000);
+			String stddev = String.format("%1$10.3f", s.getStandardDeviation()/1000000);
+			str.append(String.format("%1$20s%2$12s%3$12s%4$12s\n", sys.get(i), sum, mean, stddev));
 		}
 		str.append("\n");
 	}
