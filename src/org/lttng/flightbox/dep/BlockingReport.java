@@ -3,6 +3,7 @@ package org.lttng.flightbox.dep;
 import java.util.HashMap;
 import java.util.SortedSet;
 
+import org.apache.commons.math.stat.descriptive.SummaryStatistics;
 import org.lttng.flightbox.model.SymbolTable;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
@@ -43,11 +44,12 @@ public class BlockingReport {
 		if (stats == null) {
 			return;
 		}
-		HashMap<Integer, Long> stat = stats.getSyscallToSum();
+		HashMap<Integer, SummaryStatistics> stat = stats.getSyscallStats();
 		SymbolTable sys = model.getSyscallTable();
 		str.append("Summary for task pid=" + task.getProcessId() + " cmd=" + task.getCmd() + "\n");
 		for (Integer i: stat.keySet()) {
-			str.append(sys.get(i) + " = " + stat.get(i) / 1000000 + "ms\n");
+			SummaryStatistics s = stat.get(i);
+			str.append(sys.get(i) + " sum=" + s.getSum() / 1000000 + "ms mean=" + s.getMean() / 1000000 + "ms stddev=" + s.getStandardDeviation() / 1000000 + "ms\n");
 		}
 		str.append("\n");
 	}

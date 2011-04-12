@@ -2,25 +2,26 @@ package org.lttng.flightbox.dep;
 
 import java.util.HashMap;
 
+import org.apache.commons.math.stat.descriptive.SummaryStatistics;
+
 public class BlockingStats {
 
-	private final HashMap<Integer, Long> syscallToSum;
+	private final HashMap<Integer, SummaryStatistics> syscallStats;
 
 	public BlockingStats() {
-		syscallToSum = new HashMap<Integer, Long>();
+		syscallStats = new HashMap<Integer, SummaryStatistics>();
 	}
 
 	public void increment(int syscallId, long delay) {
-		if (!syscallToSum.containsKey(syscallId)) {
-			syscallToSum.put(syscallId, 0L);
+		if (!syscallStats.containsKey(syscallId)) {
+			syscallStats.put(syscallId, new SummaryStatistics());
 		}
-		Long total = syscallToSum.get(syscallId);
-		total += delay;
-		syscallToSum.put(syscallId, total);
+		SummaryStatistics stats = syscallStats.get(syscallId);
+		stats.addValue(delay);
 	}
 
-	public HashMap<Integer, Long> getSyscallToSum() {
-		return syscallToSum;
+	public HashMap<Integer, SummaryStatistics> getSyscallStats() {
+		return syscallStats;
 	}
 
 }
