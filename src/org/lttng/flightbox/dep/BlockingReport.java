@@ -1,8 +1,11 @@
 package org.lttng.flightbox.dep;
 
+import java.util.HashMap;
 import java.util.SortedSet;
 
+import org.lttng.flightbox.model.SymbolTable;
 import org.lttng.flightbox.model.SystemModel;
+import org.lttng.flightbox.model.Task;
 
 public class BlockingReport {
 
@@ -34,6 +37,19 @@ public class BlockingReport {
 			str.append("\n");
 			printReport(str, item.getChildren(), model, indent + 1);
 		}
+	}
+
+	public static void printSummary(StringBuilder str, Task task, BlockingStats stats, SystemModel model) {
+		if (stats == null) {
+			return;
+		}
+		HashMap<Integer, Long> stat = stats.getSyscallToSum();
+		SymbolTable sys = model.getSyscallTable();
+		str.append("Summary for task pid=" + task.getProcessId() + " cmd=" + task.getCmd() + "\n");
+		for (Integer i: stat.keySet()) {
+			str.append(sys.get(i) + " = " + stat.get(i) / 1000000 + "ms\n");
+		}
+		str.append("\n");
 	}
 
 }

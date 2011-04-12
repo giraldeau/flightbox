@@ -50,4 +50,7 @@ public abstract class StateInfo {
 	public Task getTask() {
 		return task;
 	}
+	public long getDuration() {
+		return end - start;
+	}
 }

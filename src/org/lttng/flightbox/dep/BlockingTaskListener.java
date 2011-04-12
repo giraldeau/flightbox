@@ -13,9 +13,11 @@ import org.lttng.flightbox.model.state.WaitInfo;
 public class BlockingTaskListener extends TaskListener {
 
 	private final HashMap<Task, TreeSet<BlockingTree>> blockingItems;
+	private final HashMap<Task, BlockingStats> blockingStats;
 
 	public BlockingTaskListener() {
 		blockingItems = new HashMap<Task, TreeSet<BlockingTree>>();
+		blockingStats = new HashMap<Task, BlockingStats>();
 	}
 
 	@Override
@@ -45,6 +47,17 @@ public class BlockingTaskListener extends TaskListener {
 		}
 		set.add(item);
 
+		/* increment statistics */
+		BlockingStats stats = getBlockingStats().get(task);
+		if (stats == null) {
+			stats = new BlockingStats();
+			blockingStats.put(task, stats);
+		}
+		// if time is zero, assume we don't know it and avoid increment
+		if (wait.getStartTime() > 0) {
+			stats.increment(wait.getWaitingSyscall().getSyscallId(), wait.getDuration());
+		}
+
 		/* add references to children blocking items */
 		/* FIXME: handle other cases than EXIT */
 
@@ -71,6 +84,10 @@ public class BlockingTaskListener extends TaskListener {
 		if (blockingItems.containsKey(task))
 			result = blockingItems.get(task);
 		return result;
+	}
+
+	public HashMap<Task, BlockingStats> getBlockingStats() {
+		return blockingStats;
 	}
 
 }

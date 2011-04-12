@@ -13,6 +13,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.lttng.flightbox.dep.BlockingReport;
+import org.lttng.flightbox.dep.BlockingStats;
 import org.lttng.flightbox.dep.BlockingTaskListener;
 import org.lttng.flightbox.dep.BlockingTree;
 import org.lttng.flightbox.io.ModelBuilder;
@@ -86,6 +87,15 @@ public class MainDependency {
 				BlockingReport.printReport(str, taskItems, model);
 			}
 		}
+
+		for(TreeSet<Task> set: tasks.values()) {
+			for (Task t: set) {
+				BlockingStats stats = listener.getBlockingStats().get(t);
+				BlockingReport.printSummary(str, t, stats, model);
+			}
+		}
+
+
 		System.out.println(str.toString());
 		System.out.println("Analysis time: " + (t2 - t1) + "ms");
 		System.out.println("Done");
