@@ -19,8 +19,8 @@ public class TraceEventHandlerHistogramSHT extends TraceEventHandlerBase impleme
 	private long start;
 	private long end;
 	private long duration;
-	private int factor;
 	private StateHistorySystem shs;
+	private int attributeId;
 
 	public TraceEventHandlerHistogramSHT() {
 		super();
@@ -33,7 +33,6 @@ public class TraceEventHandlerHistogramSHT extends TraceEventHandlerBase impleme
 		start = trace.getStartTime().getTime();
 		end = trace.getEndTime().getTime();
 		duration = end - start;
-		factor = (int) (nbSamples / duration);
 		// FIXME: never allocate a relative file inside handler
 		// this is a coding horror
 		File temp = null;
@@ -45,11 +44,13 @@ public class TraceEventHandlerHistogramSHT extends TraceEventHandlerBase impleme
 		if (temp == null)
 			return;
 		try {
-			shs = new StateHistorySystem(temp.getPath(), start, 4096 * 4, 1000);
+			shs = new StateHistorySystem(temp.getPath(), start);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		shs.modifyAttribute(start, 0, "stats", "histogram");
+
+		attributeId = shs.getAttributeQuarkAndAdd("stats", "histogram");
+		shs.modifyAttribute(start, 0, attributeId);
 	}
 
 	@Override
@@ -61,19 +62,10 @@ public class TraceEventHandlerHistogramSHT extends TraceEventHandlerBase impleme
 		if (shs == null)
 			return;
 		long t = event.getEventTime().getTime();
-		int stateValueInt = 0;
-		try {
-			stateValueInt = shs.getCurrentStateValueInt("stats", "histogram");
-		} catch (AttributeNotFoundException e) {
-			e.printStackTrace();
-			return;
-		}
-		stateValueInt++;
-		shs.modifyAttribute(t, stateValueInt, "stats", "histogram");
-
-		//shs.incrementAttribute(t, "stats", "histogram");
+		shs.incrementAttribute(t, attributeId);
 	}
 
+	@Override
 	public int[] getSamples() throws AttributeNotFoundException {
 		samples = new int[nbSamples];
 		int currStateValueInt = 0;
@@ -84,7 +76,7 @@ public class TraceEventHandlerHistogramSHT extends TraceEventHandlerBase impleme
 		for(int i = 0; i< nbSamples; i++) {
 			offset = ((i + 1) * duration) / nbSamples;
 			tCurr = offset + start;
-			currStateValueInt = shs.getSingleStateValueInt(tCurr, "stats", "histogram");
+			currStateValueInt = shs.getSingleStateValueInt(tCurr, attributeId);
 			delta = currStateValueInt - prevStateValueInt;
 			samples[i] = delta;
 			prevStateValueInt = currStateValueInt;
@@ -92,6 +84,7 @@ public class TraceEventHandlerHistogramSHT extends TraceEventHandlerBase impleme
 		return samples;
 	}
 
+	@Override
 	public void setNbSamples(int s) {
 		nbSamples = s;
 	}
