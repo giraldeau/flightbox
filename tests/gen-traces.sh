@@ -7,7 +7,7 @@ if [ $(id -u) -ne 0 ]; then
 fi
 
 echo "ltt-armall"
-/usr/bin/ltt-armall -q
+/usr/bin/ltt-armall -q -n
 
 # FIXME: return code of ltt-armall is broken
 #RET=$?
