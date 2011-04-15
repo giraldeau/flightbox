@@ -39,7 +39,7 @@ public class TestModelHandler {
 		SymbolTable softirq = model.getSoftIRQTable();
 
 		// FIXME: will this work on another architecture than x86?
-		assertTrue(syscalls.getMap().size() > 300); // was 336
+		assertTrue(syscalls.getMap().size() > 255); // was 336
 
 		assertEquals(256, interrupts.getMap().size()); // is always 256
 
@@ -78,6 +78,14 @@ public class TestModelHandler {
 		assertEquals("/bin/sleep", cmd);
 		double duration = (task.getExitTime() - task.getCreateTime());
 		assertEquals(duration, nanosec, p);
+		assertEquals(false, foundTask.isKernelThread());
+
+		// verify swapper is process 0 and is a kernel thread
+		Task swapper = model.getLatestTaskByCmdBasename("swapper");
+		assertNotNull(swapper);
+		assertEquals(0, swapper.getProcessId());
+		assertEquals(true, swapper.isKernelThread());
+
 	}
 
 }

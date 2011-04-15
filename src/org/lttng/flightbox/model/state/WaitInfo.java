@@ -1,5 +1,6 @@
 package org.lttng.flightbox.model.state;
 
+import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.model.Task.TaskState;
 
 public class WaitInfo extends StateInfo {
@@ -7,6 +8,7 @@ public class WaitInfo extends StateInfo {
 	private StateInfo wakeUp;
 	private boolean isBlocking;
 	private SyscallInfo waitingSyscall;
+	private Task wakeUpProcess;
 
 	public WaitInfo() {
 		setTaskState(TaskState.WAIT);
@@ -37,4 +39,11 @@ public class WaitInfo extends StateInfo {
 		this.waitingSyscall = syscallInfo;
 	}
 
+	public void setWakeUpProcess(Task task) {
+		this.wakeUpProcess = task;
+	}
+
+	public Task getWakeUpTask() {
+		return this.wakeUpProcess;
+	}
 }

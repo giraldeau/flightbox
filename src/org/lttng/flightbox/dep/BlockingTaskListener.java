@@ -37,6 +37,7 @@ public class BlockingTaskListener extends TaskListener {
 		item.setEndTime(wait.getEndTime());
 		item.setWaitingSyscall(wait.getWaitingSyscall());
 		item.setWakeUp(wait.getWakeUp());
+		item.setWakeUpTask(wait.getWakeUpTask());
 		item.setTask(wait.getTask());
 
 		/* add this blocking item to the process */

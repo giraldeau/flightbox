@@ -90,14 +90,35 @@ public class TraceEventHandlerModelMeta extends TraceEventHandlerBase {
 	public void handle_task_state_process_state(TraceReader reader, JniEvent event) {
 		if (model == null)
 			return;
-		Task task = new Task();
 		long eventTs = event.getEventTime().getTime();
 		Long pid = (Long) event.parseFieldByName("pid");
-		task.setProcessId(pid.intValue());
-		task.setCreateTime(eventTs);
+		Long parentPid = (Long) event.parseFieldByName("parent_pid");
+		Long tgid = (Long) event.parseFieldByName("tgid");
+		Long type = (Long) event.parseFieldByName("type");
+
+		Task task = getOrCreateTask(pid.intValue());
+		task.setCreateTime(reader.getStartTime());
 		task.setCmd((String) event.parseFieldByName("name"));
-		//task.setParentProcess();
+		if (type == 1) task.setKernelThread(true);
+		task.setCreateTime(reader.getStartTime());
+		task.setThreadGroupId(tgid.intValue());
+
+		// avoid recursivity for swapper threads
+		if (pid != parentPid) {
+			Task parent = getOrCreateTask(parentPid.intValue());
+			task.setParentProcess(parent);
+		}
+
 		model.addTask(task);
+	}
+
+	public Task getOrCreateTask(int pid) {
+		Task task = model.getLatestTaskByPID(pid);
+		if (task == null) {
+			task = new Task();
+			task.setProcessId(pid);
+		}
+		return task;
 	}
 
 	public void setModel(SystemModel model) {

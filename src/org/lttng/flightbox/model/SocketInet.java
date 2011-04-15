@@ -1,6 +1,6 @@
 package org.lttng.flightbox.model;
 
-public class Socket extends FileDescriptor {
+public class SocketInet extends FileDescriptor {
 
 	// src addr, port
 	// dst addr, port

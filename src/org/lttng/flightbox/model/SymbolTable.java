@@ -5,6 +5,12 @@ import java.util.Map;
 
 public class SymbolTable {
 
+	public final static int SYS_SOCKET 	= 41;
+	public final static int SYS_CONNECT = 42;
+	public final static int SYS_READ 	= 0;
+	public final static int SYS_WRITE 	= 1;
+	public final static int SYS_CLOSE 	= 3;
+
 	private final Map<Integer, String> symbols;
 
 	public SymbolTable() {

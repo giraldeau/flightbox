@@ -10,6 +10,7 @@ public class BlockingTree implements Comparable<BlockingTree> {
 
 	private Task task;
 	private StateInfo wakeUp;
+	private Task wakeUpTask;
 	private SyscallInfo waitingSyscall;
 	private long startTime;
 	private long endTime;
@@ -70,6 +71,12 @@ public class BlockingTree implements Comparable<BlockingTree> {
 		if (this.startTime < o.startTime) return BEFORE;
 		if (this.startTime > o.startTime) return AFTER;
 		return EQUAL;
+	}
+	public void setWakeUpTask(Task wakeUpTask) {
+		this.wakeUpTask = wakeUpTask;
+	}
+	public Task getWakeUpTask() {
+		return wakeUpTask;
 	}
 
 }

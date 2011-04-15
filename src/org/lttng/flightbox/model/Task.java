@@ -26,6 +26,7 @@ public class Task extends SystemResource implements Comparable<Task> {
 	private List<Task> childrenTask;
 	private int exitStatus;
 	private String cmd;
+	private boolean isKernelThread;
 	private final Stack<StateInfo> stateStack;
 	private final HashSet<ITaskListener> listeners;
 
@@ -38,6 +39,7 @@ public class Task extends SystemResource implements Comparable<Task> {
 	public Task() {
 		stateStack = new Stack<StateInfo>();
 		listeners = new HashSet<ITaskListener>();
+		isKernelThread = false;
 	}
 
 	@Override
@@ -201,6 +203,14 @@ public class Task extends SystemResource implements Comparable<Task> {
 
 	public void removeListener(ITaskListener listener) {
 		listeners.remove(listener);
+	}
+
+	public void setKernelThread(boolean isKernelThread) {
+		this.isKernelThread = isKernelThread;
+	}
+
+	public boolean isKernelThread() {
+		return isKernelThread;
 	}
 
 }

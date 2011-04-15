@@ -30,6 +30,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		hooks.add(new TraceHook("kernel", "irq_exit"));
 		hooks.add(new TraceHook("kernel", "softirq_entry"));
 		hooks.add(new TraceHook("kernel", "softirq_exit"));
+		hooks.add(new TraceHook("net", "socket_create"));
 		hooks.add(new TraceHook("fs", "exec"));
 	}
 
@@ -58,6 +59,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		info.setStartTime(eventTs);
 		info.setSyscallId(syscallId.intValue());
 		currentTask.pushState(info);
+
 	}
 
 	public void handle_kernel_syscall_exit(TraceReader reader, JniEvent event) {
@@ -70,17 +72,15 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		Long eventTs = event.getEventTime().getTime();
 		Long syscallRet = (Long) event.parseFieldByName("ret");
 		StateInfo info = currentTask.peekState();
-		if (info == null)
+
+		if (info == null || info.getTaskState() != TaskState.SYSCALL)
 			return;
 
-		if (info.getTaskState() == TaskState.SYSCALL) {
-			SyscallInfo state = (SyscallInfo) info;
-			state.setEndTime(eventTs);
-			state.setRetCode(syscallRet.intValue());
-			currentTask.popState();
-		} else {
-			// add warning
-		}
+		SyscallInfo state = (SyscallInfo) info;
+		state.setEndTime(eventTs);
+		state.setRetCode(syscallRet.intValue());
+		currentTask.popState();
+
 	}
 
 	public void handle_kernel_irq_entry(TraceReader reader, JniEvent event) {
@@ -108,16 +108,12 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 
 		Long eventTs = event.getEventTime().getTime();
 		StateInfo info = currentTask.peekState();
-		if (info == null)
+		if (info == null || info.getTaskState() != TaskState.IRQ)
 			return;
 
-		if (info.getTaskState() == TaskState.IRQ) {
-			IRQInfo state = (IRQInfo) info;
-			state.setEndTime(eventTs);
-			currentTask.popState();
-		} else {
-			// add warning, got the exit without the entry
-		}
+		IRQInfo state = (IRQInfo) info;
+		state.setEndTime(eventTs);
+		currentTask.popState();
 	}
 
 	public void handle_kernel_softirq_entry(TraceReader reader, JniEvent event) {
@@ -145,16 +141,12 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 
 		Long eventTs = event.getEventTime().getTime();
 		StateInfo info = currentTask.peekState();
-		if (info == null)
+		if (info == null || info.getTaskState() != TaskState.SOFTIRQ)
 			return;
 
-		if (info.getTaskState() == TaskState.SOFTIRQ) {
-			SoftIRQInfo state = (SoftIRQInfo) info;
-			state.setEndTime(eventTs);
-			currentTask.popState();
-		} else {
-			// add warning, got the exit without the entry
-		}
+		SoftIRQInfo state = (SoftIRQInfo) info;
+		state.setEndTime(eventTs);
+		currentTask.popState();
 	}
 
 	public void handle_kernel_sched_schedule(TraceReader reader, JniEvent event) {
@@ -173,26 +165,29 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		Processor p = model.getProcessors().get(cpu.intValue());
 		p.setCurrentTask(nextTask);
 
-		// update tasks state
+		// Pop waiting state on the scheduled in task
 		StateInfo infoNext = nextTask.peekState();
-		if (infoNext != null)
+		if (infoNext != null) {
 			infoNext.setEndTime(eventTs);
-		nextTask.popState();
+			nextTask.popState();
+		}
 
 		StateInfo prevInfo = prevTask.peekState();
-		if (prevInfo != null) {
-			if (prevInfo instanceof ExitInfo) {
-				// last schedule of the process
-				ExitInfo exit = (ExitInfo) prevInfo;
-				exit.setEndTime(eventTs);
-				prevTask.setExitTime(eventTs);
-				prevTask.popState();
-			} else {
-				WaitInfo waitInfoPrev = (WaitInfo) StateInfoFactory.makeStateInfo(TaskState.WAIT);
-				waitInfoPrev.setStartTime(eventTs);
-				prevTask.pushState(waitInfoPrev);
-			}
+
+		// special case if the task exits
+		if (prevInfo != null && prevInfo.getTaskState() == TaskState.EXIT) {
+			// last schedule of the process
+			ExitInfo exit = (ExitInfo) prevInfo;
+			exit.setEndTime(eventTs);
+			prevTask.setExitTime(eventTs);
+			prevTask.popState();
+			return;
 		}
+
+		// Push waiting state on the task that is scheduled out
+		WaitInfo waitInfoPrev = (WaitInfo) StateInfoFactory.makeStateInfo(TaskState.WAIT);
+		waitInfoPrev.setStartTime(eventTs);
+		prevTask.pushState(waitInfoPrev);
 	}
 
 	public void handle_kernel_sched_try_wakeup(TraceReader reader, JniEvent event) {
@@ -202,9 +197,19 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		Task wakedTask = model.getLatestTaskByPID(pid.intValue());
 		Task currentTask = model.getProcessors().get(cpu.intValue()).getCurrentTask();
 		StateInfo info = wakedTask.peekState();
+
+		if (info == null)
+			return;
+
+		info.setEndTime(eventTs);
+
 		StateInfo wakeCause = null;
 		if (currentTask != null)
 			wakeCause = currentTask.peekState();
+
+		StateInfo waitInState = wakedTask.peekState(-1);
+		if (waitInState == null)
+			return;
 
 		/*
 		 * try_wakeup can happen on already running task
@@ -212,14 +217,16 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		 */
 		if (info instanceof WaitInfo) {
 			WaitInfo wait = (WaitInfo) info;
-			StateInfo waitInState = wakedTask.peekState(-1);
-			if (waitInState.getTaskState() != TaskState.SYSCALL) {
-				waitInState = null;
-			}
 			wait.setBlocking(true);
 			wait.setEndTime(eventTs);
-			wait.setWakeUp(wakeCause);
-			wait.setWaitingSyscall((SyscallInfo)waitInState);
+			if (currentTask != null && currentTask.isKernelThread() && wakeCause == null) {
+				wait.setWakeUpProcess(currentTask);
+			} else {
+				wait.setWakeUp(wakeCause);
+			}
+			if (waitInState.getTaskState() == TaskState.SYSCALL) {
+				wait.setWaitingSyscall((SyscallInfo)waitInState);
+			}
 		}
 	}
 
@@ -266,6 +273,15 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		ExitInfo exitInfo = (ExitInfo) StateInfoFactory.makeStateInfo(TaskState.EXIT);
 		exitInfo.setStartTime(eventTs);
 		currentTask.pushState(exitInfo);
+	}
+
+	public void handle_net_socket_create(TraceReader reader, JniEvent event) {
+		long eventTs = event.getEventTime().getTime();
+		Long cpu = event.getParentTracefile().getCpuNumber();
+		Processor p = model.getProcessors().get(cpu.intValue());
+		Task currentTask = p.getCurrentTask();
+		if (currentTask == null)
+			return;
 	}
 
 	public void setModel(SystemModel model) {

@@ -35,6 +35,9 @@ public class BlockingReport {
 			if (item.getWakeUp() != null) {
 				str.append(" wakeup=" + item.getWakeUp().toString());
 			}
+			if (item.getWakeUpTask() != null) {
+				str.append(" wakeup=" + item.getWakeUpTask().getCmd());
+			}
 			str.append("\n");
 			printReport(str, item.getChildren(), model, indent + 1);
 		}
