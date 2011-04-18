@@ -3,7 +3,6 @@ package org.lttng.flightbox.model;
 public class FileDescriptor extends SystemResource implements Comparable<FileDescriptor> {
 
 	private int fd;
-	private String filename;
 	private boolean isError;
 
 	public void setFd(int fd) {
@@ -12,14 +11,6 @@ public class FileDescriptor extends SystemResource implements Comparable<FileDes
 
 	public int getFd() {
 		return fd;
-	}
-
-	public void setFilename(String filename) {
-		this.filename = filename;
-	}
-
-	public String getFilename() {
-		return this.filename;
 	}
 
 	@Override
@@ -65,6 +56,6 @@ public class FileDescriptor extends SystemResource implements Comparable<FileDes
 
 	@Override
 	public String toString() {
-		return "fd=" + fd + " filename=" + filename;
+		return "fd=" + fd;
 	}
 }
