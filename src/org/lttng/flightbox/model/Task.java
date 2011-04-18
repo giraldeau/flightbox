@@ -1,5 +1,6 @@
 package org.lttng.flightbox.model;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Stack;
 import java.util.TreeSet;
@@ -26,6 +27,7 @@ public class Task extends SystemResource implements Comparable<Task> {
 	private boolean isKernelThread;
 	private final Stack<StateInfo> stateStack;
 	private final HashSet<ITaskListener> listeners;
+	private final HashMap<Integer, TreeSet<FileDescriptor>> fds;
 
 	public Task(int pid, long createTs) {
 		this();
@@ -37,6 +39,7 @@ public class Task extends SystemResource implements Comparable<Task> {
 		stateStack = new Stack<StateInfo>();
 		listeners = new HashSet<ITaskListener>();
 		isKernelThread = false;
+		fds = new HashMap<Integer, TreeSet<FileDescriptor>>();
 	}
 
 	@Override
@@ -192,6 +195,26 @@ public class Task extends SystemResource implements Comparable<Task> {
 
 	public boolean isKernelThread() {
 		return isKernelThread;
+	}
+
+	public void addFileDescriptor(FileDescriptor fd) {
+		TreeSet<FileDescriptor> set = fds.get(fd.getFd());
+		if (set == null) {
+			set = new TreeSet<FileDescriptor>();
+			fds.put(fd.getFd(), set);
+		}
+		set.add(fd);
+	}
+
+	public FileDescriptor getLatestFileDescriptor(int fd) {
+		TreeSet<FileDescriptor> set = fds.get(fd);
+		if (set == null || set.size() == 0)
+			return null;
+		return set.last();
+	}
+
+	public HashMap<Integer, TreeSet<FileDescriptor>> getFileDescriptors() {
+		return this.fds;
 	}
 
 }

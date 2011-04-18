@@ -306,7 +306,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 			f.setEndTime(eventTs);
 			f.setError(true);
 		}
-		model.addFileDescriptor(currentTask, f);
+		currentTask.addFileDescriptor(f);
 	}
 
 	public void handle_fs_close(TraceReader reader, JniEvent event) {
@@ -318,7 +318,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 			return;
 
 		Long fd = (Long) event.parseFieldByName("fd");
-		FileDescriptor f = model.getFileDescriptor(currentTask, fd.intValue());
+		FileDescriptor f = currentTask.getLatestFileDescriptor(fd.intValue());
 		if (f == null)
 			return;
 
