@@ -1,11 +1,14 @@
 package org.lttng.flightbox.junit.model;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.util.List;
+import java.util.HashMap;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.junit.Test;
@@ -13,6 +16,7 @@ import org.lttng.flightbox.io.TraceEventHandlerModel;
 import org.lttng.flightbox.io.TraceEventHandlerModelMeta;
 import org.lttng.flightbox.io.TraceReader;
 import org.lttng.flightbox.junit.Path;
+import org.lttng.flightbox.model.FileDescriptor;
 import org.lttng.flightbox.model.SymbolTable;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
@@ -72,8 +76,8 @@ public class TestModelHandler {
 		// verify there is /bin/sleep task as child of sleep-1x-1sec
 		Task foundTask = model.getLatestTaskByCmdBasename("sleep-1x-1sec");
 		assertNotNull(foundTask);
-		List<Task> children = foundTask.getChildren();
-		Task task = children.get(0);
+		SortedSet<Task> children = foundTask.getChildren();
+		Task task = children.first();
 		String cmd = task.getCmd();
 		assertEquals("/bin/sleep", cmd);
 		double duration = (task.getEndTime() - task.getStartTime());
@@ -85,6 +89,49 @@ public class TestModelHandler {
 		assertNotNull(swapper);
 		assertEquals(0, swapper.getProcessId());
 		assertEquals(true, swapper.isKernelThread());
+
+	}
+
+	@Test
+	public void testModelFileDescriptor() throws JniException {
+		String tracePath = new File(Path.getTraceDir(), "cat-to-null").getPath();
+		SystemModel model = new SystemModel();
+
+		// read metadata and statedump
+		TraceEventHandlerModelMeta handlerMeta = new TraceEventHandlerModelMeta();
+		handlerMeta.setModel(model);
+		TraceReader readerMeta = new TraceReader(tracePath);
+		readerMeta.register(handlerMeta);
+		readerMeta.process();
+
+		// read all trace events
+		TraceEventHandlerModel handler = new TraceEventHandlerModel();
+		handler.setModel(model);
+		TraceReader readerTrace = new TraceReader(tracePath);
+		readerTrace.register(handler);
+		readerTrace.process();
+
+		// verify there is /bin/sleep task as child of sleep-1x-1sec
+		Task foundTask = model.getLatestTaskByCmdBasename("cat-to-null");
+		assertNotNull(foundTask);
+		SortedSet<Task> children = foundTask.getChildren();
+		assertEquals(2, children.size());
+
+		Task first = children.first();
+		HashMap<Integer, TreeSet<FileDescriptor>> fds = model.getFileDescriptors(first);
+		TreeSet<FileDescriptor> set = fds.get(3);
+		FileDescriptor f = set.last();
+		assertEquals("cat-to-null", new File(f.getFilename()).getName());
+		assertFalse(f.isOpen());
+		assertFalse(f.isError());
+
+		Task last = children.last();
+		fds = model.getFileDescriptors(last);
+		set = fds.get(-2);
+		f = set.first();
+		assertEquals("77d2c0533bea11686a892bcb34697292", f.getFilename());
+		assertFalse(f.isOpen());
+		assertTrue(f.isError());
 
 	}
 

@@ -42,9 +42,11 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 
 	/**
 	 * File descriptors
+	 * an fd can be reused and is unique per process
+	 * we want to keep all fd history
 	 */
 
-	//private final HashMap<Task, TreeSet<>>
+	private final HashMap<Task, HashMap<Integer, TreeSet<FileDescriptor>>> taskToFileDescriptors;
 
 	public SystemModel() {
 		processors = new ArrayList<Processor>();
@@ -54,6 +56,7 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 		interruptTable = new SymbolTable();
 		softirqTable = new SymbolTable();
 		tasksByPid = new HashMap<Integer, TreeSet<Task>>();
+		taskToFileDescriptors = new HashMap<Task, HashMap<Integer,TreeSet<FileDescriptor>>>();
 	}
 
 	public void initProcessors(int numOfProcessors) {
@@ -188,8 +191,33 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 		return taskByCmd.last();
 	}
 
-	public void addFileDescriptor(Task currentTask, FileDescriptor fd) {
+	public void addFileDescriptor(Task task, FileDescriptor fd) {
+		HashMap<Integer, TreeSet<FileDescriptor>> map = taskToFileDescriptors.get(task);
+		if (map == null) {
+			map = new HashMap<Integer, TreeSet<FileDescriptor>>();
+			taskToFileDescriptors.put(task, map);
+		}
+		TreeSet<FileDescriptor> set = map.get(fd.getFd());
+		if (set == null) {
+			set = new TreeSet<FileDescriptor>();
+			map.put(fd.getFd(), set);
+		}
+		set.add(fd);
+	}
 
+	public FileDescriptor getFileDescriptor(Task task, int fd) {
+		HashMap<Integer, TreeSet<FileDescriptor>> map = taskToFileDescriptors.get(task);
+		if (map == null)
+			return null;
+		TreeSet<FileDescriptor> set = map.get(fd);
+		if (set == null)
+			return null;
+		return set.last();
+	}
+
+	public HashMap<Integer, TreeSet<FileDescriptor>> getFileDescriptors(Task task) {
+		HashMap<Integer, TreeSet<FileDescriptor>> map = taskToFileDescriptors.get(task);
+		return map;
 	}
 
 

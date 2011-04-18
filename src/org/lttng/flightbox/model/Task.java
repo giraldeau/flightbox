@@ -1,9 +1,8 @@
 package org.lttng.flightbox.model;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Stack;
-import java.util.Vector;
+import java.util.TreeSet;
 
 import org.lttng.flightbox.model.state.StateInfo;
 
@@ -21,7 +20,7 @@ public class Task extends SystemResource implements Comparable<Task> {
 	private int processId;
 	private int threadGroupId;
 	private Task parentProcess;
-	private List<Task> childrenTask;
+	private TreeSet<Task> childrenTask;
 	private int exitStatus;
 	private String cmd;
 	private boolean isKernelThread;
@@ -111,7 +110,7 @@ public class Task extends SystemResource implements Comparable<Task> {
 
 	public void addChild(Task child) {
 		if (childrenTask == null) {
-			childrenTask = new Vector<Task>();
+			childrenTask = new TreeSet<Task>();
 		}
 		childrenTask.add(child);
 	}
@@ -124,7 +123,7 @@ public class Task extends SystemResource implements Comparable<Task> {
 		return childrenTask.contains(child);
 	}
 
-	public List<Task> getChildren() {
+	public TreeSet<Task> getChildren() {
 		return childrenTask;
 	}
 

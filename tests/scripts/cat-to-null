@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cat $0 > /dev/null
+cat 77d2c0533bea11686a892bcb34697292 > /dev/null 
