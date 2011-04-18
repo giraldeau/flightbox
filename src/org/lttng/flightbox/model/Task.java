@@ -1,7 +1,9 @@
 package org.lttng.flightbox.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Stack;
 import java.util.TreeSet;
 
@@ -215,6 +217,25 @@ public class Task extends SystemResource implements Comparable<Task> {
 
 	public HashMap<Integer, TreeSet<FileDescriptor>> getFileDescriptors() {
 		return this.fds;
+	}
+
+	public List<FileDescriptor> getOpenedFileDescriptors() {
+		ArrayList<FileDescriptor> openedFd = new ArrayList<FileDescriptor>();
+		TreeSet<FileDescriptor> set;
+		for (Integer i: fds.keySet()) {
+			set = fds.get(i);
+			FileDescriptor last = set.last();
+			if (last.isOpen()) {
+				openedFd.add(last);
+			}
+		}
+		return openedFd;
+	}
+
+	public void addFileDescriptors(List<FileDescriptor> fileDescriptors) {
+		for (FileDescriptor f: fileDescriptors) {
+			addFileDescriptor(f);
+		}
 	}
 
 }

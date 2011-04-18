@@ -160,6 +160,8 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 		TreeSet<Task> resultSet = new TreeSet<Task>();
 		for (TreeSet<Task> set: tasksByPid.values()) {
 			for (Task t: set) {
+				if (t.getCmd() == null)
+					continue;
 				if (basename) {
 					if (t.getCmd().endsWith(cmd)) {
 						resultSet.add(t);

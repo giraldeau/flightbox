@@ -119,6 +119,10 @@ public class TestModelHandler {
 		assertEquals(2, children.size());
 
 		Task first = children.first();
+		Task last = children.last();
+		assertEquals("/bin/cat", first.getCmd());
+		assertEquals("/bin/cat", last.getCmd());
+
 		HashMap<Integer, TreeSet<FileDescriptor>> fds = first.getFileDescriptors();
 		TreeSet<FileDescriptor> set = fds.get(3);
 		DiskFile f = (DiskFile) set.last();
@@ -126,7 +130,6 @@ public class TestModelHandler {
 		assertFalse(f.isOpen());
 		assertFalse(f.isError());
 
-		Task last = children.last();
 		fds = last.getFileDescriptors();
 		set = fds.get(-2);
 		f = (DiskFile) set.first();

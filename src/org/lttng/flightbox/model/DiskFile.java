@@ -12,4 +12,9 @@ public class DiskFile extends FileDescriptor {
 		return this.filename;
 	}
 
+	@Override
+	public String toString() {
+		return super.toString() + " filename=" + filename;
+	}
+
 }
