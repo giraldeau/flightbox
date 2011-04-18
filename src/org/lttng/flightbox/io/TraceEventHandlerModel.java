@@ -1,5 +1,7 @@
 package org.lttng.flightbox.io;
 
+import java.util.List;
+
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
 import org.lttng.flightbox.model.DiskFile;
@@ -254,6 +256,17 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 			task.setCmd(parentTask.getCmd());
 			task.setParentProcess(parentTask);
 			parentTask.addChild(task);
+			List<FileDescriptor> openedFd = parentTask.getOpenedFileDescriptors();
+			for (FileDescriptor f: openedFd) {
+				if (f instanceof DiskFile) {
+					DiskFile d = (DiskFile) f;
+					DiskFile d2 = new DiskFile();
+					d2.setStartTime(eventTs);
+					d2.setFd(d.getFd());
+					d2.setFilename(d.getFilename());
+					task.addFileDescriptor(d2);
+				}
+			}
 		}
 		model.addTask(task);
 	}
