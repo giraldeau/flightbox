@@ -97,10 +97,10 @@ public class TraceEventHandlerModelMeta extends TraceEventHandlerBase {
 		Long type = (Long) event.parseFieldByName("type");
 
 		Task task = getOrCreateTask(pid.intValue());
-		task.setCreateTime(reader.getStartTime());
+		task.setStartTime(reader.getStartTime());
 		task.setCmd((String) event.parseFieldByName("name"));
 		if (type == 1) task.setKernelThread(true);
-		task.setCreateTime(reader.getStartTime());
+		task.setStartTime(reader.getStartTime());
 		task.setThreadGroupId(tgid.intValue());
 
 		// avoid recursivity for swapper threads

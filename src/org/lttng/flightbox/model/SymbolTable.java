@@ -10,6 +10,7 @@ public class SymbolTable {
 	public final static int SYS_READ 	= 0;
 	public final static int SYS_WRITE 	= 1;
 	public final static int SYS_CLOSE 	= 3;
+	public static final int SYS_OPEN = 5;
 
 	private final Map<Integer, String> symbols;
 

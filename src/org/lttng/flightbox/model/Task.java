@@ -18,8 +18,6 @@ public class Task extends SystemResource implements Comparable<Task> {
 		WAIT, USER, IRQ, SOFTIRQ, SYSCALL, TRAP, ZOMBIE, EXIT
 	}
 
-	private long createTime;
-	private long exitTime;
 	private int processId;
 	private int threadGroupId;
 	private Task parentProcess;
@@ -33,7 +31,7 @@ public class Task extends SystemResource implements Comparable<Task> {
 	public Task(int pid, long createTs) {
 		this();
 		this.processId = pid;
-		this.createTime = createTs;
+		this.setStartTime(createTs);
 	}
 
 	public Task() {
@@ -46,7 +44,7 @@ public class Task extends SystemResource implements Comparable<Task> {
 	public boolean equals(Object other) {
 		if (other instanceof Task) {
 			Task p = (Task) other;
-			if (p.processId == this.processId && p.createTime == this.createTime) {
+			if (p.processId == this.processId && p.getStartTime() == this.getStartTime()) {
 				return true;
 			}
 		}
@@ -55,7 +53,7 @@ public class Task extends SystemResource implements Comparable<Task> {
 
 	@Override
 	public int hashCode() {
-		return this.processId + (int)this.createTime;
+		return this.processId + (int)this.getStartTime();
 	}
 
 	@Override
@@ -66,25 +64,9 @@ public class Task extends SystemResource implements Comparable<Task> {
 		if (o == this) return EQUAL;
 		if (this.processId < o.processId) return BEFORE;
 		if (this.processId > o.processId) return AFTER;
-		if (this.createTime < o.createTime) return BEFORE;
-		if (this.createTime > o.createTime) return AFTER;
+		if (this.getStartTime() < o.getStartTime()) return BEFORE;
+		if (this.getStartTime() > o.getStartTime()) return AFTER;
 		return EQUAL;
-	}
-
-	public long getCreateTime() {
-		return createTime;
-	}
-
-	public void setCreateTime(long createTime) {
-		this.createTime = createTime;
-	}
-
-	public long getExitTime() {
-		return exitTime;
-	}
-
-	public void setExitTime(long exitTime) {
-		this.exitTime = exitTime;
 	}
 
 	public String getCmd() {

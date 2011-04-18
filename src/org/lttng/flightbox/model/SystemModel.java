@@ -40,6 +40,12 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 
 	private final SymbolTable softirqTable;
 
+	/**
+	 * File descriptors
+	 */
+
+	//private final HashMap<Task, TreeSet<>>
+
 	public SystemModel() {
 		processors = new ArrayList<Processor>();
 		processorListeners = new ArrayList<IProcessorListener>();
@@ -180,6 +186,10 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 		if (taskByCmd.isEmpty())
 			return null;
 		return taskByCmd.last();
+	}
+
+	public void addFileDescriptor(Task currentTask, FileDescriptor fd) {
+
 	}
 
 

@@ -2,8 +2,10 @@ package org.lttng.flightbox.io;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
+import org.lttng.flightbox.model.FileDescriptor;
 import org.lttng.flightbox.model.Processor;
 import org.lttng.flightbox.model.StateInfoFactory;
+import org.lttng.flightbox.model.SymbolTable;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.model.Task.TaskState;
@@ -12,6 +14,7 @@ import org.lttng.flightbox.model.state.IRQInfo;
 import org.lttng.flightbox.model.state.SoftIRQInfo;
 import org.lttng.flightbox.model.state.StateInfo;
 import org.lttng.flightbox.model.state.SyscallInfo;
+import org.lttng.flightbox.model.state.SyscallInfo.Field;
 import org.lttng.flightbox.model.state.WaitInfo;
 
 public class TraceEventHandlerModel extends TraceEventHandlerBase {
@@ -32,6 +35,8 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		hooks.add(new TraceHook("kernel", "softirq_exit"));
 		hooks.add(new TraceHook("net", "socket_create"));
 		hooks.add(new TraceHook("fs", "exec"));
+		//hooks.add(new TraceHook("fs", "open"));
+		//hooks.add(new TraceHook("fs", "close"));
 	}
 
 	@Override
@@ -59,7 +64,6 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		info.setStartTime(eventTs);
 		info.setSyscallId(syscallId.intValue());
 		currentTask.pushState(info);
-
 	}
 
 	public void handle_kernel_syscall_exit(TraceReader reader, JniEvent event) {
@@ -79,6 +83,33 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		SyscallInfo state = (SyscallInfo) info;
 		state.setEndTime(eventTs);
 		state.setRetCode(syscallRet.intValue());
+
+		switch (state.getSyscallId()) {
+		case SymbolTable.SYS_OPEN:
+			if (state.getRetCode() < 0)
+				break;
+			FileDescriptor fd = new FileDescriptor();
+			fd.setFd((Integer)state.getField(Field.FD));
+			fd.setStartTime(eventTs);
+			model.addFileDescriptor(currentTask, fd);
+			break;
+		case SymbolTable.SYS_SOCKET:
+			break;
+		case SymbolTable.SYS_CONNECT:
+			break;
+		case SymbolTable.SYS_READ:
+			break;
+		case SymbolTable.SYS_WRITE:
+			break;
+		case SymbolTable.SYS_CLOSE:
+			if (state.getRetCode() < 0)
+				break;
+			FileDescriptor f = new FileDescriptor();
+			f.setFd((Integer)state.getField(Field.FD));
+			f.setStartTime(eventTs);
+			break;
+		}
+
 		currentTask.popState();
 
 	}
@@ -179,7 +210,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 			// last schedule of the process
 			ExitInfo exit = (ExitInfo) prevInfo;
 			exit.setEndTime(eventTs);
-			prevTask.setExitTime(eventTs);
+			prevTask.setEndTime(eventTs);
 			prevTask.popState();
 			return;
 		}
@@ -244,7 +275,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		long eventTs = event.getEventTime().getTime();
 		Task task = new Task();
 		task.setProcessId(childPid.intValue());
-		task.setCreateTime(eventTs);
+		task.setStartTime(eventTs);
 		Task parentTask = model.getLatestTaskByPID(parentPid.intValue());
 		if (parentTask != null) {
 			task.setCmd(parentTask.getCmd());
@@ -282,6 +313,28 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		Task currentTask = p.getCurrentTask();
 		if (currentTask == null)
 			return;
+	}
+
+	public void handle_fs_open(TraceReader reader, JniEvent event) {
+		long eventTs = event.getEventTime().getTime();
+		Long cpu = event.getParentTracefile().getCpuNumber();
+		Processor p = model.getProcessors().get(cpu.intValue());
+		Task currentTask = p.getCurrentTask();
+		if (currentTask == null)
+			return;
+
+		StateInfo state = currentTask.peekState();
+		if (state.getTaskState() != TaskState.SYSCALL)
+			return;
+
+		SyscallInfo info = (SyscallInfo) state;
+		if (info.getSyscallId() != SymbolTable.SYS_OPEN)
+			return;
+
+		String filename = (String) event.parseFieldByName("filename");
+		Long fd = (Long) event.parseFieldByName("fd");
+		info.setField(Field.FILENAME, filename);
+		info.setField(Field.FD, fd.intValue());
 	}
 
 	public void setModel(SystemModel model) {

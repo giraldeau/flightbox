@@ -76,7 +76,7 @@ public class TestModelHandler {
 		Task task = children.get(0);
 		String cmd = task.getCmd();
 		assertEquals("/bin/sleep", cmd);
-		double duration = (task.getExitTime() - task.getCreateTime());
+		double duration = (task.getEndTime() - task.getStartTime());
 		assertEquals(duration, nanosec, p);
 		assertEquals(false, foundTask.isKernelThread());
 
