@@ -41,7 +41,7 @@ public class DependencyTreeView extends Composite {
 	    new TableColumn(table, SWT.LEFT).setText("PID");
 	    new TableColumn(table, SWT.LEFT).setText("Command");
 	    new TableColumn(table, SWT.LEFT).setText("System call");
-	    new TableColumn(table, SWT.LEFT).setText("Duration (ms)");
+	    new TableColumn(table, SWT.RIGHT).setText("Duration (ms)");
 	    new TableColumn(table, SWT.LEFT).setText("Wake up");
 
 	    table.setHeaderVisible(true);
@@ -135,7 +135,7 @@ public class DependencyTreeView extends Composite {
 			case 3:
 				SyscallInfo info = item.getWaitingSyscall();
 				long delay = info.getEndTime() - info.getStartTime();
-				str = String.format("%d", delay / 1000000);
+				str = String.format("%.3f", delay/ 1000000.0);
 				break;
 			case 4:
 				if (item.getWakeUp() != null)
