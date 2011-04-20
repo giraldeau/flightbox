@@ -12,6 +12,8 @@ public class SymbolTable {
 	public final static int SYS_CLOSE 	= 3;
 	public static final int SYS_OPEN = 5;
 
+	public static final int NET_RX_ACTION = 3;
+
 	private final Map<Integer, String> symbols;
 
 	public SymbolTable() {

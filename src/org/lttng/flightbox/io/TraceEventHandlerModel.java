@@ -1,5 +1,6 @@
 package org.lttng.flightbox.io;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
@@ -7,7 +8,9 @@ import org.eclipse.linuxtools.lttng.jni.JniTrace;
 import org.lttng.flightbox.model.DiskFile;
 import org.lttng.flightbox.model.FileDescriptor;
 import org.lttng.flightbox.model.Processor;
+import org.lttng.flightbox.model.SocketInet;
 import org.lttng.flightbox.model.StateInfoFactory;
+import org.lttng.flightbox.model.SymbolTable;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.model.Task.TaskState;
@@ -15,6 +18,7 @@ import org.lttng.flightbox.model.state.ExitInfo;
 import org.lttng.flightbox.model.state.IRQInfo;
 import org.lttng.flightbox.model.state.SoftIRQInfo;
 import org.lttng.flightbox.model.state.StateInfo;
+import org.lttng.flightbox.model.state.StateInfo.Field;
 import org.lttng.flightbox.model.state.SyscallInfo;
 import org.lttng.flightbox.model.state.WaitInfo;
 
@@ -35,8 +39,16 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		hooks.add(new TraceHook("kernel", "softirq_entry"));
 		hooks.add(new TraceHook("kernel", "softirq_exit"));
 		hooks.add(new TraceHook("net", "socket_create"));
+		hooks.add(new TraceHook("net", "socket_bind"));
+		hooks.add(new TraceHook("net", "socket_connect"));
+		hooks.add(new TraceHook("net", "socket_accept"));
+		hooks.add(new TraceHook("net", "socket_shutdown"));
+		hooks.add(new TraceHook("net", "dev_xmit_extended"));
+		hooks.add(new TraceHook("net", "tcpv4_rcv_extended"));
 		hooks.add(new TraceHook("fs", "exec"));
 		hooks.add(new TraceHook("fs", "open"));
+		hooks.add(new TraceHook("fs", "read"));
+		hooks.add(new TraceHook("fs", "write"));
 		hooks.add(new TraceHook("fs", "close"));
 	}
 
@@ -210,8 +222,20 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		info.setEndTime(eventTs);
 
 		StateInfo wakeCause = null;
-		if (currentTask != null)
+		if (currentTask != null) {
 			wakeCause = currentTask.peekState();
+		}
+
+		if (wakeCause != null) {
+			ArrayList<StateInfo> wakeUpFifo = wakedTask.getWakeUpFifo();
+			// only net.socket_accept will consume wakeUpFifo
+			if (wakeCause.getTaskState() == TaskState.SOFTIRQ) {
+				SoftIRQInfo softirq = (SoftIRQInfo) wakeCause;
+				if (softirq.getSoftirqId() == SymbolTable.NET_RX_ACTION) {
+					wakeUpFifo.add(wakeCause);
+				}
+			}
+		}
 
 		StateInfo waitInState = wakedTask.peekState(-1);
 		if (waitInState == null)
@@ -299,6 +323,164 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		Task currentTask = p.getCurrentTask();
 		if (currentTask == null)
 			return;
+
+		Long family = (Long) event.parseFieldByName("family");
+		Long type = (Long) event.parseFieldByName("type");
+		Long protocol = (Long) event.parseFieldByName("protocol");
+		Long ret = (Long) event.parseFieldByName("ret");
+		/* does sock attribute useful at all? */
+		//Long protocol = (Long) event.parseFieldByName("sock");
+
+		if (ret < 0)
+			return;
+
+		SocketInet s = new SocketInet();
+		s.setFd(ret.intValue());
+		s.setFamily(family.intValue());
+		s.setType(type.intValue());
+		s.setProtocol(protocol.intValue());
+		s.setStartTime(eventTs);
+		currentTask.addSocket(s);
+
+	}
+
+	public void handle_net_socket_bind(TraceReader reader, JniEvent event) {
+	}
+
+	public void handle_net_socket_connect(TraceReader reader, JniEvent event) {
+		long eventTs = event.getEventTime().getTime();
+		Long cpu = event.getParentTracefile().getCpuNumber();
+		Processor p = model.getProcessors().get(cpu.intValue());
+		Task currentTask = p.getCurrentTask();
+		if (currentTask == null)
+			return;
+
+		StateInfo state = currentTask.peekState();
+		if (state.getTaskState() != TaskState.SYSCALL)
+			return;
+
+		SyscallInfo info = (SyscallInfo) state;
+		if (info.getField(Field.SRC_ADDR) == null)
+			return;
+
+		Long fd = (Long) event.parseFieldByName("fd");
+		SocketInet sock = currentTask.getLatestSocket(fd.intValue());
+
+		if (sock == null)
+			return;
+
+		sock.setSrcAddr((Long)info.getField(Field.SRC_ADDR));
+		sock.setSrcPort((Integer)info.getField(Field.SRC_PORT));
+		sock.setDstAddr((Long)info.getField(Field.DST_ADDR));
+		sock.setDstPort((Integer)info.getField(Field.DST_PORT));
+	}
+
+	public void handle_net_socket_accept(TraceReader reader, JniEvent event) {
+		long eventTs = event.getEventTime().getTime();
+		Long cpu = event.getParentTracefile().getCpuNumber();
+		Processor p = model.getProcessors().get(cpu.intValue());
+		Task currentTask = p.getCurrentTask();
+		if (currentTask == null)
+			return;
+
+		StateInfo state = currentTask.peekState();
+		if (state.getTaskState() != TaskState.SYSCALL)
+			return;
+
+		//SyscallInfo info = (SyscallInfo) state;
+		//if (info.getField(Field.SRC_ADDR) == null)
+		//	return;
+
+		Long ret = (Long) event.parseFieldByName("ret");
+
+		SocketInet sock = new SocketInet();
+		sock.setFd(ret.intValue());
+		//s.setFamily(family.intValue());
+		//s.setType(type.intValue());
+		//s.setProtocol(protocol.intValue());
+		sock.setStartTime(eventTs);
+
+		ArrayList<StateInfo> wakeUpFifo = currentTask.getWakeUpFifo();
+		if (wakeUpFifo.size() > 0 ) {
+			// get the oldest element
+			StateInfo info = wakeUpFifo.remove(0);
+			if (info != null && info.getField(Field.SRC_ADDR) != null) {
+				sock.setSrcAddr((Long)info.getField(Field.SRC_ADDR));
+				sock.setSrcPort((Integer)info.getField(Field.SRC_PORT));
+				sock.setDstAddr((Long)info.getField(Field.DST_ADDR));
+				sock.setDstPort((Integer)info.getField(Field.DST_PORT));
+			}
+		}
+
+		currentTask.addSocket(sock);
+	}
+
+	public void handle_net_socket_shutdown(TraceReader reader, JniEvent event) {
+		long eventTs = event.getEventTime().getTime();
+		Long cpu = event.getParentTracefile().getCpuNumber();
+		Processor p = model.getProcessors().get(cpu.intValue());
+		Task currentTask = p.getCurrentTask();
+		if (currentTask == null)
+			return;
+
+		Long fd = (Long) event.parseFieldByName("fd");
+		Long ret = (Long) event.parseFieldByName("ret");
+
+		if (ret != 0)
+			return;
+
+		SocketInet sock = currentTask.getLatestSocket(fd.intValue());
+		if (sock == null)
+			return;
+
+		sock.setEndTime(eventTs);
+
+	}
+
+	public void handle_net_dev_xmit_extended(TraceReader reader, JniEvent event) {
+		long eventTs = event.getEventTime().getTime();
+		Long cpu = event.getParentTracefile().getCpuNumber();
+		Processor p = model.getProcessors().get(cpu.intValue());
+		Task currentTask = p.getCurrentTask();
+		if (currentTask == null)
+			return;
+		StateInfo state = currentTask.peekState();
+		if (state.getTaskState() != TaskState.SYSCALL)
+			return;
+		SyscallInfo info = (SyscallInfo) state;
+
+		Long x;
+		x = (Long) event.parseFieldByName("saddr");
+		info.setField(Field.SRC_ADDR, x);
+		x = (Long) event.parseFieldByName("source");
+		info.setField(Field.SRC_PORT, x.intValue());
+		x = (Long) event.parseFieldByName("daddr");
+		info.setField(Field.DST_ADDR, x);
+		x = (Long) event.parseFieldByName("dest");
+		info.setField(Field.DST_PORT, x.intValue());
+	}
+
+	public void handle_net_tcpv4_rcv_extended(TraceReader reader, JniEvent event) {
+		long eventTs = event.getEventTime().getTime();
+		Long cpu = event.getParentTracefile().getCpuNumber();
+		Processor p = model.getProcessors().get(cpu.intValue());
+		Task currentTask = p.getCurrentTask();
+		if (currentTask == null)
+			return;
+		StateInfo state = currentTask.peekState();
+		if (state.getTaskState() != TaskState.SOFTIRQ)
+			return;
+		SoftIRQInfo info = (SoftIRQInfo) state;
+
+		Long x;
+		x = (Long) event.parseFieldByName("saddr");
+		info.setField(Field.SRC_ADDR, x);
+		x = (Long) event.parseFieldByName("source");
+		info.setField(Field.SRC_PORT, x.intValue());
+		x = (Long) event.parseFieldByName("daddr");
+		info.setField(Field.DST_ADDR, x);
+		x = (Long) event.parseFieldByName("dest");
+		info.setField(Field.DST_PORT, x.intValue());
 	}
 
 	public void handle_fs_open(TraceReader reader, JniEvent event) {
@@ -322,6 +504,12 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		currentTask.addFileDescriptor(f);
 	}
 
+	public void handle_fs_read(TraceReader reader, JniEvent event) {
+	}
+
+	public void handle_fs_write(TraceReader reader, JniEvent event) {
+	}
+
 	public void handle_fs_close(TraceReader reader, JniEvent event) {
 		long eventTs = event.getEventTime().getTime();
 		Long cpu = event.getParentTracefile().getCpuNumber();
@@ -337,7 +525,6 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 
 		f.setEndTime(eventTs);
 	}
-
 
 	public void setModel(SystemModel model) {
 		this.model = model;

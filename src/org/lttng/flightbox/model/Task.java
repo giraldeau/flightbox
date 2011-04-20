@@ -30,6 +30,8 @@ public class Task extends SystemResource implements Comparable<Task> {
 	private final Stack<StateInfo> stateStack;
 	private final HashSet<ITaskListener> listeners;
 	private final HashMap<Integer, TreeSet<FileDescriptor>> fds;
+	private final HashMap<Integer, TreeSet<SocketInet>> sockets;
+	private final ArrayList<StateInfo> wakeUpFifo;
 
 	public Task(int pid, long createTs) {
 		this();
@@ -42,6 +44,8 @@ public class Task extends SystemResource implements Comparable<Task> {
 		listeners = new HashSet<ITaskListener>();
 		isKernelThread = false;
 		fds = new HashMap<Integer, TreeSet<FileDescriptor>>();
+		sockets = new HashMap<Integer, TreeSet<SocketInet>>();
+		wakeUpFifo = new ArrayList<StateInfo>();
 	}
 
 	@Override
@@ -236,6 +240,55 @@ public class Task extends SystemResource implements Comparable<Task> {
 		for (FileDescriptor f: fileDescriptors) {
 			addFileDescriptor(f);
 		}
+	}
+
+    /* FIXME: this should a standalone collection */
+	public void addSocket(SocketInet fd) {
+		TreeSet<SocketInet> set = sockets.get(fd.getFd());
+		if (set == null) {
+			set = new TreeSet<SocketInet>();
+			sockets.put(fd.getFd(), set);
+		}
+		set.add(fd);
+	}
+
+	public SocketInet getLatestSocket(int fd) {
+		TreeSet<SocketInet> set = sockets.get(fd);
+		if (set == null || set.size() == 0)
+			return null;
+		return set.last();
+	}
+
+	public HashMap<Integer, TreeSet<SocketInet>> getSockets() {
+		return this.sockets;
+	}
+
+	public List<SocketInet> getOpenedSockets() {
+		ArrayList<SocketInet> openedFd = new ArrayList<SocketInet>();
+		TreeSet<SocketInet> set;
+		for (Integer i: sockets.keySet()) {
+			set = sockets.get(i);
+			SocketInet last = set.last();
+			if (last.isOpen()) {
+				openedFd.add(last);
+			}
+		}
+		return openedFd;
+	}
+
+	public void addSockets(List<SocketInet> sock) {
+		for (SocketInet s: sock) {
+			addFileDescriptor(s);
+		}
+	}
+
+	public ArrayList<StateInfo> getWakeUpFifo() {
+		return wakeUpFifo;
+	}
+
+	@Override
+	public String toString() {
+		return "[task pid=" + processId + "]";
 	}
 
 }

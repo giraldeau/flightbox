@@ -16,8 +16,8 @@ import org.lttng.flightbox.model.Task.TaskState;
 import org.lttng.flightbox.model.TaskListener;
 import org.lttng.flightbox.model.state.IRQInfo;
 import org.lttng.flightbox.model.state.StateInfo;
+import org.lttng.flightbox.model.state.StateInfo.Field;
 import org.lttng.flightbox.model.state.SyscallInfo;
-import org.lttng.flightbox.model.state.SyscallInfo.Field;
 import org.lttng.flightbox.model.state.WaitInfo;
 
 public class TestTask {

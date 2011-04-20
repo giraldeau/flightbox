@@ -47,6 +47,7 @@ public class TraceEventHandlerModelMeta extends TraceEventHandlerBase {
 		Long pid = (Long) event.parseFieldByName("pid");
 		String filename = (String) event.parseFieldByName("filename");
 
+		/* FIXME: handle sockets, pipe, fifo */
 		Task task = getOrCreateTask(pid.intValue());
 		DiskFile f = new DiskFile();
 		f.setStartTime(eventTs);
