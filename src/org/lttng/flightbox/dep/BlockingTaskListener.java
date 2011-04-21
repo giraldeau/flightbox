@@ -4,11 +4,9 @@ import java.util.HashMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.lttng.flightbox.model.SymbolTable;
 import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.model.Task.TaskState;
 import org.lttng.flightbox.model.TaskListener;
-import org.lttng.flightbox.model.state.SoftIRQInfo;
 import org.lttng.flightbox.model.state.StateInfo;
 import org.lttng.flightbox.model.state.WaitInfo;
 
@@ -61,40 +59,6 @@ public class BlockingTaskListener extends TaskListener {
 			stats.increment(wait.getWaitingSyscall().getSyscallId(), wait.getDuration());
 		}
 
-		/* add references to children blocking items */
-		/* FIXME: handle other cases than EXIT */
-		if (wait.getWakeUp() == null)
-			return;
-
-		if (wait.getWakeUp().getTaskState() == TaskState.EXIT) {
-			populateSubBlocking(item, wait);
-		} else if (wait.getWakeUp().getTaskState() == TaskState.SOFTIRQ) {
-			SoftIRQInfo softirq = (SoftIRQInfo) wait.getWakeUp();
-			if (softirq.getSoftirqId() == SymbolTable.NET_RX_ACTION) {
-				System.out.println("wakeup by softirq NET_RX_ACTION " + softirq.toString());
-				populateSubBlocking(item, wait);
-			}
-		}
-	}
-
-	public void populateSubBlocking(BlockingTree parent, WaitInfo wait) {
-		/* do it only if the wakeUp signal is known */
-		if (wait.getWakeUp() == null)
-			return;
-
-		TreeSet<BlockingTree> subBlocking = blockingItems.get(wait.getWakeUp().getTask());
-		if (subBlocking == null)
-			return;
-
-		/* search for the interval */
-		BlockingTree b1 = new BlockingTree();
-		b1.setStartTime(wait.getStartTime());
-		BlockingTree b2 = new BlockingTree();
-		b2.setStartTime(wait.getEndTime());
-		TreeSet<BlockingTree> subBlockingCopy = new TreeSet<BlockingTree>();
-		subBlockingCopy.addAll(subBlocking.subSet(b1, b2));
-
-		parent.setChildren(subBlockingCopy);
 	}
 
 	public SortedSet<BlockingTree> getBlockingItemsForTask(Task task) {
