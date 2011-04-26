@@ -38,12 +38,14 @@ public class MainHistogram {
 		options.addOption("t", "trace", true, "trace path");
 		options.addOption("w", "width", true, "histogram width");
         options.addOption("r", "rebuild", false, "rebuild the state history, don't use cache");
+        options.addOption("v", "verbose", false, "verbose mode");
 
 		CommandLineParser parser = new PosixParser();
 		CommandLine cmd = parser.parse(options, args);
 
 		boolean useHistory = cmd.hasOption("s") || cmd.hasOption("state");
 		boolean rebuildHistory = cmd.hasOption("r") || cmd.hasOption("rebuild");
+		boolean verbose = cmd.hasOption("v") || cmd.hasOption("verbose");
 		String imagePath = null;
 		String tracePath = null;
 		File traceDir = null;
@@ -78,6 +80,7 @@ public class MainHistogram {
 
 		int[] samples;
 		long t1 = 0, t2 = 0, t3 = 0;
+		StateHistorySystem shs = null;
 		t1 = System.currentTimeMillis();
 		if (useHistory) {
 		    File shsFile = getHistoryFile(traceDir);
@@ -86,14 +89,19 @@ public class MainHistogram {
 		        computeHistory(shsFile, tracePath);
 		    }
 		    t2 = System.currentTimeMillis();
-	        samples = computeFromHistoryCache(shsFile, imageWidth);
+		    shs = new StateHistorySystem(shsFile.getPath());
+	        samples = computeFromHistoryCache(shsFile, imageWidth, shs);
 		} else {
 		    t2 = System.currentTimeMillis();
 		    samples = computeRaw(tracePath, imageWidth);
 		}
 		
 		t3 = System.currentTimeMillis();
-
+		
+		if (shs != null && verbose) {
+		    printHistoryTreeStats(shs);
+		}
+		
         HistogramPainter painter = new HistogramPainter();
         painter.setWidth(imageWidth);
         painter.paint(samples);
@@ -114,8 +122,7 @@ public class MainHistogram {
         return handler.getSamples();
 	}
 	
-    private static int[] computeFromHistoryCache(File shsFile, int imageWidth) throws IOException, AttributeNotFoundException {
-        StateHistorySystem shs = new StateHistorySystem(shsFile.getPath());
+    private static int[] computeFromHistoryCache(File shsFile, int imageWidth, StateHistorySystem shs) throws IOException, AttributeNotFoundException {
         String[] attributePath = TraceEventHandlerHistogramSHT.ATTRIBUTE_PATH;
         int attributeQuark = shs.getAttributeQuark(attributePath);
         return QueryStateHistory.getSamples(shs, attributeQuark, imageWidth);
@@ -132,6 +139,12 @@ public class MainHistogram {
         traceReader.process();
     }
 
+    private static void printHistoryTreeStats(StateHistorySystem shs) {
+        System.out.println(shs.getSHT().toString());
+        System.out.println("Average node usage " + shs.getSHT().getAverageNodeUsage());
+        System.out.println("File size " + shs.getSHT().getFileSize());
+    }
+    
     private static File getHistoryFile(File dir) throws IOException {
 		File[] files = dir.listFiles();
 		if (files.length == 0) {
