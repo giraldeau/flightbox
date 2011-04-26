@@ -33,29 +33,16 @@ public class TraceEventHandlerHistogramSHT extends TraceEventHandlerBase impleme
 		start = trace.getStartTime().getTime();
 		end = trace.getEndTime().getTime();
 		duration = end - start;
-		// FIXME: never allocate a relative file inside handler
-		// this is a coding horror
-		File temp = null;
-		try {
-			temp = File.createTempFile("history",".shs");
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (shs == null) {
+			throw new RuntimeException("StateHistorySystem is not set");
 		}
-		if (temp == null)
-			return;
-		try {
-			shs = new StateHistorySystem(temp.getPath(), start);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
 		attributeId = shs.getAttributeQuarkAndAdd("stats", "histogram");
 		shs.modifyAttribute(start, 0, attributeId);
 	}
 
 	@Override
 	public void handleComplete(TraceReader reader) {
-
+		shs.closeTree();
 	}
 
 	public void handle_all_event(TraceReader reader, JniEvent event) {
@@ -87,6 +74,11 @@ public class TraceEventHandlerHistogramSHT extends TraceEventHandlerBase impleme
 	@Override
 	public void setNbSamples(int s) {
 		nbSamples = s;
+	}
+
+	@Override
+	public void setStateHistorySystem(StateHistorySystem shs) {
+		this.shs = shs;
 	}
 
 }

@@ -1,5 +1,6 @@
 package org.lttng.flightbox;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.cli.CommandLine;
@@ -16,6 +17,7 @@ import org.lttng.flightbox.histogram.TraceEventHandlerHistogramSHT;
 import org.lttng.flightbox.io.TraceEventHandlerBase;
 import org.lttng.flightbox.io.TraceReader;
 
+import statehistory.StateHistorySystem;
 import statehistory.common.AttributeNotFoundException;
 
 public class MainHistogram {
@@ -43,6 +45,7 @@ public class MainHistogram {
 		boolean useHistory = cmd.hasOption("s") || cmd.hasOption("state");
 		String imagePath = null;
 		String tracePath = null;
+		File traceDir = null;
 		int imageWidth = 800;
 
 		if (cmd.hasOption("help")) {
@@ -63,20 +66,35 @@ public class MainHistogram {
 
 		if (cmd.hasOption("trace")) {
 			tracePath = cmd.getOptionValue("trace");
+			traceDir = new File(tracePath);
+			if (!traceDir.isDirectory()) {
+				throw new IOException("The trace path must be a directory");
+			}
 		} else {
 			printUsage();
 			System.exit(1);
 		}
 
 		IHistogramHandler handler = null;
+		StateHistorySystem shs = null;
+		boolean computeHistory = false;
 		if (useHistory) {
+			File shsFile = getHistoryFile(traceDir);
+			computeHistory = !shsFile.exists();
+			if (computeHistory) {
+				shs = new StateHistorySystem(shsFile.getPath());
+			} else {
+				shs = new StateHistorySystem(shsFile.getPath(), 0);
+			}
 			handler = new TraceEventHandlerHistogramSHT();
+			handler.setStateHistorySystem(shs);
 		} else {
 			handler = new TraceEventHandlerHistogram();
+			computeHistory = true;
 		}
 
 		long t1 = System.currentTimeMillis();
-		computeRaw(handler, tracePath, imagePath, imageWidth);
+		computeRaw(handler, tracePath, imagePath, imageWidth, computeHistory);
 		long t2 = System.currentTimeMillis();
 
 		System.out.println("Total time elapsed " + (t2 - t1));
@@ -84,12 +102,34 @@ public class MainHistogram {
 
 	}
 
-	private static void computeRaw(IHistogramHandler handler, String tracePath, String imagePath, int imageWidth) throws JniException, IOException, AttributeNotFoundException {
+	private static File getHistoryFile(File dir) throws IOException {
+		File[] files = dir.listFiles();
+		if (files.length == 0) {
+			throw new IOException("Trace dir is empty");
+		}
+		int fileHash = getFileHash(files[0]);
+		String home = System.getenv("HOME");
+		File cacheDir = new File(home, ".flightbox/cache/");
+		if (!cacheDir.exists()) {
+			cacheDir.mkdirs();
+		}
+		return new File(cacheDir, String.format("%d", fileHash) + ".shs");
+	}
+
+	private static int getFileHash(File file) {
+		long ts = file.lastModified();
+		int hc = file.getName().hashCode();
+		return Math.abs((int) (ts >>> 32) + hc);
+	}
+	
+	private static void computeRaw(IHistogramHandler handler, String tracePath, String imagePath, int imageWidth, boolean computeHistory) throws JniException, IOException, AttributeNotFoundException {
 		long t1 = System.currentTimeMillis();
 		handler.setNbSamples(imageWidth);
-		TraceReader traceReader = new TraceReader(tracePath);
-		traceReader.register((TraceEventHandlerBase)handler);
-		traceReader.process();
+		if (computeHistory) {
+			TraceReader traceReader = new TraceReader(tracePath);
+			traceReader.register((TraceEventHandlerBase)handler);
+			traceReader.process();
+		}
 		long t2 = System.currentTimeMillis();
 		int[] samples = handler.getSamples();
 		long t3 = System.currentTimeMillis();
