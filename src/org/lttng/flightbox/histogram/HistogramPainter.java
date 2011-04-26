@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 public class HistogramPainter {
 
 	private int height = 100;
+	private int width = 100; 
 	BufferedImage img; 
 	
 	public HistogramPainter() {
@@ -18,16 +19,20 @@ public class HistogramPainter {
 	}
 	
 	public void paint(int[] samples) {
-		int max = getMax(samples);
-		img = new BufferedImage(samples.length, height, BufferedImage.TYPE_INT_RGB);
+		img = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
 		Graphics2D graphics = img.createGraphics();
 		graphics.setColor(Color.white);
-		graphics.fillRect(0, 0, samples.length, height);
+		graphics.fillRect(0, 0, samples.length, getHeight());
 		graphics.setColor(Color.blue);
-		int sample;
+		
+		int max = getMax(samples);
+        if (max == 0)
+            return;
+        
+        int sample;
 		for(int i = 0; i< samples.length; i++) {
-			sample = (samples[i] * height) / max;
-			graphics.drawLine(i, height, i, height - sample);
+			sample = (samples[i] * getHeight()) / max;
+			graphics.drawLine(i, getHeight(), i, getHeight() - sample);
 		}
 	}
 	
@@ -45,5 +50,21 @@ public class HistogramPainter {
 		}
 		return max;
 	}
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setWidth(int weight) {
+        this.width = weight;
+    }
+
+    public int getWidth() {
+        return width;
+    }
 	
 }

@@ -11,10 +11,9 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.lttng.flightbox.histogram.HistogramPainter;
-import org.lttng.flightbox.histogram.IHistogramHandler;
+import org.lttng.flightbox.histogram.QueryStateHistory;
 import org.lttng.flightbox.histogram.TraceEventHandlerHistogram;
 import org.lttng.flightbox.histogram.TraceEventHandlerHistogramSHT;
-import org.lttng.flightbox.io.TraceEventHandlerBase;
 import org.lttng.flightbox.io.TraceReader;
 
 import statehistory.StateHistorySystem;
@@ -38,11 +37,13 @@ public class MainHistogram {
 		options.addOption("o", "output", true, "png output file");
 		options.addOption("t", "trace", true, "trace path");
 		options.addOption("w", "width", true, "histogram width");
+        options.addOption("r", "rebuild", false, "rebuild the state history, don't use cache");
 
 		CommandLineParser parser = new PosixParser();
 		CommandLine cmd = parser.parse(options, args);
 
 		boolean useHistory = cmd.hasOption("s") || cmd.hasOption("state");
+		boolean rebuildHistory = cmd.hasOption("r") || cmd.hasOption("rebuild");
 		String imagePath = null;
 		String tracePath = null;
 		File traceDir = null;
@@ -75,34 +76,63 @@ public class MainHistogram {
 			System.exit(1);
 		}
 
-		IHistogramHandler handler = null;
-		StateHistorySystem shs = null;
-		boolean computeHistory = false;
+		int[] samples;
+		long t1 = 0, t2 = 0, t3 = 0;
+		t1 = System.currentTimeMillis();
 		if (useHistory) {
-			File shsFile = getHistoryFile(traceDir);
-			computeHistory = !shsFile.exists();
-			if (computeHistory) {
-				shs = new StateHistorySystem(shsFile.getPath());
-			} else {
-				shs = new StateHistorySystem(shsFile.getPath(), 0);
-			}
-			handler = new TraceEventHandlerHistogramSHT();
-			handler.setStateHistorySystem(shs);
+		    File shsFile = getHistoryFile(traceDir);
+            rebuildHistory = !shsFile.exists() || rebuildHistory;
+		    if (rebuildHistory) {
+		        computeHistory(shsFile, tracePath);
+		    }
+		    t2 = System.currentTimeMillis();
+	        samples = computeFromHistoryCache(shsFile, imageWidth);
 		} else {
-			handler = new TraceEventHandlerHistogram();
-			computeHistory = true;
+		    t2 = System.currentTimeMillis();
+		    samples = computeRaw(tracePath, imageWidth);
 		}
+		
+		t3 = System.currentTimeMillis();
 
-		long t1 = System.currentTimeMillis();
-		computeRaw(handler, tracePath, imagePath, imageWidth, computeHistory);
-		long t2 = System.currentTimeMillis();
+        HistogramPainter painter = new HistogramPainter();
+        painter.setWidth(imageWidth);
+        painter.paint(samples);
+        painter.save(imagePath);
+        System.out.println("Compute history : " + (t2 - t1));
+        System.out.println("Compute samples : " + (t3 - t2));
 
-		System.out.println("Total time elapsed " + (t2 - t1));
 		System.out.println("Done");
 
 	}
 
-	private static File getHistoryFile(File dir) throws IOException {
+	private static int[] computeRaw(String tracePath, int imageWidth) throws JniException {
+        TraceEventHandlerHistogram handler = new TraceEventHandlerHistogram();
+        handler.setNbSamples(imageWidth);
+        TraceReader traceReader = new TraceReader(tracePath);
+        traceReader.register(handler);
+        traceReader.process();
+        return handler.getSamples();
+	}
+	
+    private static int[] computeFromHistoryCache(File shsFile, int imageWidth) throws IOException, AttributeNotFoundException {
+        StateHistorySystem shs = new StateHistorySystem(shsFile.getPath());
+        String[] attributePath = TraceEventHandlerHistogramSHT.ATTRIBUTE_PATH;
+        int attributeQuark = shs.getAttributeQuark(attributePath);
+        return QueryStateHistory.getSamples(shs, attributeQuark, imageWidth);
+    }
+
+    private static void computeHistory(File shsFile, String tracePath) throws JniException, IOException {
+        TraceReader traceReader = new TraceReader(tracePath);
+        traceReader.loadTrace();
+        Long startTime = traceReader.getStartTime();
+        StateHistorySystem shs = new StateHistorySystem(shsFile.getPath(), startTime);
+        TraceEventHandlerHistogramSHT handler = new TraceEventHandlerHistogramSHT();
+        handler.setStateHistorySystem(shs);
+        traceReader.register(handler);
+        traceReader.process();
+    }
+
+    private static File getHistoryFile(File dir) throws IOException {
 		File[] files = dir.listFiles();
 		if (files.length == 0) {
 			throw new IOException("Trace dir is empty");
@@ -122,23 +152,6 @@ public class MainHistogram {
 		return Math.abs((int) (ts >>> 32) + hc);
 	}
 	
-	private static void computeRaw(IHistogramHandler handler, String tracePath, String imagePath, int imageWidth, boolean computeHistory) throws JniException, IOException, AttributeNotFoundException {
-		long t1 = System.currentTimeMillis();
-		handler.setNbSamples(imageWidth);
-		if (computeHistory) {
-			TraceReader traceReader = new TraceReader(tracePath);
-			traceReader.register((TraceEventHandlerBase)handler);
-			traceReader.process();
-		}
-		long t2 = System.currentTimeMillis();
-		int[] samples = handler.getSamples();
-		long t3 = System.currentTimeMillis();
-		HistogramPainter painter = new HistogramPainter();
-		painter.paint(samples);
-		painter.save(imagePath);
-		System.out.println("Computation  : " + (t2 - t1));
-		System.out.println("Query samples: " + (t3 - t2));
-	}
 
 	private static void printUsage() {
 		HelpFormatter formatter = new HelpFormatter();

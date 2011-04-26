@@ -6,14 +6,13 @@ import org.lttng.flightbox.io.TraceEventHandlerBase;
 import org.lttng.flightbox.io.TraceHook;
 import org.lttng.flightbox.io.TraceReader;
 
-public class TraceEventHandlerHistogram extends TraceEventHandlerBase implements IHistogramHandler {
+public class TraceEventHandlerHistogram extends TraceEventHandlerBase {
 
 	private int nbSamples = 100;
 	private int[] samples;
 	private long start;
 	private long end;
 	private long duration;
-	private int factor;
 
 	public TraceEventHandlerHistogram() {
 		super();
@@ -26,7 +25,6 @@ public class TraceEventHandlerHistogram extends TraceEventHandlerBase implements
 		start = trace.getStartTime().getTime();
 		end = trace.getEndTime().getTime();
 		duration = end - start;
-		factor = (int) (nbSamples / duration);
 	}
 
 	@Override

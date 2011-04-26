@@ -38,6 +38,9 @@ public class TraceReader {
 	}
 
 	public void loadTrace() throws JniException {
+	    if (trace != null) {
+	        trace.closeTrace();
+	    }
 		trace = JniTraceFactory.getJniTrace(tracePath);
 		systemModel = new SystemModel();
 		systemModel.initProcessors(trace.getCpuNumber());
