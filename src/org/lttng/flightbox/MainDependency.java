@@ -81,6 +81,7 @@ public class MainDependency {
 		SystemModel model = new SystemModel();
 		BlockingTaskListener listener = new BlockingTaskListener();
 		model.addTaskListener(listener);
+		listener.setModel(model);
 
 		try {
 			ModelBuilder.buildFromTrace(tracePath, model);
@@ -106,13 +107,13 @@ public class MainDependency {
 			tasks = model.getTasks();
 		}
 		
-		BlockingModel bm = listener.getBlockingModel();
+		BlockingModel bm = model.getBlockingModel();
 		
 		StringBuilder str = new StringBuilder();
 		for(TreeSet<Task> set: tasks.values()) {
 			for (Task t: set) {
 				SortedSet<BlockingItem> taskItems = bm.getBlockingItemsForTask(t);
-				BlockingReport.printReport(str, taskItems, model, bm);
+				BlockingReport.printReport(str, taskItems, model);
 			}
 		}
 

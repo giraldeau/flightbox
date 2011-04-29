@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.model.Task.TaskState;
 import org.lttng.flightbox.model.TaskListener;
@@ -12,10 +13,10 @@ import org.lttng.flightbox.model.state.WaitInfo;
 
 public class BlockingTaskListener extends TaskListener {
 
-	private BlockingModel blockingModel; 
-
+	private SystemModel model; 
+	private BlockingModel blockingModel;
+	
 	public BlockingTaskListener() {
-		blockingModel = new BlockingModel();
 	}
 
 	@Override
@@ -52,7 +53,22 @@ public class BlockingTaskListener extends TaskListener {
 	}
 
 	public BlockingModel getBlockingModel() {
-		return blockingModel;
+		BlockingModel m = null;
+		if (model != null) {
+			m = model.getBlockingModel();
+		}
+		return m;
+	}
+
+	public void setModel(SystemModel model) {
+		this.model = model;
+		if (model != null) {
+			this.blockingModel = model.getBlockingModel();
+		}
+	}
+
+	public SystemModel getModel() {
+		return model;
 	}
 
 }

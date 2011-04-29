@@ -2,8 +2,11 @@ package org.lttng.flightbox.dep;
 
 import java.util.TreeSet;
 
+import org.lttng.flightbox.model.SymbolTable;
+import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.model.Task.TaskState;
+import org.lttng.flightbox.model.state.SoftIRQInfo;
 import org.lttng.flightbox.model.state.StateInfo;
 import org.lttng.flightbox.model.state.SyscallInfo;
 
@@ -47,15 +50,22 @@ public class BlockingItem implements Comparable<BlockingItem> {
 		this.endTime = endTime;
 	}
 
-	public TreeSet<BlockingItem> getChildren(BlockingModel blockingModel) {
+	public TreeSet<BlockingItem> getChildren(SystemModel model) {
 		TreeSet<BlockingItem> result = new TreeSet<BlockingItem>();
-		if (wakeUp == null || blockingModel == null)
+		if (wakeUp == null)
 			return result;
 		
+		BlockingModel bm = model.getBlockingModel();
 		if (wakeUp.getTaskState() == TaskState.EXIT) {
-			populateSubBlocking(blockingModel, result, wakeUp.getTask());
+			populateSubBlocking(bm, result, wakeUp.getTask());
 		} else if (wakeUp.getTaskState() == TaskState.SOFTIRQ) {
-			// some fun goes here
+			SoftIRQInfo softirq = (SoftIRQInfo) wakeUp;
+			// wakeup from a received packet
+			if (softirq.getSoftirqId() == SymbolTable.NET_RX_ACTION) {
+				// get the task associated with this socket
+				//softirq.getField();
+				System.out.println("Wakeup by incoming packet!");
+			}
 		}
 		return result;
 	}

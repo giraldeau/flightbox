@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
 
+import org.lttng.flightbox.dep.BlockingModel;
 import org.lttng.flightbox.model.Processor.ProcessorState;
 import org.lttng.flightbox.model.state.StateInfo;
 
@@ -31,6 +32,11 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 	private final ArrayList<ITaskListener> taskListeners;
 
 	/**
+	 * Blocking model
+	 */
+	private final BlockingModel blockingModel;
+	
+	/**
 	 * System calls table
 	 */
 
@@ -54,6 +60,7 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 		interruptTable = new SymbolTable();
 		softirqTable = new SymbolTable();
 		tasksByPid = new HashMap<Integer, TreeSet<Task>>();
+		blockingModel = new BlockingModel();
 	}
 
 	public void initProcessors(int numOfProcessors) {
@@ -188,6 +195,10 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 		if (taskByCmd.isEmpty())
 			return null;
 		return taskByCmd.last();
+	}
+
+	public BlockingModel getBlockingModel() {
+		return blockingModel;
 	}
 
 }

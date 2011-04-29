@@ -28,7 +28,6 @@ public class DependencyTreeView extends Composite {
 	private final TableTreeViewer ttv;
 	private SystemModel model;
 	private Task rootTask;
-	private BlockingModel blockingModel;
 
 	public DependencyTreeView(Composite arg0, int arg1) {
 		super(arg0, arg1);
@@ -160,7 +159,7 @@ public class DependencyTreeView extends Composite {
 
 		@Override
 		public Object[] getChildren(Object arg0) {
-			TreeSet<BlockingItem> children = ((BlockingItem)arg0).getChildren(blockingModel);
+			TreeSet<BlockingItem> children = ((BlockingItem)arg0).getChildren(model);
 			return children == null ? new Object[0] : children.toArray();
 		}
 
@@ -176,24 +175,16 @@ public class DependencyTreeView extends Composite {
 
 		@Override
 		public boolean hasChildren(Object arg0) {
-			TreeSet<BlockingItem> children = ((BlockingItem)arg0).getChildren(blockingModel);
+			TreeSet<BlockingItem> children = ((BlockingItem)arg0).getChildren(model);
 			return children == null ? false : !children.isEmpty();
 		}
 	}
 
 	public void setRootTask(Task task) {
 		this.rootTask = task;
-		if (blockingModel != null) {
-			setInput(blockingModel.getBlockingItemsForTask(task));
+		if (model != null) {
+			setInput(model.getBlockingModel().getBlockingItemsForTask(task));
 		}
-	}
-
-	public void setBlockingModel(BlockingModel blockingModel) {
-		this.blockingModel = blockingModel;
-	}
-
-	public BlockingModel getBlockingModel() {
-		return blockingModel;
 	}
 
 }
