@@ -12,10 +12,11 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
+import org.lttng.flightbox.dep.BlockingModel;
 import org.lttng.flightbox.dep.BlockingReport;
 import org.lttng.flightbox.dep.BlockingStats;
 import org.lttng.flightbox.dep.BlockingTaskListener;
-import org.lttng.flightbox.dep.BlockingTree;
+import org.lttng.flightbox.dep.BlockingItem;
 import org.lttng.flightbox.io.ModelBuilder;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
@@ -28,6 +29,8 @@ public class MainDependency {
 		options = new Options();
 		options.addOption("h", "help", false, "this help");
 		options.addOption("t", "trace", true, "trace path");
+		options.addOption("c", "cmd", true, "filter by command");
+		options.addOption("p", "pid", true, "filter by pid");
 
 		CommandLineParser parser = new PosixParser();
 		CommandLine cmd = null;
@@ -40,7 +43,10 @@ public class MainDependency {
 		}
 
 		String tracePath = null;
-
+		String cmdFilter = null;
+		Integer pidFilter = null;
+		boolean hasFilter = false;
+		
 		if (cmd.hasOption("help")) {
 			printUsage();
 			System.exit(0);
@@ -53,6 +59,18 @@ public class MainDependency {
 			System.exit(1);
 		}
 
+		if (cmd.hasOption("pid") && cmd.hasOption("cmd")) {
+			printUsage("conflicting options pid and cmd");
+			System.exit(1);
+		}
+		if (cmd.hasOption("pid")) {
+			pidFilter = Integer.parseInt(cmd.getOptionValue("pid"));
+		} else if (cmd.hasOption("cmd")) {
+			cmdFilter = cmd.getOptionValue("cmd");
+		}
+		
+		hasFilter = (pidFilter != null || cmdFilter != null);
+		
 		File traceFile = new File(tracePath);
 		if (!traceFile.isDirectory() || !traceFile.canRead()) {
 			System.out.println("Error: can't read directory " + tracePath);
@@ -79,18 +97,35 @@ public class MainDependency {
 		SortedSet<BlockingTree> taskItems = listener.getBlockingItemsForTask(task);
 		 */
 
-		HashMap<Integer, TreeSet<Task>> tasks = model.getTasks();
+		HashMap<Integer, TreeSet<Task>> tasks = new HashMap<Integer, TreeSet<Task>>();
+		
+		if (hasFilter) {
+			TreeSet<Task> foundTask = null; 
+			if (pidFilter != null) {
+				foundTask = model.getTasks().get(pidFilter);
+			} else if (cmdFilter != null) {
+				foundTask = model.getTaskByCmd(cmdFilter, true);
+			}
+			if (foundTask != null && !foundTask.isEmpty()) {
+				tasks.put(foundTask.first().getProcessId(), foundTask);
+			}
+		} else {
+			tasks = model.getTasks();
+		}
+		
+		BlockingModel bm = listener.getBlockingModel();
+		
 		StringBuilder str = new StringBuilder();
 		for(TreeSet<Task> set: tasks.values()) {
 			for (Task t: set) {
-				SortedSet<BlockingTree> taskItems = listener.getBlockingItemsForTask(t);
+				SortedSet<BlockingItem> taskItems = bm.getBlockingItemsForTask(t);
 				BlockingReport.printReport(str, taskItems, model);
 			}
 		}
 
 		for(TreeSet<Task> set: tasks.values()) {
 			for (Task t: set) {
-				BlockingStats stats = listener.getBlockingStats().get(t);
+				BlockingStats stats = bm.getBlockingStatsForTask(t);
 				BlockingReport.printSummary(str, t, stats, model);
 			}
 		}
@@ -102,6 +137,10 @@ public class MainDependency {
 	}
 
 	private static void printUsage() {
+		printUsage("");
+	}
+	
+	private static void printUsage(String string) {
 		HelpFormatter formatter = new HelpFormatter();
 		formatter.printHelp("MainDependency", options);
 	}

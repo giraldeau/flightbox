@@ -14,15 +14,15 @@ public class BlockingReport {
 	private static String fmtMs = "%1$10.3f";
 	private static String fmtInt = "%1$10d";
 	
-	public static void printReport(StringBuilder str, SortedSet<BlockingTree> taskItems, SystemModel model) {
+	public static void printReport(StringBuilder str, SortedSet<BlockingItem> taskItems, SystemModel model) {
 		printReport(str, taskItems, model, 0);
 	}
 
-	public static void printReport(StringBuilder str, SortedSet<BlockingTree> taskItems, SystemModel model, int indent) {
-		if (taskItems == null)
+	public static void printReport(StringBuilder str, SortedSet<BlockingItem> taskItems, SystemModel model, int indent) {
+		if (taskItems == null || taskItems.isEmpty())
 			return;
 
-		for (BlockingTree item: taskItems) {
+		for (BlockingItem item: taskItems) {
 			for (int i = 1; i < indent; i++) {
 				str.append("    ");
 			}
@@ -48,9 +48,9 @@ public class BlockingReport {
 	}
 
 	public static void printSummary(StringBuilder str, Task task, BlockingStats stats, SystemModel model) {
-		if (stats == null) {
+		if (stats == null || stats.isEmpty())
 			return;
-		}
+
 		HashMap<Integer, SummaryStatistics> stat = stats.getSyscallStats();
 		SymbolTable sys = model.getSyscallTable();
 		str.append("Summary for task pid=" + task.getProcessId() + " cmd=" + task.getCmd() + "\n");

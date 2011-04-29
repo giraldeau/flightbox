@@ -214,6 +214,6 @@ public class MainWindow {
 		depProcessView.setStats(procStats, procInfo);
 		depProcessView.resetSumInterval();
 		depTreeView.setModel(model);
-		depTreeView.setBlocking(listener);
+		depTreeView.setBlockingModel(listener.getBlockingModel());
 	}
 }

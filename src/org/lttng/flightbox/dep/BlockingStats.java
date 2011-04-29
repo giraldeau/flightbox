@@ -23,5 +23,9 @@ public class BlockingStats {
 	public HashMap<Integer, SummaryStatistics> getSyscallStats() {
 		return syscallStats;
 	}
+	
+	public boolean isEmpty() {
+		return syscallStats.isEmpty();
+	}
 
 }

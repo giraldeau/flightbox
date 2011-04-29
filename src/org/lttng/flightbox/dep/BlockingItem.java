@@ -3,10 +3,11 @@ package org.lttng.flightbox.dep;
 import java.util.TreeSet;
 
 import org.lttng.flightbox.model.Task;
+import org.lttng.flightbox.model.Task.TaskState;
 import org.lttng.flightbox.model.state.StateInfo;
 import org.lttng.flightbox.model.state.SyscallInfo;
 
-public class BlockingTree implements Comparable<BlockingTree> {
+public class BlockingItem implements Comparable<BlockingItem> {
 
 	private Task task;
 	private StateInfo wakeUp;
@@ -14,9 +15,8 @@ public class BlockingTree implements Comparable<BlockingTree> {
 	private SyscallInfo waitingSyscall;
 	private long startTime;
 	private long endTime;
-	private TreeSet<BlockingTree> children;
-	private BlockingTree parent;
-
+	private BlockingModel blockingModel;
+	
 	public Task getTask() {
 		return task;
 	}
@@ -47,23 +47,26 @@ public class BlockingTree implements Comparable<BlockingTree> {
 	public void setEndTime(long endTime) {
 		this.endTime = endTime;
 	}
-	public TreeSet<BlockingTree> getChildren() {
-		return children;
-	}
-	public void setChildren(TreeSet<BlockingTree> children) {
-		for (BlockingTree child: children) {
-			child.setParent(this);
+
+	public TreeSet<BlockingItem> getChildren() {
+		TreeSet<BlockingItem> result = new TreeSet<BlockingItem>();
+		if (wakeUp == null || blockingModel == null)
+			return result;
+		
+		if (wakeUp.getTaskState() == TaskState.EXIT) {
+			populateSubBlocking(result, wakeUp.getTask());
+		} else if (wakeUp.getTaskState() == TaskState.SOFTIRQ) {
+			// some fun goes here
 		}
-		this.children = children;
+		return result;
 	}
-	public void setParent(BlockingTree blockingTree) {
-		this.parent = blockingTree;
+
+	public void populateSubBlocking(TreeSet<BlockingItem> subBlock, Task subTask) {
+		subBlock.addAll(blockingModel.getBlockingItemsForTask(subTask));
 	}
-	public BlockingTree getParent() {
-		return this.parent;
-	}
+	
 	@Override
-	public int compareTo(BlockingTree o) {
+	public int compareTo(BlockingItem o) {
 		final int BEFORE = -1;
 		final int EQUAL = 0;
 		final int AFTER = 1;
@@ -77,6 +80,12 @@ public class BlockingTree implements Comparable<BlockingTree> {
 	}
 	public Task getWakeUpTask() {
 		return wakeUpTask;
+	}
+	public void setBlockingModel(BlockingModel blockingModel) {
+		this.blockingModel = blockingModel;
+	}
+	public BlockingModel getBlockingModel() {
+		return blockingModel;
 	}
 
 }

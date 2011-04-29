@@ -16,8 +16,9 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.lttng.flightbox.dep.BlockingModel;
 import org.lttng.flightbox.dep.BlockingTaskListener;
-import org.lttng.flightbox.dep.BlockingTree;
+import org.lttng.flightbox.dep.BlockingItem;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.model.state.SyscallInfo;
@@ -27,7 +28,7 @@ public class DependencyTreeView extends Composite {
 	private final TableTreeViewer ttv;
 	private SystemModel model;
 	private Task rootTask;
-	private BlockingTaskListener blocking;
+	private BlockingModel blockingModel;
 
 	public DependencyTreeView(Composite arg0, int arg1) {
 		super(arg0, arg1);
@@ -112,7 +113,7 @@ public class DependencyTreeView extends Composite {
 
 		@Override
 		public String getColumnText(Object arg0, int arg1) {
-			BlockingTree item = (BlockingTree) arg0;
+			BlockingItem item = (BlockingItem) arg0;
 			String str = "";
 			switch (arg1) {
 			case 0:
@@ -159,7 +160,7 @@ public class DependencyTreeView extends Composite {
 
 		@Override
 		public Object[] getChildren(Object arg0) {
-			TreeSet<BlockingTree> children = ((BlockingTree)arg0).getChildren();
+			TreeSet<BlockingItem> children = ((BlockingItem)arg0).getChildren();
 			return children == null ? new Object[0] : children.toArray();
 		}
 
@@ -170,29 +171,29 @@ public class DependencyTreeView extends Composite {
 
 		@Override
 		public Object getParent(Object arg0) {
-			return ((BlockingTree)arg0).getParent();
+			return null;
 		}
 
 		@Override
 		public boolean hasChildren(Object arg0) {
-			TreeSet<BlockingTree> children = ((BlockingTree)arg0).getChildren();
+			TreeSet<BlockingItem> children = ((BlockingItem)arg0).getChildren();
 			return children == null ? false : !children.isEmpty();
 		}
 	}
 
 	public void setRootTask(Task task) {
 		this.rootTask = task;
-		if (blocking != null) {
-			setInput(blocking.getBlockingItemsForTask(task));
+		if (blockingModel != null) {
+			setInput(blockingModel.getBlockingItemsForTask(task));
 		}
 	}
 
-	public void setBlocking(BlockingTaskListener blocking) {
-		this.blocking = blocking;
+	public void setBlockingModel(BlockingModel blockingModel) {
+		this.blockingModel = blockingModel;
 	}
 
-	public BlockingTaskListener getBlocking() {
-		return blocking;
+	public BlockingModel getBlockingModel() {
+		return blockingModel;
 	}
 
 }

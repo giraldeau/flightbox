@@ -9,8 +9,9 @@ import java.util.SortedSet;
 
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.junit.Test;
+import org.lttng.flightbox.dep.BlockingModel;
 import org.lttng.flightbox.dep.BlockingTaskListener;
-import org.lttng.flightbox.dep.BlockingTree;
+import org.lttng.flightbox.dep.BlockingItem;
 import org.lttng.flightbox.io.ModelBuilder;
 import org.lttng.flightbox.junit.Path;
 import org.lttng.flightbox.model.SystemModel;
@@ -27,11 +28,13 @@ public class TestDependencyAnalysis {
 
 		ModelBuilder.buildFromTrace(tracePath, model);
 
+		BlockingModel bm = listener.getBlockingModel();
+		
 		Task foundTask = model.getLatestTaskByCmdBasename("sleep");
-		SortedSet<BlockingTree> taskItems = listener.getBlockingItemsForTask(foundTask);
+		SortedSet<BlockingItem> taskItems = bm.getBlockingItemsForTask(foundTask);
 
 		assertEquals(1, taskItems.size());
-		BlockingTree info = taskItems.first();
+		BlockingItem info = taskItems.first();
 		double duration = info.getEndTime() - info.getStartTime();
 		assertEquals(1000000000.0, duration, 10000000.0);
 	}
@@ -50,21 +53,23 @@ public class TestDependencyAnalysis {
 
 		ModelBuilder.buildFromTrace(tracePath, model);
 
+		BlockingModel bm = listener.getBlockingModel();
+		
 		// get the last spawned child
 		Task foundTask = model.getLatestTaskByCmdBasename("inception");
-		SortedSet<BlockingTree> taskItems = listener.getBlockingItemsForTask(foundTask);
+		SortedSet<BlockingItem> taskItems = bm.getBlockingItemsForTask(foundTask);
 
 		// 100ms + 200ms + 400ms = 700ms
 		assertEquals(1, taskItems.size());
-		BlockingTree info = taskItems.first();
+		BlockingItem info = taskItems.first();
 		double duration = info.getEndTime() - info.getStartTime();
 		assertEquals(400000000.0, duration, 10000000.0);
 
 		// verify recovered blocking information
 		Task master = foundTask.getParentProcess().getParentProcess();
-		SortedSet<BlockingTree> masterItems = listener.getBlockingItemsForTask(master);
+		SortedSet<BlockingItem> masterItems = bm.getBlockingItemsForTask(master);
 		assertEquals(3, masterItems.size());
-		for (BlockingTree item: masterItems) {
+		for (BlockingItem item: masterItems) {
 			assertNotNull(item.getWakeUp());
 		}
 	}
