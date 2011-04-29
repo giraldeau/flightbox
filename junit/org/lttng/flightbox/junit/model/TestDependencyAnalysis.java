@@ -63,7 +63,7 @@ public class TestDependencyAnalysis {
 		// verify recovered blocking information
 		Task master = foundTask.getParentProcess().getParentProcess();
 		SortedSet<BlockingTree> masterItems = listener.getBlockingItemsForTask(master);
-		assertEquals(2, masterItems.size());
+		assertEquals(3, masterItems.size());
 		for (BlockingTree item: masterItems) {
 			assertNotNull(item.getWakeUp());
 		}

@@ -19,7 +19,6 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
-import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.cpu.TraceEventHandlerProcess;
 import org.lttng.flightbox.cpu.TraceEventHandlerStats;
 import org.lttng.flightbox.dep.BlockingTaskListener;
@@ -28,6 +27,7 @@ import org.lttng.flightbox.io.TraceEventHandlerModelMeta;
 import org.lttng.flightbox.io.TraceReader;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
+import org.lttng.flightbox.statistics.ResourceUsage;
 import org.lttng.flightbox.ui.ProcessUsageView.TableData;
 
 public class MainWindow {
@@ -42,7 +42,7 @@ public class MainWindow {
 
 	private final CTabFolder folder;
 	private File traceDir;
-	UsageStats<Long> cpuStats;
+	ResourceUsage<Long> cpuStats;
 	CpuUsageView cpuView;
 	ProcessUsageView processView;
 	Shell shell;
@@ -207,7 +207,7 @@ public class MainWindow {
 		cpuView.updateData();
 		cpuView.resetHighlight();
 
-		UsageStats<Long> procStats = procHandler.getUsageStats();
+		ResourceUsage<Long> procStats = procHandler.getUsageStats();
 		TreeMap<Long, Task> procInfo = procHandler.getProcInfo();
 		processView.setStats(procStats, procInfo);
 		processView.resetSumInterval();

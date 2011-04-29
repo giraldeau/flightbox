@@ -11,9 +11,6 @@ import org.eclipse.linuxtools.lttng.jni.JniTrace;
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.eclipse.linuxtools.lttng.jni.factory.JniTraceFactory;
 import org.junit.Test;
-import org.lttng.flightbox.TimeStats;
-import org.lttng.flightbox.TimeStatsBucket;
-import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.cpu.TraceEventHandlerProcess;
 import org.lttng.flightbox.cpu.TraceEventHandlerStats;
 import org.lttng.flightbox.io.TimeKeeper;
@@ -24,6 +21,9 @@ import org.lttng.flightbox.io.TraceHook;
 import org.lttng.flightbox.io.TraceReader;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task.TaskState;
+import org.lttng.flightbox.statistics.Bucket;
+import org.lttng.flightbox.statistics.BucketSeries;
+import org.lttng.flightbox.statistics.ResourceUsage;
 
 public class TestTraceReader {
 
@@ -59,9 +59,9 @@ public class TestTraceReader {
 		TraceReader reader = new TraceReader(trace_path);
 		reader.register(cpu_handler);
 		reader.process();
-		TimeStatsBucket total = cpu_handler.getUsageStats().getTotalAvg();
-		TimeStats sum = total.getSum();
-		assertEquals(1 * TimeStats.NANO, sum.getTime(TaskState.USER), 0.5 * TimeStats.NANO);
+		BucketSeries total = cpu_handler.getUsageStats().getTotalAvg();
+		Bucket sum = total.getSum();
+		assertEquals(1 * Bucket.NANO, sum.getTime(TaskState.USER), 0.5 * Bucket.NANO);
 	}
 
 	@Test
@@ -71,10 +71,10 @@ public class TestTraceReader {
 		TraceReader reader = new TraceReader(trace_path);
 		reader.register(handler);
 		reader.process();
-		UsageStats<Long> stats = handler.getUsageStats();
+		ResourceUsage<Long> stats = handler.getUsageStats();
 		double enlaps = stats.getDuration();
 		for(Long id: stats.idSet()){
-			TimeStatsBucket t = stats.getStats(id);
+			BucketSeries t = stats.getStats(id);
 			if(id != 0) {
 				assertTrue(t.getSum().getTotal() < enlaps);
 			}

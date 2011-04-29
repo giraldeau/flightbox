@@ -5,8 +5,8 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.model.Task.TaskState;
+import org.lttng.flightbox.statistics.ResourceUsage;
 import org.lttng.flightbox.ui.ChartHighlighter.TimeInterval;
 import org.swtchart.Chart;
 import org.swtchart.ILineSeries;
@@ -18,7 +18,7 @@ import org.swtchart.Range;
 
 public class CpuUsageView extends Composite {
 
-	UsageStats<Long> stats;
+	ResourceUsage<Long> stats;
 	Chart chart;
 	ChartHighlighter highlighter;
 	double t1;
@@ -84,7 +84,7 @@ public class CpuUsageView extends Composite {
 	}
 	
 
-	public void setCpuStats(UsageStats<Long> stats) {
+	public void setCpuStats(ResourceUsage<Long> stats) {
 		this.stats = stats;
 	}
 	

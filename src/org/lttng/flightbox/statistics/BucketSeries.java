@@ -1,22 +1,22 @@
-package org.lttng.flightbox;
+package org.lttng.flightbox.statistics;
 
 import java.util.ArrayList;
 
 import org.lttng.flightbox.model.Task.TaskState;
 
-public class TimeStatsBucket {
+public class BucketSeries {
 
-	ArrayList<TimeStats> buckets;
+	ArrayList<Bucket> buckets;
 	
 	double t1;
 	double t2;
 	double bucketDuration;
 	
-	public TimeStatsBucket() {
+	public BucketSeries() {
 		this(0, 0, 0);
 	}
 	
-	public TimeStatsBucket(double t1, double t2, int nbBucket) {
+	public BucketSeries(double t1, double t2, int nbBucket) {
 		init(t1, t2, nbBucket);
 	}
 
@@ -34,14 +34,14 @@ public class TimeStatsBucket {
 	}
 
 	
-	public TimeStats getSum() {
+	public Bucket getSum() {
 		if (buckets.size() == 0) {
-			return new TimeStats();
+			return new Bucket();
 		}
-		TimeStats first = buckets.get(0);
-		TimeStats last = buckets.get(buckets.size()-1);
-		TimeStats sum = new TimeStats(first.getStartTime(), last.getEndTime());
-		for (TimeStats t: buckets) {
+		Bucket first = buckets.get(0);
+		Bucket last = buckets.get(buckets.size()-1);
+		Bucket sum = new Bucket(first.getStartTime(), last.getEndTime());
+		for (Bucket t: buckets) {
 			sum.add(t);
 		}
 		return sum;
@@ -50,15 +50,15 @@ public class TimeStatsBucket {
 	/**
 	 * getSum between given interval
 	 */
-	public TimeStats getSum(double t1, double t2) {
+	public Bucket getSum(double t1, double t2) {
 		if (buckets.size() == 0) {
-			return new TimeStats();
+			return new Bucket();
 		}
 		int x1 = getIntervalIndex(t1);
 		int x2 = getIntervalIndex(t2);
-		TimeStats first = getIntervalByTime(t1);
-		TimeStats last = getIntervalByTime(t2);
-		TimeStats sum = new TimeStats(first.getStartTime(), last.getEndTime());
+		Bucket first = getIntervalByTime(t1);
+		Bucket last = getIntervalByTime(t2);
+		Bucket sum = new Bucket(first.getStartTime(), last.getEndTime());
 		for (int i=x1;i<x2;i++) {
 			sum.add(buckets.get(i));
 		}
@@ -66,7 +66,7 @@ public class TimeStatsBucket {
 	}
 	
 	public void init(double t1, double t2, int nbBucket) {
-		buckets = new ArrayList<TimeStats>();
+		buckets = new ArrayList<Bucket>();
 		this.t1 = t1;
 		this.t2 = t2;
 		if (nbBucket <= 0) {
@@ -75,7 +75,7 @@ public class TimeStatsBucket {
 		} 
 		bucketDuration = (t2 - t1) / nbBucket;
 		for(int i=0; i<nbBucket; i++) {
-			buckets.add(new TimeStats(t1 + (bucketDuration * i), t1 + (bucketDuration * (i + 1))));
+			buckets.add(new Bucket(t1 + (bucketDuration * i), t1 + (bucketDuration * (i + 1))));
 		}
 	}
 	
@@ -83,7 +83,7 @@ public class TimeStatsBucket {
 		return buckets.size();
 	}
 	
-	public TimeStats getIntervalByTime(double t) {
+	public Bucket getIntervalByTime(double t) {
 		int index = getIntervalIndex(t);
 		return buckets.get(index);
 	}
@@ -109,7 +109,7 @@ public class TimeStatsBucket {
 		}
 	}
 
-	public TimeStats getInterval(int index) {
+	public Bucket getInterval(int index) {
 		return buckets.get(index);
 	}
 	
@@ -130,7 +130,7 @@ public class TimeStatsBucket {
 	}
 
 	public void mul(double factor) {
-		for(TimeStats stat: buckets) {
+		for(Bucket stat: buckets) {
 			stat.mul(factor);
 		}
 	}

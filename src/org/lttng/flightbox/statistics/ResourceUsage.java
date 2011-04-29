@@ -1,23 +1,23 @@
-package org.lttng.flightbox;
+package org.lttng.flightbox.statistics;
 
 import java.util.Set;
 import java.util.TreeMap;
 
 import org.lttng.flightbox.model.Task.TaskState;
 
-public class UsageStats <T> {
+public class ResourceUsage <T> {
 
-	TreeMap<T, TimeStatsBucket> timeStats;
+	TreeMap<T, BucketSeries> timeStats;
 	double start;
 	double end;
 	int nbBuckets;
 	
-	public UsageStats() {
+	public ResourceUsage() {
 		this(0L, 0L, 1);
 	}
 	
-	public UsageStats(Long start, Long end, int precision) {
-		timeStats = new TreeMap<T, TimeStatsBucket>();
+	public ResourceUsage(Long start, Long end, int precision) {
+		timeStats = new TreeMap<T, BucketSeries>();
 		this.start = start; 
 		this.end = end;
 		nbBuckets = precision;		
@@ -25,10 +25,10 @@ public class UsageStats <T> {
 	
 	public void addInterval(double ts1, double ts2, T id, TaskState mode) {
 		if (!timeStats.containsKey(id)) {
-			timeStats.put(id, new TimeStatsBucket(start, end, nbBuckets));
+			timeStats.put(id, new BucketSeries(start, end, nbBuckets));
 		}
 		
-		TimeStatsBucket stat = timeStats.get(id);
+		BucketSeries stat = timeStats.get(id);
 		stat.addInterval(ts1, ts2, mode);
 	}
 	
@@ -40,12 +40,12 @@ public class UsageStats <T> {
 		return s.toString();
 	}
 	
-	public TimeStatsBucket getTotalAvg() {
-		TimeStatsBucket total = new TimeStatsBucket(start, end, nbBuckets);
-		TimeStatsBucket current;
+	public BucketSeries getTotalAvg() {
+		BucketSeries total = new BucketSeries(start, end, nbBuckets);
+		BucketSeries current;
 		// FIXME: should take the numCpu from the trace, we may not have events for all CPUS
 		double factor = 1.0 / timeStats.keySet().size();
-		TimeStats item; 
+		Bucket item; 
 		for(T id: timeStats.keySet()) {
 			current = timeStats.get(id);
 			for(int i=0; i<nbBuckets; i++) {
@@ -57,10 +57,10 @@ public class UsageStats <T> {
 		return total;
 	}
 	
-	public TimeStatsBucket getTotal() {
-		TimeStatsBucket total = new TimeStatsBucket(start, end, nbBuckets);
-		TimeStatsBucket current;
-		TimeStats item; 
+	public BucketSeries getTotal() {
+		BucketSeries total = new BucketSeries(start, end, nbBuckets);
+		BucketSeries current;
+		Bucket item; 
 		for(T id: timeStats.keySet()) {
 			current = timeStats.get(id);
 			for(int i=0; i<nbBuckets; i++) {
@@ -71,7 +71,7 @@ public class UsageStats <T> {
 		return total;
 	}
 	
-	public TimeStatsBucket getStats(T id) {
+	public BucketSeries getStats(T id) {
 		return timeStats.get(id);
 	}
 	

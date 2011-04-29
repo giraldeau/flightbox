@@ -3,8 +3,8 @@ package org.lttng.flightbox.junit;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.model.Task.TaskState;
+import org.lttng.flightbox.statistics.ResourceUsage;
 
 public class TestUsageStats {
 
@@ -12,7 +12,7 @@ public class TestUsageStats {
 	
 	@Test
 	public void testAddInterval() {
-		UsageStats<Long> stats = new UsageStats<Long>(0L, 30L, 100);
+		ResourceUsage<Long> stats = new ResourceUsage<Long>(0L, 30L, 100);
 		TaskState mode = TaskState.USER;
 		stats.addInterval(10L, 20L, 0L, mode);
 		stats.addInterval(15L, 16L, 1L, mode);
@@ -35,7 +35,7 @@ public class TestUsageStats {
 	
 	@Test
 	public void testAddIntervalAvg() {
-		UsageStats<Long> stats = new UsageStats<Long>(0L, 30L, 100);
+		ResourceUsage<Long> stats = new ResourceUsage<Long>(0L, 30L, 100);
 		TaskState mode = TaskState.USER;
 		stats.addInterval(10L, 20L, 0L, mode);
 		stats.addInterval(15L, 16L, 1L, mode);
@@ -58,7 +58,7 @@ public class TestUsageStats {
 	
 	@Test
 	public void testProcessAddInterval() {
-		UsageStats<Long> stats = new UsageStats<Long>(0L, 30L, 100);
+		ResourceUsage<Long> stats = new ResourceUsage<Long>(0L, 30L, 100);
 		TaskState mode = TaskState.USER;
 		Long p1 = 1234L;
 		Long p2 = 5678L;

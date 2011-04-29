@@ -4,13 +4,13 @@ import java.util.TreeMap;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
-import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.io.EventData;
 import org.lttng.flightbox.io.TraceEventHandlerBase;
 import org.lttng.flightbox.io.TraceHook;
 import org.lttng.flightbox.io.TraceReader;
 import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.model.Task.TaskState;
+import org.lttng.flightbox.statistics.ResourceUsage;
 
 public class TraceEventHandlerProcess extends TraceEventHandlerBase {
 
@@ -19,7 +19,7 @@ public class TraceEventHandlerProcess extends TraceEventHandlerBase {
 
 	TreeMap<Long, EventData> cpuHistory;
 	TreeMap<Long, EventData> eventHistory;
-	UsageStats<Long> procStats;
+	ResourceUsage<Long> procStats;
 	TreeMap<Long, Task> procInfo;
 	TreeMap<Long, Long> currentCpuProcess; // (cpu, pid)
 	private int numCpu;
@@ -44,7 +44,7 @@ public class TraceEventHandlerProcess extends TraceEventHandlerBase {
 		numCpu = trace.getCpuNumber();
 		start = trace.getStartTime().getTime();
 		end = trace.getEndTime().getTime();
-		procStats = new UsageStats<Long>((long)start, (long)end, 50);
+		procStats = new ResourceUsage<Long>((long)start, (long)end, 50);
 		procInfo = new TreeMap<Long, Task>();
 		currentCpuProcess = new TreeMap<Long, Long>();
 	}
@@ -127,7 +127,7 @@ public class TraceEventHandlerProcess extends TraceEventHandlerBase {
 		}
 	}
 
-	public UsageStats<Long> getUsageStats() {
+	public ResourceUsage<Long> getUsageStats() {
 		return procStats;
 	}
 	public TreeMap<Long, Task> getProcInfo() {

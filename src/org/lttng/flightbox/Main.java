@@ -6,6 +6,8 @@ import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.lttng.flightbox.cpu.TraceEventHandlerStats;
 import org.lttng.flightbox.io.EventQuery;
 import org.lttng.flightbox.io.TraceReader;
+import org.lttng.flightbox.statistics.Bucket;
+import org.lttng.flightbox.statistics.BucketSeries;
 
 public class Main {
 
@@ -27,8 +29,8 @@ public class Main {
 		reader.register(cpu_handler);
 		reader.process();
 		System.out.println(cpu_handler.getUsageStats());
-		TimeStatsBucket total = cpu_handler.getUsageStats().getTotal();
-		TimeStats sum = total.getSum();
+		BucketSeries total = cpu_handler.getUsageStats().getTotal();
+		Bucket sum = total.getSum();
 		System.out.println(sum);
 	}
 

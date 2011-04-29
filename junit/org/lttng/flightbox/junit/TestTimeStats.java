@@ -3,8 +3,8 @@ package org.lttng.flightbox.junit;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-import org.lttng.flightbox.TimeStats;
 import org.lttng.flightbox.model.Task.TaskState;
+import org.lttng.flightbox.statistics.Bucket;
 
 public class TestTimeStats {
 
@@ -12,13 +12,13 @@ public class TestTimeStats {
 
 	@Test
 	public void testCreateTimeStats() {
-		TimeStats t = new TimeStats();
+		Bucket t = new Bucket();
 		assertEquals(0,t.getTotal(), p);
 	}
 
 	@Test
 	public void testStatsLogic() {
-		TimeStats t = new TimeStats();
+		Bucket t = new Bucket();
 		t.addTime(1.0, TaskState.IRQ);
 		t.addTime(2.0, TaskState.SYSCALL);
 		t.addTime(3.0, TaskState.TRAP);
@@ -30,7 +30,7 @@ public class TestTimeStats {
 
 	@Test
 	public void testInterval() {
-		TimeStats t = new TimeStats();
+		Bucket t = new Bucket();
 		t.setStartTime(1.2);
 		t.setEndTime(1.6);
 		assertEquals(0.4, t.getDuration(), p);
@@ -39,7 +39,7 @@ public class TestTimeStats {
 
 	@Test
 	public void testAverages() {
-		TimeStats t = new TimeStats();
+		Bucket t = new Bucket();
 		t.setStartTime(10.0);
 		t.setEndTime(30.0);
 		t.addTime(1.0, TaskState.IRQ);
@@ -57,14 +57,14 @@ public class TestTimeStats {
 
 	@Test
 	public void testAddTimeStats() {
-		TimeStats t1 = new TimeStats();
+		Bucket t1 = new Bucket();
 		t1.setStartTime(10.0);
 		t1.setEndTime(30.0);
 		t1.addTime(1.0, TaskState.IRQ);
 		t1.addTime(2.0, TaskState.SYSCALL);
 		t1.addTime(3.0, TaskState.TRAP);
 		t1.addTime(4.0, TaskState.USER);
-		TimeStats t2 = new TimeStats();
+		Bucket t2 = new Bucket();
 		t2.setStartTime(5.0);
 		t2.setEndTime(8.0);
 		t2.addTime(1.0, TaskState.IRQ);
@@ -79,7 +79,7 @@ public class TestTimeStats {
 
 	@Test
 	public void testGenericMethods() {
-		TimeStats t1 = new TimeStats();
+		Bucket t1 = new Bucket();
 		t1.addTime(1.0, TaskState.USER);
 		assertEquals(1.0, t1.getTime(TaskState.USER), 0);
 	}
@@ -87,7 +87,7 @@ public class TestTimeStats {
 	@Test
 	public void testAddInterval() {
 		TaskState mode = TaskState.USER;
-		TimeStats t1 = new TimeStats();
+		Bucket t1 = new Bucket();
 		t1.setStartTime(10.0);
 		t1.setEndTime(30.0);
 		// Interval outside range

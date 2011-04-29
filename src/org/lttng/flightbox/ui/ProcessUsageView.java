@@ -14,16 +14,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
-import org.lttng.flightbox.TimeStats;
-import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.model.Task.TaskState;
+import org.lttng.flightbox.statistics.Bucket;
+import org.lttng.flightbox.statistics.ResourceUsage;
 
 public class ProcessUsageView extends Composite {
 
 	private final Table table;
 	private TreeMap<Long, Task> procInfo;
-	private UsageStats<Long> procStats;
+	private ResourceUsage<Long> procStats;
 	private ArrayList<TableData> dataSet;
 	private Comparator cmp;
 	private Boolean isReverse;
@@ -109,7 +109,7 @@ public class ProcessUsageView extends Composite {
 		}
 	}
 
-	public void setStats(UsageStats<Long> procStats,
+	public void setStats(ResourceUsage<Long> procStats,
 			TreeMap<Long, Task> procInfo) {
 
 		this.procStats = procStats;
@@ -153,7 +153,7 @@ public class ProcessUsageView extends Composite {
 		TableItem item = new TableItem(table, SWT.NONE);
 		TableData elem = dataSet.get(index);
 		String cmd = new File(elem.cmd).getName();
-		item.setText(new String[] {elem.pid.toString(), cmd, new Double(elem.time/TimeStats.NANO).toString()});
+		item.setText(new String[] {elem.pid.toString(), cmd, new Double(elem.time/Bucket.NANO).toString()});
 		item.setData(elem);
 	}
 

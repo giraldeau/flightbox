@@ -1,21 +1,21 @@
-package org.lttng.flightbox;
+package org.lttng.flightbox.statistics;
 
 import java.util.EnumMap;
 
 import org.lttng.flightbox.model.Task.TaskState;
 
-public class TimeStats {
+public class Bucket {
 
 	private double t1;
 	private double t2;
 	private final EnumMap<TaskState, Double> dataMap;
 	public static double NANO = 1000000000;
 
-	public TimeStats() {
+	public Bucket() {
 		this(0,0);
 	}
 
-	public TimeStats(double t1, double t2) {
+	public Bucket(double t1, double t2) {
 		this.setStartTime(t1);
 		this.setEndTime(t2);
 		dataMap = new EnumMap<TaskState, Double>(TaskState.class);
@@ -89,7 +89,7 @@ public class TimeStats {
 		return getSystem() / getDuration();
 	}
 
-	public void add(TimeStats other) {
+	public void add(Bucket other) {
 		if (other.getStartTime() < t1){
 			this.t1 = other.getStartTime();
 		}
@@ -132,7 +132,7 @@ public class TimeStats {
 
 	}
 
-	public TimeStats mul(double factor) {
+	public Bucket mul(double factor) {
 		for (TaskState mode: dataMap.keySet()) {
 			Double d = dataMap.get(mode);
 			dataMap.put(mode, d * factor);

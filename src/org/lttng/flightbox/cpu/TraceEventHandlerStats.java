@@ -4,12 +4,12 @@ import java.util.HashMap;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
-import org.lttng.flightbox.UsageStats;
 import org.lttng.flightbox.io.EventData;
 import org.lttng.flightbox.io.TraceEventHandlerBase;
 import org.lttng.flightbox.io.TraceHook;
 import org.lttng.flightbox.io.TraceReader;
 import org.lttng.flightbox.model.Task.TaskState;
+import org.lttng.flightbox.statistics.ResourceUsage;
 
 public class TraceEventHandlerStats extends TraceEventHandlerBase {
 	
@@ -17,7 +17,7 @@ public class TraceEventHandlerStats extends TraceEventHandlerBase {
 	JniTrace trace;
 
 	HashMap<Long, EventData> cpuHistory;
-	UsageStats<Long> cpuStats;
+	ResourceUsage<Long> cpuStats;
 	private int numCpu;
 	private double start;
 	private double end;
@@ -36,7 +36,7 @@ public class TraceEventHandlerStats extends TraceEventHandlerBase {
 		numCpu = trace.getCpuNumber();
 		start = (double) trace.getStartTime().getTime();
 		end = (double) trace.getEndTime().getTime();
-		cpuStats = new UsageStats<Long>((long)start, (long)end, 50);
+		cpuStats = new ResourceUsage<Long>((long)start, (long)end, 50);
 	}
 	
 	public void handle_kernel_sched_schedule(TraceReader reader, JniEvent event) {
@@ -77,7 +77,7 @@ public class TraceEventHandlerStats extends TraceEventHandlerBase {
 		}
 	}
 	
-	public UsageStats<Long> getUsageStats() {
+	public ResourceUsage<Long> getUsageStats() {
 		return cpuStats;
 	}
 }
