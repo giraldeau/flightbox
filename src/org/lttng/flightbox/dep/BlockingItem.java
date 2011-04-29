@@ -15,7 +15,6 @@ public class BlockingItem implements Comparable<BlockingItem> {
 	private SyscallInfo waitingSyscall;
 	private long startTime;
 	private long endTime;
-	private BlockingModel blockingModel;
 	
 	public Task getTask() {
 		return task;
@@ -48,20 +47,20 @@ public class BlockingItem implements Comparable<BlockingItem> {
 		this.endTime = endTime;
 	}
 
-	public TreeSet<BlockingItem> getChildren() {
+	public TreeSet<BlockingItem> getChildren(BlockingModel blockingModel) {
 		TreeSet<BlockingItem> result = new TreeSet<BlockingItem>();
 		if (wakeUp == null || blockingModel == null)
 			return result;
 		
 		if (wakeUp.getTaskState() == TaskState.EXIT) {
-			populateSubBlocking(result, wakeUp.getTask());
+			populateSubBlocking(blockingModel, result, wakeUp.getTask());
 		} else if (wakeUp.getTaskState() == TaskState.SOFTIRQ) {
 			// some fun goes here
 		}
 		return result;
 	}
 
-	public void populateSubBlocking(TreeSet<BlockingItem> subBlock, Task subTask) {
+	public void populateSubBlocking(BlockingModel blockingModel, TreeSet<BlockingItem> subBlock, Task subTask) {
 		subBlock.addAll(blockingModel.getBlockingItemsForTask(subTask));
 	}
 	
@@ -81,11 +80,4 @@ public class BlockingItem implements Comparable<BlockingItem> {
 	public Task getWakeUpTask() {
 		return wakeUpTask;
 	}
-	public void setBlockingModel(BlockingModel blockingModel) {
-		this.blockingModel = blockingModel;
-	}
-	public BlockingModel getBlockingModel() {
-		return blockingModel;
-	}
-
 }

@@ -160,7 +160,7 @@ public class DependencyTreeView extends Composite {
 
 		@Override
 		public Object[] getChildren(Object arg0) {
-			TreeSet<BlockingItem> children = ((BlockingItem)arg0).getChildren();
+			TreeSet<BlockingItem> children = ((BlockingItem)arg0).getChildren(blockingModel);
 			return children == null ? new Object[0] : children.toArray();
 		}
 
@@ -176,7 +176,7 @@ public class DependencyTreeView extends Composite {
 
 		@Override
 		public boolean hasChildren(Object arg0) {
-			TreeSet<BlockingItem> children = ((BlockingItem)arg0).getChildren();
+			TreeSet<BlockingItem> children = ((BlockingItem)arg0).getChildren(blockingModel);
 			return children == null ? false : !children.isEmpty();
 		}
 	}

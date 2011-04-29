@@ -90,13 +90,6 @@ public class MainDependency {
 		}
 		long t2 = System.currentTimeMillis();
 
-		// output report
-		/* this pattern could be used for filtering on a known executable
-		TreeSet<Task> foundTask = model.getTaskByCmd("inception", true);
-		Task task = foundTask.first();
-		SortedSet<BlockingTree> taskItems = listener.getBlockingItemsForTask(task);
-		 */
-
 		HashMap<Integer, TreeSet<Task>> tasks = new HashMap<Integer, TreeSet<Task>>();
 		
 		if (hasFilter) {
@@ -119,7 +112,7 @@ public class MainDependency {
 		for(TreeSet<Task> set: tasks.values()) {
 			for (Task t: set) {
 				SortedSet<BlockingItem> taskItems = bm.getBlockingItemsForTask(t);
-				BlockingReport.printReport(str, taskItems, model);
+				BlockingReport.printReport(str, taskItems, model, bm);
 			}
 		}
 

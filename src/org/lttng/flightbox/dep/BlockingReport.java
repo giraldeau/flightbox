@@ -14,11 +14,11 @@ public class BlockingReport {
 	private static String fmtMs = "%1$10.3f";
 	private static String fmtInt = "%1$10d";
 	
-	public static void printReport(StringBuilder str, SortedSet<BlockingItem> taskItems, SystemModel model) {
-		printReport(str, taskItems, model, 0);
+	public static void printReport(StringBuilder str, SortedSet<BlockingItem> taskItems, SystemModel model, BlockingModel blockingModel) {
+		printReport(str, taskItems, model, blockingModel, 0);
 	}
 
-	public static void printReport(StringBuilder str, SortedSet<BlockingItem> taskItems, SystemModel model, int indent) {
+	public static void printReport(StringBuilder str, SortedSet<BlockingItem> taskItems, SystemModel model, BlockingModel blockingModel, int indent) {
 		if (taskItems == null || taskItems.isEmpty())
 			return;
 
@@ -43,7 +43,7 @@ public class BlockingReport {
 				str.append(" wakeup=" + item.getWakeUpTask().getCmd());
 			}
 			str.append("\n");
-			printReport(str, item.getChildren(), model, indent + 1);
+			printReport(str, item.getChildren(blockingModel), model, blockingModel, indent + 1);
 		}
 	}
 
