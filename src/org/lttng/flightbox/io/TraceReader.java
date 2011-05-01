@@ -136,6 +136,7 @@ public class TraceReader {
 				} catch (IllegalAccessException e) {
 					e.printStackTrace();
 				} catch (InvocationTargetException e) {
+					System.err.println("error while executing " + h.method + " on " + h.instance);
 					e.printStackTrace();
 				}
 			}

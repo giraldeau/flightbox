@@ -6,7 +6,7 @@ import java.util.TreeSet;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.jface.viewers.TableTreeViewer;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
@@ -14,10 +14,8 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
-import org.lttng.flightbox.dep.BlockingModel;
-import org.lttng.flightbox.dep.BlockingTaskListener;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
 import org.lttng.flightbox.dep.BlockingItem;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
@@ -25,38 +23,38 @@ import org.lttng.flightbox.model.state.SyscallInfo;
 
 public class DependencyTreeView extends Composite {
 
-	private final TableTreeViewer ttv;
+	private final TreeViewer ttv;
 	private SystemModel model;
 	private Task rootTask;
 
 	public DependencyTreeView(Composite arg0, int arg1) {
 		super(arg0, arg1);
 		this.setLayout(new FillLayout());
-		ttv = new TableTreeViewer(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		ttv = new TreeViewer(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 
 		ttv.setContentProvider(new DepContentProvider());
 		ttv.setLabelProvider(new DepLabelProvider());
 
-		Table table = ttv.getTableTree().getTable();
-	    new TableColumn(table, SWT.LEFT).setText("PID");
-	    new TableColumn(table, SWT.LEFT).setText("Command");
-	    new TableColumn(table, SWT.LEFT).setText("System call");
-	    new TableColumn(table, SWT.RIGHT).setText("Duration (ms)");
-	    new TableColumn(table, SWT.LEFT).setText("Wake up");
+		Tree tree = ttv.getTree();
+	    new TreeColumn(tree, SWT.LEFT).setText("PID");
+	    new TreeColumn(tree, SWT.LEFT).setText("Command");
+	    new TreeColumn(tree, SWT.LEFT).setText("System call");
+	    new TreeColumn(tree, SWT.RIGHT).setText("Duration (ms)");
+	    new TreeColumn(tree, SWT.LEFT).setText("Wake up");
 
-	    table.setHeaderVisible(true);
-	    table.setLinesVisible(true);
+	    tree.setHeaderVisible(true);
+	    tree.setLinesVisible(true);
 	    //ttv.reveal(ttv.getElementAt(0));
 	    ttv.expandAll();
 	    resizeColumns();
 
-	    table.addListener(SWT.Expand, new Listener() {
+	    tree.addListener(SWT.Expand, new Listener() {
 			@Override
 			public void handleEvent(Event arg0) {
 				resizeColumns();
 			}
 	    });
-	    table.addListener(SWT.Collapse, new Listener() {
+	    tree.addListener(SWT.Collapse, new Listener() {
 			@Override
 			public void handleEvent(Event arg0) {
 				resizeColumns();
@@ -66,9 +64,9 @@ public class DependencyTreeView extends Composite {
 	}
 
 	private void resizeColumns() {
-		Table table = ttv.getTableTree().getTable();
-		for (int i = 0, n = table.getColumnCount(); i < n; i++) {
-	    	table.getColumn(i).pack();
+		Tree tree = ttv.getTree();
+		for (int i = 0, n = tree.getColumnCount(); i < n; i++) {
+	    	tree.getColumn(i).pack();
 	    }
 	}
 
@@ -165,7 +163,7 @@ public class DependencyTreeView extends Composite {
 
 		@Override
 		public Object[] getElements(Object arg0) {
-			return ((TreeSet)arg0).toArray();
+			return ((TreeSet<?>)arg0).toArray();
 		}
 
 		@Override
