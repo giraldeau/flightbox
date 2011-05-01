@@ -164,6 +164,7 @@ public class MainWindow {
 		SystemModel model = new SystemModel();
 		BlockingTaskListener listener = new BlockingTaskListener();
 		model.addTaskListener(listener);
+		listener.setModel(model);
 
 		TraceEventHandlerModelMeta metaHandler = new TraceEventHandlerModelMeta();
 		metaHandler.setModel(model);
