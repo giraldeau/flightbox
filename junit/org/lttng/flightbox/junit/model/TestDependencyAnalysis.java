@@ -70,10 +70,23 @@ public class TestDependencyAnalysis {
 		// verify recovered blocking information
 		Task master = foundTask.getParentProcess().getParentProcess();
 		SortedSet<BlockingItem> masterItems = bm.getBlockingItemsForTask(master);
-		assertEquals(3, masterItems.size());
+		BlockingItem nanoSleep = null, waitPid = null;
+		int SYS_NANOSLEEP = 35;
+		int SYS_WAITPID = 61;
 		for (BlockingItem item: masterItems) {
 			assertNotNull(item.getWakeUp());
+			if (item.getWaitingSyscall().getSyscallId() == SYS_NANOSLEEP) {
+			    nanoSleep = item;
+			} else if (item.getWaitingSyscall().getSyscallId() == SYS_WAITPID) {
+			    waitPid = item;
+			}
 		}
+		
+		assertNotNull(nanoSleep);
+		assertNotNull(waitPid);
+		double p = 10000000;
+		assertEquals(nanoSleep.getDuration(), 100000000, p);
+		assertEquals(waitPid.getDuration(), 600000000, p);
 	}
 
 }
