@@ -43,12 +43,10 @@ public class MainWindow {
 	private final CTabFolder folder;
 	private File traceDir;
 	ResourceUsage<Long> cpuStats;
-	CpuUsageView cpuView;
-	ProcessUsageView processView;
 	Shell shell;
 	Display display;
-	private final DependencyTreeView depTreeView;
-	private final ProcessUsageView depProcessView;
+    private final CpuUsageView cpuUsageView;
+    private final DependencyView dependencyView;
 
 	public MainWindow() {
 		this(new String[0]);
@@ -66,39 +64,15 @@ public class MainWindow {
 
 		CTabItem cpuUsageTab = new CTabItem(folder, SWT.NONE);
 		cpuUsageTab.setText("CPU Usage");
-		SashForm sashForm = new SashForm(folder, SWT.VERTICAL);
-		cpuUsageTab.setControl(sashForm);
-
-		cpuView = new CpuUsageView(sashForm, SWT.BORDER);
-		processView = new ProcessUsageView(sashForm, SWT.BORDER);
-
-		cpuView.setProcessView(processView);
-		//processView.setCpuView(cpuView);
-
+		cpuUsageView = new CpuUsageView(folder, SWT.NONE);
+		cpuUsageView.setLayout(new FillLayout());
+		cpuUsageTab.setControl(cpuUsageView);
+		
 		CTabItem depAnalysisTab = new CTabItem(folder, SWT.NONE);
 		depAnalysisTab.setText("Dependency analysis");
-		SashForm depSashForm = new SashForm(folder, SWT.VERTICAL);
-		depProcessView = new ProcessUsageView(depSashForm, SWT.BORDER);
-		depTreeView = new DependencyTreeView(depSashForm, SWT.BORDER);
-
-		depProcessView.getTable().addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				TableData data = (TableData) arg0.item.getData();
-				HashMap<Integer, TreeSet<Task>> tasks = depTreeView.getModel().getTasks();
-				Integer pid = new Long(data.pid).intValue();
-				if (tasks.containsKey(pid)) {
-					TreeSet<Task> taskSet = tasks.get(pid);
-					if (taskSet != null && !taskSet.isEmpty()) {
-						Task latest = taskSet.last();
-						depTreeView.setRootTask(latest);
-					}
-				}
-			}
-		});
-
-		depAnalysisTab.setControl(depSashForm);
-
+		dependencyView = new DependencyView(folder, SWT.NONE);
+		dependencyView.setLayout(new FillLayout());
+		depAnalysisTab.setControl(dependencyView);
 
 		class OpenListener extends SelectionAdapter {
 			private final MainWindow window;
@@ -204,16 +178,13 @@ public class MainWindow {
 		}
 
 		cpuStats = cpuHandler.getUsageStats();
-		cpuView.setCpuStats(cpuStats);
-		cpuView.updateData();
-		cpuView.resetHighlight();
-
 		ResourceUsage<Long> procStats = procHandler.getUsageStats();
-		TreeMap<Long, Task> procInfo = procHandler.getProcInfo();
-		processView.setStats(procStats, procInfo);
-		processView.resetSumInterval();
-		depProcessView.setStats(procStats, procInfo);
-		depProcessView.resetSumInterval();
-		depTreeView.setModel(model);
+        TreeMap<Long, Task> procInfo = procHandler.getProcInfo();
+
+		cpuUsageView.setCpuStats(cpuStats);
+		cpuUsageView.setStats(procStats, procInfo);
+
+		dependencyView.setStats(procStats, procInfo);
+		dependencyView.setModel(model);
 	}
 }

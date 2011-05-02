@@ -29,9 +29,7 @@ public class DependencyTreeView extends Composite {
 
 	public DependencyTreeView(Composite arg0, int arg1) {
 		super(arg0, arg1);
-		this.setLayout(new FillLayout());
 		ttv = new TreeViewer(this, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
-
 		ttv.setContentProvider(new DepContentProvider());
 		ttv.setLabelProvider(new DepLabelProvider());
 
@@ -44,10 +42,9 @@ public class DependencyTreeView extends Composite {
 
 	    tree.setHeaderVisible(true);
 	    tree.setLinesVisible(true);
-	    //ttv.reveal(ttv.getElementAt(0));
 	    ttv.expandAll();
 	    resizeColumns();
-
+	    
 	    tree.addListener(SWT.Expand, new Listener() {
 			@Override
 			public void handleEvent(Event arg0) {

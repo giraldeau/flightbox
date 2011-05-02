@@ -51,12 +51,12 @@ public class BlockingReport {
 		if (stats == null || stats.isEmpty())
 			return;
 
-		HashMap<Integer, SummaryStatistics> stat = stats.getSyscallStats();
+		HashMap<Integer, BlockingSummaryStatistics> stat = stats.getSyscallStats();
 		SymbolTable sys = model.getSyscallTable();
 		str.append("Summary for task pid=" + task.getProcessId() + " cmd=" + task.getCmd() + "\n");
 		str.append(String.format(fmt, "Syscall", "N", "Sum (ms)", "Min (ms)", "Max (ms)", "Mean (ms)", "Stddev (ms)"));
 		for (Integer i: stat.keySet()) {
-			SummaryStatistics s = stat.get(i);
+			SummaryStatistics s = stat.get(i).getSummary();
 			String nb = String.format(fmtInt, s.getN());
 			String sum = String.format(fmtMs, s.getSum()/1000000);
 			String min = String.format(fmtMs, s.getMin()/1000000);

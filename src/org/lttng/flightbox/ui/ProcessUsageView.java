@@ -114,6 +114,7 @@ public class ProcessUsageView extends Composite {
 
 		this.procStats = procStats;
 		this.procInfo = procInfo;
+		resetSumInterval();
 	}
 
 	public void updateDataSet() {
