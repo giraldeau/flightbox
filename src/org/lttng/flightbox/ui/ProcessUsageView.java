@@ -25,7 +25,7 @@ public class ProcessUsageView extends Composite {
 	private TreeMap<Long, Task> procInfo;
 	private ResourceUsage<Long> procStats;
 	private ArrayList<TableData> dataSet;
-	private Comparator cmp;
+	private Comparator<TableData> cmp;
 	private Boolean isReverse;
 	private double t1;
 	private double t2;
@@ -82,30 +82,24 @@ public class ProcessUsageView extends Composite {
 		public Double time;
 	}
 
-	class CmdComparator implements Comparator {
+	class CmdComparator implements Comparator<TableData> {
 		@Override
-		public int compare(Object obj1, Object obj2) {
-			TableData d1 = (TableData)obj1;
-			TableData d2 = (TableData)obj2;
-			return d1.cmd.compareTo(d2.cmd);
+		public int compare(TableData obj1, TableData obj2) {
+			return obj1.cmd.compareTo(obj2.cmd);
 		}
 	}
 
-	class PidComparator implements Comparator {
+	class PidComparator implements Comparator<TableData> {
 		@Override
-		public int compare(Object obj1, Object obj2) {
-			TableData d1 = (TableData)obj1;
-			TableData d2 = (TableData)obj2;
-			return d1.pid.compareTo(d2.pid);
+		public int compare(TableData obj1, TableData obj2) {
+			return obj1.pid.compareTo(obj2.pid);
 		}
 	}
 
-	class TimeComparator implements Comparator {
+	class TimeComparator implements Comparator<TableData> {
 		@Override
-		public int compare(Object obj1, Object obj2) {
-			TableData d1 = (TableData)obj1;
-			TableData d2 = (TableData)obj2;
-			return d1.time.compareTo(d2.time);
+		public int compare(TableData obj1, TableData obj2) {
+			return obj1.time.compareTo(obj2.time);
 		}
 	}
 
@@ -158,7 +152,7 @@ public class ProcessUsageView extends Composite {
 		item.setData(elem);
 	}
 
-	public void setComparator(Comparator cmp) {
+	public void setComparator(Comparator<TableData> cmp) {
 		this.cmp = cmp;
 	}
 
