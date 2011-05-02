@@ -1,5 +1,6 @@
 package org.lttng.flightbox.dep;
 
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.lttng.flightbox.model.SymbolTable;
@@ -71,7 +72,16 @@ public class BlockingItem implements Comparable<BlockingItem> {
 	}
 
 	public void populateSubBlocking(BlockingModel blockingModel, TreeSet<BlockingItem> subBlock, Task subTask) {
-		subBlock.addAll(blockingModel.getBlockingItemsForTask(subTask));
+		if (startTime >= endTime) {
+			System.out.println("prob: startTime=" + startTime + " endTime=" + endTime + " diff=" + (endTime - startTime));
+		}
+		TreeSet<BlockingItem> items = blockingModel.getBlockingItemsForTask(subTask);
+		BlockingItem fromElement = new BlockingItem();
+		fromElement.setStartTime(startTime);
+		BlockingItem toElement = new BlockingItem();
+		toElement.setStartTime(endTime);
+		SortedSet<BlockingItem> subSet = items.subSet(fromElement, toElement);
+		subBlock.addAll(subSet);
 	}
 	
 	@Override
