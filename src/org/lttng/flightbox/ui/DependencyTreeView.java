@@ -128,8 +128,7 @@ public class DependencyTreeView extends Composite {
 				}
 				break;
 			case 3:
-				SyscallInfo info = item.getWaitingSyscall();
-				long delay = info.getEndTime() - info.getStartTime();
+				long delay = item.getDuration();
 				str = String.format("%.3f", delay/ 1000000.0);
 				break;
 			case 4:

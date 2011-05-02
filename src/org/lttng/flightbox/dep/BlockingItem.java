@@ -50,7 +50,10 @@ public class BlockingItem implements Comparable<BlockingItem> {
 	public void setEndTime(long endTime) {
 		this.endTime = endTime;
 	}
-
+	public long getDuration() {
+	    return this.endTime - this.startTime;
+	}
+	
 	public TreeSet<BlockingItem> getChildren(SystemModel model) {
 		TreeSet<BlockingItem> result = new TreeSet<BlockingItem>();
 		if (wakeUp == null)

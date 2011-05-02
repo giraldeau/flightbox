@@ -24,11 +24,12 @@ public class TestDependencyAnalysis {
 		String tracePath = new File(Path.getTraceDir(), "sleep-1x-1sec").getPath();
 		SystemModel model = new SystemModel();
 		BlockingTaskListener listener = new BlockingTaskListener();
+		listener.setModel(model);
 		model.addTaskListener(listener);
 
 		ModelBuilder.buildFromTrace(tracePath, model);
 
-		BlockingModel bm = listener.getBlockingModel();
+		BlockingModel bm = model.getBlockingModel();
 		
 		Task foundTask = model.getLatestTaskByCmdBasename("sleep");
 		SortedSet<BlockingItem> taskItems = bm.getBlockingItemsForTask(foundTask);
@@ -49,11 +50,12 @@ public class TestDependencyAnalysis {
 		String tracePath = file.getPath();
 		SystemModel model = new SystemModel();
 		BlockingTaskListener listener = new BlockingTaskListener();
+		listener.setModel(model);
 		model.addTaskListener(listener);
 
 		ModelBuilder.buildFromTrace(tracePath, model);
 
-		BlockingModel bm = listener.getBlockingModel();
+		BlockingModel bm = model.getBlockingModel();
 		
 		// get the last spawned child
 		Task foundTask = model.getLatestTaskByCmdBasename("inception");

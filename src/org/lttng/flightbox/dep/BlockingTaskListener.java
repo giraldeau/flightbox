@@ -44,7 +44,7 @@ public class BlockingTaskListener extends TaskListener {
 		/* add this blocking item to the process */
 		TreeSet<BlockingItem> set = blockingModel.getBlockingItemsForTask(task);
 		set.add(item);
-
+		
 		/* increment statistics */
 		BlockingStats stats = blockingModel.getBlockingStatsForTask(task);
 		// if time is zero, assume we don't know it and avoid increment

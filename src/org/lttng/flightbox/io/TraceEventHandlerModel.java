@@ -185,7 +185,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 
 		// Pop waiting state on the scheduled in task
 		StateInfo infoNext = nextTask.peekState();
-		if (infoNext != null) {
+		if (infoNext != null && infoNext.getTaskState() == TaskState.WAIT) {
 			infoNext.setEndTime(eventTs);
 			nextTask.popState();
 		}
