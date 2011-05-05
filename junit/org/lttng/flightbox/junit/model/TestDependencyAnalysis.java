@@ -71,8 +71,8 @@ public class TestDependencyAnalysis {
 		Task master = foundTask.getParentProcess().getParentProcess();
 		SortedSet<BlockingItem> masterItems = bm.getBlockingItemsForTask(master);
 		BlockingItem nanoSleep = null, waitPid = null;
-		int SYS_NANOSLEEP = 35;
-		int SYS_WAITPID = 61;
+		int SYS_NANOSLEEP = 162;
+		int SYS_WAITPID = 7;
 		for (BlockingItem item: masterItems) {
 			assertNotNull(item.getWakeUp());
 			if (item.getWaitingSyscall().getSyscallId() == SYS_NANOSLEEP) {
