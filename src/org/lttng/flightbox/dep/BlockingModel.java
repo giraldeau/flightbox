@@ -28,6 +28,8 @@ public class BlockingModel {
 		BlockingStats stats = blockingStats.get(task);
 		if (stats == null) {
 			stats = new BlockingStats();
+			TreeSet<BlockingItem> items = getBlockingItemsForTask(task);
+			stats.computeStats(items);
 			blockingStats.put(task, stats);
 		}
 		return stats;
