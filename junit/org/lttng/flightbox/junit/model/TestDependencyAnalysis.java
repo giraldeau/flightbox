@@ -18,7 +18,9 @@ import org.lttng.flightbox.dep.BlockingTaskListener;
 import org.lttng.flightbox.dep.BlockingItem;
 import org.lttng.flightbox.io.ModelBuilder;
 import org.lttng.flightbox.junit.Path;
+import org.lttng.flightbox.model.DiskFile;
 import org.lttng.flightbox.model.FileDescriptor;
+import org.lttng.flightbox.model.SocketInet;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
 
@@ -126,12 +128,17 @@ public class TestDependencyAnalysis {
 		
 		BlockingStats stats = bm.getBlockingStatsForTask(foundTask);
 		HashMap<FileDescriptor, BlockingStatsElement<FileDescriptor>> fdStats = stats.getFileDescriptorStats();
-		System.out.println(fdStats);
+		assertEquals(1, fdStats.size());
+		
+		FileDescriptor fd = (FileDescriptor) fdStats.keySet().toArray()[0];
+		assertTrue(fd instanceof SocketInet);
+		SocketInet sock = (SocketInet) fd;
+		assertEquals(9876, sock.getDstPort());
 	}
 
 	@Test
 	public void testFDWaitingStats() throws JniException {
-		String trace = "dd-100M";
+		String trace = "ioburst-512";
 		File file = new File(Path.getTraceDir(), trace);
 		// make sure we have this trace
 		assertTrue("Missing trace " + trace, file.isDirectory());
@@ -145,10 +152,15 @@ public class TestDependencyAnalysis {
 		ModelBuilder.buildFromTrace(tracePath, model);
 
 		BlockingModel bm = model.getBlockingModel();
-		Task foundTask = model.getLatestTaskByCmdBasename("dd");
-		SortedSet<BlockingItem> taskItems = bm.getBlockingItemsForTask(foundTask);
+		Task foundTask = model.getLatestTaskByCmdBasename("ioburst");
 		BlockingStats stats = bm.getBlockingStatsForTask(foundTask);
-		System.out.println(stats.getFileDescriptorStats());
+		HashMap<FileDescriptor, BlockingStatsElement<FileDescriptor>> fdStats = stats.getFileDescriptorStats();
+		assertEquals(1, fdStats.size());
+		
+		FileDescriptor fd = (FileDescriptor) fdStats.keySet().toArray()[0];
+		assertTrue(fd instanceof DiskFile);
+		DiskFile data = (DiskFile) fd;
+		assertEquals("tmp.data", data.getFilename());
 	}
 	
 }
