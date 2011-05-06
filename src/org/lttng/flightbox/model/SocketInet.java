@@ -172,5 +172,21 @@ public class SocketInet extends FileDescriptor {
 	public boolean isXmit() {
 		return isXmit;
 	}
+	public static String formatIPv4(long addr) {
+		StringBuilder str = new StringBuilder();
+		byte[] b = intToByteArray((int) addr);
+		str.append(String.format("%d.", (b[0] & 0xFF)));
+		str.append(String.format("%d.", (b[1] & 0xFF)));
+		str.append(String.format("%d.", (b[2] & 0xFF)));
+		str.append(String.format("%d",  (b[3] & 0xFF)));
+		return str.toString();
+	}
+	public static final byte[] intToByteArray(int value) {
+		return new byte[] {
+			(byte)(value >>> 24),
+			(byte)(value >>> 16),
+			(byte)(value >>> 8),
+			(byte)(value) };
+	}
 
 }

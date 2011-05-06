@@ -5,16 +5,20 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.junit.Test;
 import org.lttng.flightbox.dep.BlockingModel;
+import org.lttng.flightbox.dep.BlockingStats;
+import org.lttng.flightbox.dep.BlockingStatsElement;
 import org.lttng.flightbox.dep.BlockingTaskListener;
 import org.lttng.flightbox.dep.BlockingItem;
 import org.lttng.flightbox.io.ModelBuilder;
 import org.lttng.flightbox.junit.Path;
+import org.lttng.flightbox.model.FileDescriptor;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
 
@@ -119,6 +123,10 @@ public class TestDependencyAnalysis {
 		
 		BlockingItem sleep = children.last();
 		assertEquals(sleep.getDuration(), 100000000, p);
+		
+		BlockingStats stats = bm.getBlockingStatsForTask(foundTask);
+		HashMap<FileDescriptor, BlockingStatsElement<FileDescriptor>> fdStats = stats.getFileDescriptorStats();
+		System.out.println(fdStats);
 	}
 
 	@Test
@@ -137,6 +145,10 @@ public class TestDependencyAnalysis {
 		ModelBuilder.buildFromTrace(tracePath, model);
 
 		BlockingModel bm = model.getBlockingModel();
+		Task foundTask = model.getLatestTaskByCmdBasename("dd");
+		SortedSet<BlockingItem> taskItems = bm.getBlockingItemsForTask(foundTask);
+		BlockingStats stats = bm.getBlockingStatsForTask(foundTask);
+		System.out.println(stats.getFileDescriptorStats());
 	}
 	
 }

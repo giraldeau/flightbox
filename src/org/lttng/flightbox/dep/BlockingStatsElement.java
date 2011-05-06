@@ -2,13 +2,13 @@ package org.lttng.flightbox.dep;
 
 import org.apache.commons.math.stat.descriptive.SummaryStatistics;
 
-public class BlockingSummaryStatistics {
+public class BlockingStatsElement <T> {
 
     SummaryStatistics summary;
-    int syscallId;
+    T id;
     
-    public BlockingSummaryStatistics(int syscallId) {
-        this.syscallId = syscallId;
+    public BlockingStatsElement(T id) {
+        this.id = id;
         summary = new SummaryStatistics();
     }
 
@@ -16,7 +16,7 @@ public class BlockingSummaryStatistics {
         return summary;
     }
 
-    public int getSyscallId() {
-        return this.syscallId;
+    public T getId() {
+        return this.id;
     }
 }

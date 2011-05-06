@@ -11,7 +11,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.lttng.flightbox.dep.BlockingStats;
-import org.lttng.flightbox.dep.BlockingSummaryStatistics;
+import org.lttng.flightbox.dep.BlockingStatsElement;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
 
@@ -64,12 +64,12 @@ public class DependencySummaryView  extends Composite {
         col.setLabelProvider(new ColumnLabelProvider() {
             @Override
             public String getText(Object obj) {
-                BlockingSummaryStatistics stat = (BlockingSummaryStatistics) obj;
+                BlockingStatsElement<Integer> stat = (BlockingStatsElement<Integer>) obj;
                 String s = "";
                 if (model != null) {
-                    s = model.getSyscallTable().get(stat.getSyscallId());
+                    s = model.getSyscallTable().get(stat.getId());
                 } else {
-                    s = String.format("%d", stat.getSyscallId());
+                    s = String.format("%d", stat.getId());
                 }
                 return s;
             }
@@ -80,7 +80,7 @@ public class DependencySummaryView  extends Composite {
         col.setLabelProvider(new ColumnLabelProvider() {
             @Override
             public String getText(Object obj) {
-                BlockingSummaryStatistics stat = (BlockingSummaryStatistics) obj;
+                BlockingStatsElement<Integer> stat = (BlockingStatsElement<Integer>) obj;
                 return String.format(fmtInt, stat.getSummary().getN());
             }
         });
@@ -90,7 +90,7 @@ public class DependencySummaryView  extends Composite {
         col.setLabelProvider(new ColumnLabelProvider() {
             @Override
             public String getText(Object obj) {
-                BlockingSummaryStatistics stat = (BlockingSummaryStatistics) obj;
+                BlockingStatsElement<Integer> stat = (BlockingStatsElement<Integer>) obj;
                 return String.format(fmtMs, stat.getSummary().getSum() / 1000000);
             }
         });
@@ -100,7 +100,7 @@ public class DependencySummaryView  extends Composite {
         col.setLabelProvider(new ColumnLabelProvider() {
             @Override
             public String getText(Object obj) {
-                BlockingSummaryStatistics stat = (BlockingSummaryStatistics) obj;
+                BlockingStatsElement stat = (BlockingStatsElement) obj;
                 return String.format(fmtMs, stat.getSummary().getMin() / 1000000);
             }
         });
@@ -110,7 +110,7 @@ public class DependencySummaryView  extends Composite {
         col.setLabelProvider(new ColumnLabelProvider() {
             @Override
             public String getText(Object obj) {
-                BlockingSummaryStatistics stat = (BlockingSummaryStatistics) obj;
+                BlockingStatsElement stat = (BlockingStatsElement) obj;
                 return String.format(fmtMs, stat.getSummary().getMax() / 1000000);
             }
         });
@@ -120,7 +120,7 @@ public class DependencySummaryView  extends Composite {
         col.setLabelProvider(new ColumnLabelProvider() {
             @Override
             public String getText(Object obj) {
-                BlockingSummaryStatistics stat = (BlockingSummaryStatistics) obj;
+                BlockingStatsElement<Integer> stat = (BlockingStatsElement<Integer>) obj;
                 return String.format(fmtMs, stat.getSummary().getMean() / 1000000);
             }
         });
@@ -130,7 +130,7 @@ public class DependencySummaryView  extends Composite {
         col.setLabelProvider(new ColumnLabelProvider() {
             @Override
             public String getText(Object obj) {
-                BlockingSummaryStatistics stat = (BlockingSummaryStatistics) obj;
+                BlockingStatsElement<Integer> stat = (BlockingStatsElement<Integer>) obj;
                 return String.format(fmtMs, stat.getSummary().getStandardDeviation() / 1000000);
             }
         });

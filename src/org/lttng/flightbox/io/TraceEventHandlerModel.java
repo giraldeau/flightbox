@@ -480,53 +480,61 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 
 		String filename = (String) event.parseFieldByName("filename");
 		Long fd = (Long) event.parseFieldByName("fd");
-		DiskFile f = new DiskFile();
-		f.setFd(fd.intValue());
-		f.setFilename(filename);
-		f.setStartTime(eventTs);
-		f.setOwner(currentTask);
+		DiskFile file = new DiskFile();
+		file.setFd(fd.intValue());
+		file.setFilename(filename);
+		file.setStartTime(eventTs);
+		file.setOwner(currentTask);
 		if (fd < 0) {
-			f.setEndTime(eventTs);
-			f.setError(true);
+			file.setEndTime(eventTs);
+			file.setError(true);
 		}
-		currentTask.addFileDescriptor(f);
+		currentTask.addFileDescriptor(file);
+		StateInfo state = currentTask.peekState();
+		if (state == null || state.getTaskState() != TaskState.SYSCALL)
+			return;
+		SyscallInfo info = (SyscallInfo) state;
+		info.setFileDescriptor(file);
 	}
 
 	public void handle_fs_read(TraceReader reader, JniEvent event) {
-		long eventTs = event.getEventTime().getTime();
-		Long cpu = event.getParentTracefile().getCpuNumber();
-		Processor p = model.getProcessors().get(cpu.intValue());
-		Task currentTask = p.getCurrentTask();
-		if (currentTask == null)
-			return;
-		Long fd = (Long) event.parseFieldByName("fd");
-		Long count = (Long) event.parseFieldByName("count");
-		
-		// FIXME: we to merge SocketInet and FileDescriptors into one collection
-		FileDescriptor file = currentTask.getLatestFileDescriptor(fd.intValue());
-		if (file == null)
-			return;
-		file.setOwner(currentTask);
-		
+		handle_fs_generic(reader, event, true);
 	}
 
 	public void handle_fs_write(TraceReader reader, JniEvent event) {
+		handle_fs_generic(reader, event, false);
+	}
+
+	public void handle_fs_generic(TraceReader reader, JniEvent event, boolean isRead) {
 		long eventTs = event.getEventTime().getTime();
 		Long cpu = event.getParentTracefile().getCpuNumber();
 		Processor p = model.getProcessors().get(cpu.intValue());
 		Task currentTask = p.getCurrentTask();
 		if (currentTask == null)
 			return;
+		
 		Long fd = (Long) event.parseFieldByName("fd");
 		Long count = (Long) event.parseFieldByName("count");
-
-		// FIXME: we to merge SocketInet and FileDescriptors into one collection
+		
 		FileDescriptor file = currentTask.getLatestFileDescriptor(fd.intValue());
 		if (file == null)
 			return;
 		file.setOwner(currentTask);
+		/*
+		if (isRead) {
+			file.incrementRead(count.intValue());
+		} else {
+			file.incrementWrite(count.intValue())
+		}
+		*/
+		StateInfo state = currentTask.peekState();
+		if (state == null || state.getTaskState() != TaskState.SYSCALL)
+			return;
+		SyscallInfo info = (SyscallInfo) state;
+		info.setFileDescriptor(file);
+		
 	}
-
+	
 	public void handle_fs_close(TraceReader reader, JniEvent event) {
 		long eventTs = event.getEventTime().getTime();
 		Long cpu = event.getParentTracefile().getCpuNumber();
@@ -536,11 +544,18 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 			return;
 
 		Long fd = (Long) event.parseFieldByName("fd");
-		FileDescriptor f = currentTask.getLatestFileDescriptor(fd.intValue());
-		if (f == null)
+		FileDescriptor file = currentTask.getLatestFileDescriptor(fd.intValue());
+		if (file == null)
 			return;
 
-		f.setEndTime(eventTs);
+		file.setOwner(currentTask);
+		file.setEndTime(eventTs);
+		
+		StateInfo state = currentTask.peekState();
+		if (state == null || state.getTaskState() != TaskState.SYSCALL)
+			return;
+		SyscallInfo info = (SyscallInfo) state;
+		info.setFileDescriptor(file);
 	}
 
 	public void setModel(SystemModel model) {
