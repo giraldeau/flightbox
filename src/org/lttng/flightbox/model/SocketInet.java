@@ -77,6 +77,7 @@ public class SocketInet extends FileDescriptor {
 	private int srcPort;
 	private int dstPort;
 	private int protocol;
+	private boolean isXmit;
 
 	public int getType() {
 		return type;
@@ -136,6 +137,20 @@ public class SocketInet extends FileDescriptor {
 		return false;
 	}
 
+	/**
+	 * returns true if the socket is complementary
+	 * @param other
+	 * @return
+	 */
+	public boolean isComplementary(SocketInet other) {
+		if (other.srcAddr == this.dstAddr &&
+			other.dstAddr == this.srcAddr &&
+			other.srcPort == this.dstPort &&
+			other.dstPort == this.srcPort)
+			return true;
+		return false;
+	}
+	
 	@Override
 	public int hashCode() {
 		int x = (int)(srcAddr ^ srcAddr >>> 32);
@@ -150,6 +165,12 @@ public class SocketInet extends FileDescriptor {
 	@Override
 	public String toString() {
 		return "[socket " + srcAddr + ":" + srcPort + "->" + dstAddr + ":" + dstPort + "]";
+	}
+	public void setXmit(boolean isXmit) {
+		this.isXmit = isXmit;
+	}
+	public boolean isXmit() {
+		return isXmit;
 	}
 
 }

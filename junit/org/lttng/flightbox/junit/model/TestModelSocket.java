@@ -1,5 +1,6 @@
 package org.lttng.flightbox.junit.model;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -55,7 +56,10 @@ public class TestModelSocket {
 		assertNotNull(clientSocket);
 		assertNotNull(serverSocket);
 
-		assertEquals(clientSocket, serverSocket);
+		assertEquals(8765, clientSocket.getDstPort());
+		assertEquals(8765, serverSocket.getSrcPort());
+		
+		assertTrue(clientSocket.isComplementary(serverSocket));
 
 		assertFalse(clientSocket.isOpen());
 		assertFalse(serverSocket.isOpen());

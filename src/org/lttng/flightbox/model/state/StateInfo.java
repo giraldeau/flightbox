@@ -12,7 +12,7 @@ public abstract class StateInfo {
 	public enum Field {
 		PREV_PID, NEXT_PID, PARENT_PID, CHILD_PID,
 		PID, TGID, CHILD_TGID, FILENAME, IP, FD,
-		STATE, CPU_ID, SRC_ADDR, SRC_PORT, DST_ADDR, DST_PORT
+		STATE, CPU_ID, SRC_ADDR, SRC_PORT, DST_ADDR, DST_PORT, IS_XMIT
 	}
 
 	private Task task;

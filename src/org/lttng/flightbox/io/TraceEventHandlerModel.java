@@ -229,11 +229,9 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		if (wakeCause != null) {
 			ArrayList<StateInfo> wakeUpFifo = wakedTask.getWakeUpFifo();
 			// only net.socket_accept will consume wakeUpFifo
+			// FIXME: is it the best way to handle multiple wakeup for a task?
 			if (wakeCause.getTaskState() == TaskState.SOFTIRQ) {
-				SoftIRQInfo softirq = (SoftIRQInfo) wakeCause;
-				if (softirq.getSoftirqId() == SymbolTable.NET_RX_ACTION) {
-					wakeUpFifo.add(wakeCause);
-				}
+				wakeUpFifo.add(wakeCause);
 			}
 		}
 
@@ -281,16 +279,9 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 			task.setParentProcess(parentTask);
 			parentTask.addChild(task);
 			List<FileDescriptor> openedFd = parentTask.getOpenedFileDescriptors();
-			for (FileDescriptor f: openedFd) {
-				if (f instanceof DiskFile) {
-					DiskFile d = (DiskFile) f;
-					DiskFile d2 = new DiskFile();
-					d2.setStartTime(eventTs);
-					d2.setFd(d.getFd());
-					d2.setFilename(d.getFilename());
-					task.addFileDescriptor(d2);
-				}
-			}
+			task.addFileDescriptors(openedFd);
+			List<SocketInet> openedSocket = parentTask.getOpenedSockets();
+			task.addSockets(openedSocket);
 		}
 		model.addTask(task);
 	}
@@ -336,6 +327,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 
 		SocketInet s = new SocketInet();
 		s.setFd(ret.intValue());
+		s.setOwner(currentTask);
 		s.setFamily(family.intValue());
 		s.setType(type.intValue());
 		s.setProtocol(protocol.intValue());
@@ -369,6 +361,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		if (sock == null)
 			return;
 
+		sock.setOwner(currentTask);
 		sock.setSrcAddr((Long)info.getField(Field.SRC_ADDR));
 		sock.setSrcPort((Integer)info.getField(Field.SRC_PORT));
 		sock.setDstAddr((Long)info.getField(Field.DST_ADDR));
@@ -395,6 +388,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 
 		SocketInet sock = new SocketInet();
 		sock.setFd(ret.intValue());
+		sock.setOwner(currentTask);
 		//s.setFamily(family.intValue());
 		//s.setType(type.intValue());
 		//s.setProtocol(protocol.intValue());
@@ -405,10 +399,17 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 			// get the oldest element
 			StateInfo info = wakeUpFifo.remove(0);
 			if (info != null && info.getField(Field.SRC_ADDR) != null) {
-				sock.setSrcAddr((Long)info.getField(Field.SRC_ADDR));
-				sock.setSrcPort((Integer)info.getField(Field.SRC_PORT));
-				sock.setDstAddr((Long)info.getField(Field.DST_ADDR));
-				sock.setDstPort((Integer)info.getField(Field.DST_PORT));
+				if ((Boolean) info.getField(Field.IS_XMIT)) {
+					sock.setSrcAddr((Long)info.getField(Field.SRC_ADDR));
+					sock.setSrcPort((Integer)info.getField(Field.SRC_PORT));
+					sock.setDstAddr((Long)info.getField(Field.DST_ADDR));
+					sock.setDstPort((Integer)info.getField(Field.DST_PORT));
+				} else {
+					sock.setSrcAddr((Long)info.getField(Field.DST_ADDR));
+					sock.setSrcPort((Integer)info.getField(Field.DST_PORT));
+					sock.setDstAddr((Long)info.getField(Field.SRC_ADDR));
+					sock.setDstPort((Integer)info.getField(Field.SRC_PORT));					
+				}
 			}
 		}
 
@@ -438,39 +439,24 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 	}
 
 	public void handle_net_dev_xmit_extended(TraceReader reader, JniEvent event) {
-		long eventTs = event.getEventTime().getTime();
-		Long cpu = event.getParentTracefile().getCpuNumber();
-		Processor p = model.getProcessors().get(cpu.intValue());
-		Task currentTask = p.getCurrentTask();
-		if (currentTask == null)
-			return;
-		StateInfo state = currentTask.peekState();
-		if (state.getTaskState() != TaskState.SYSCALL)
-			return;
-		SyscallInfo info = (SyscallInfo) state;
-
-		Long x;
-		x = (Long) event.parseFieldByName("saddr");
-		info.setField(Field.SRC_ADDR, x);
-		x = (Long) event.parseFieldByName("source");
-		info.setField(Field.SRC_PORT, x.intValue());
-		x = (Long) event.parseFieldByName("daddr");
-		info.setField(Field.DST_ADDR, x);
-		x = (Long) event.parseFieldByName("dest");
-		info.setField(Field.DST_PORT, x.intValue());
+		handle_net_common(reader, event, Boolean.TRUE);
 	}
 
 	public void handle_net_tcpv4_rcv_extended(TraceReader reader, JniEvent event) {
+		handle_net_common(reader, event, Boolean.FALSE);
+	}
+
+	public void handle_net_common(TraceReader reader, JniEvent event, Boolean isXmit) {
 		long eventTs = event.getEventTime().getTime();
 		Long cpu = event.getParentTracefile().getCpuNumber();
 		Processor p = model.getProcessors().get(cpu.intValue());
 		Task currentTask = p.getCurrentTask();
 		if (currentTask == null)
 			return;
-		StateInfo state = currentTask.peekState();
-		if (state.getTaskState() != TaskState.SOFTIRQ)
+		StateInfo info = currentTask.peekState();
+		TaskState type = info.getTaskState(); 
+		if (type != TaskState.SOFTIRQ && type != TaskState.SYSCALL)
 			return;
-		SoftIRQInfo info = (SoftIRQInfo) state;
 
 		Long x;
 		x = (Long) event.parseFieldByName("saddr");
@@ -481,8 +467,9 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		info.setField(Field.DST_ADDR, x);
 		x = (Long) event.parseFieldByName("dest");
 		info.setField(Field.DST_PORT, x.intValue());
+		info.setField(Field.IS_XMIT, isXmit);
 	}
-
+	
 	public void handle_fs_open(TraceReader reader, JniEvent event) {
 		long eventTs = event.getEventTime().getTime();
 		Long cpu = event.getParentTracefile().getCpuNumber();
@@ -497,6 +484,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		f.setFd(fd.intValue());
 		f.setFilename(filename);
 		f.setStartTime(eventTs);
+		f.setOwner(currentTask);
 		if (fd < 0) {
 			f.setEndTime(eventTs);
 			f.setError(true);
@@ -505,9 +493,38 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 	}
 
 	public void handle_fs_read(TraceReader reader, JniEvent event) {
+		long eventTs = event.getEventTime().getTime();
+		Long cpu = event.getParentTracefile().getCpuNumber();
+		Processor p = model.getProcessors().get(cpu.intValue());
+		Task currentTask = p.getCurrentTask();
+		if (currentTask == null)
+			return;
+		Long fd = (Long) event.parseFieldByName("fd");
+		Long count = (Long) event.parseFieldByName("count");
+		
+		// FIXME: we to merge SocketInet and FileDescriptors into one collection
+		SocketInet latestSocket = currentTask.getLatestSocket(fd.intValue());
+		if (latestSocket == null)
+			return;
+		latestSocket.setOwner(currentTask);
+		
 	}
 
 	public void handle_fs_write(TraceReader reader, JniEvent event) {
+		long eventTs = event.getEventTime().getTime();
+		Long cpu = event.getParentTracefile().getCpuNumber();
+		Processor p = model.getProcessors().get(cpu.intValue());
+		Task currentTask = p.getCurrentTask();
+		if (currentTask == null)
+			return;
+		Long fd = (Long) event.parseFieldByName("fd");
+		Long count = (Long) event.parseFieldByName("count");
+
+		// FIXME: we to merge SocketInet and FileDescriptors into one collection
+		SocketInet latestSocket = currentTask.getLatestSocket(fd.intValue());
+		if (latestSocket == null)
+			return;
+		latestSocket.setOwner(currentTask);
 	}
 
 	public void handle_fs_close(TraceReader reader, JniEvent event) {

@@ -210,6 +210,7 @@ public class Task extends SystemResource implements Comparable<Task> {
 			fds.put(fd.getFd(), set);
 		}
 		set.add(fd);
+		fd.setOwner(this);
 	}
 
 	public FileDescriptor getLatestFileDescriptor(int fd) {
@@ -250,6 +251,7 @@ public class Task extends SystemResource implements Comparable<Task> {
 			sockets.put(fd.getFd(), set);
 		}
 		set.add(fd);
+		fd.setOwner(this);
 	}
 
 	public SocketInet getLatestSocket(int fd) {
@@ -289,6 +291,16 @@ public class Task extends SystemResource implements Comparable<Task> {
 	@Override
 	public String toString() {
 		return "[task pid=" + processId + "]";
+	}
+
+	public boolean matchSocket(SocketInet sock) {
+		for (TreeSet<SocketInet> set: sockets.values()) {
+			SocketInet last = set.last();
+			if (last.getOwner() == this && last.isComplementary(sock)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

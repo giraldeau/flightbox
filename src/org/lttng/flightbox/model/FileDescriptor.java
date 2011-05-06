@@ -4,7 +4,8 @@ public class FileDescriptor extends SystemResource implements Comparable<FileDes
 
 	private int fd;
 	private boolean isError;
-
+	private Task owner;
+	
 	public void setFd(int fd) {
 		this.fd = fd;
 	}
@@ -54,6 +55,14 @@ public class FileDescriptor extends SystemResource implements Comparable<FileDes
 		return this.getEndTime() < this.getStartTime();
 	}
 
+	public void setOwner(Task owner) {
+		this.owner = owner;
+	}
+	
+	public Task getOwner() {
+		return owner;
+	}
+	
 	@Override
 	public String toString() {
 		return "fd=" + fd;

@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.junit.Test;
@@ -34,8 +35,8 @@ public class TestDependencyAnalysis {
 		Task foundTask = model.getLatestTaskByCmdBasename("sleep");
 		SortedSet<BlockingItem> taskItems = bm.getBlockingItemsForTask(foundTask);
 
-		assertEquals(1, taskItems.size());
-		BlockingItem info = taskItems.first();
+		assertTrue(taskItems.size() >= 1);
+		BlockingItem info = taskItems.last();
 		double duration = info.getEndTime() - info.getStartTime();
 		assertEquals(1000000000.0, duration, 10000000.0);
 	}
@@ -62,8 +63,8 @@ public class TestDependencyAnalysis {
 		SortedSet<BlockingItem> taskItems = bm.getBlockingItemsForTask(foundTask);
 
 		// 100ms + 200ms + 400ms = 700ms
-		assertEquals(1, taskItems.size());
-		BlockingItem info = taskItems.first();
+		assertTrue(taskItems.size() >= 1);
+		BlockingItem info = taskItems.last();
 		double duration = info.getEndTime() - info.getStartTime();
 		assertEquals(400000000.0, duration, 10000000.0);
 
@@ -89,4 +90,35 @@ public class TestDependencyAnalysis {
 		assertEquals(waitPid.getDuration(), 600000000, p);
 	}
 
+	@Test
+	public void testRcpHog() throws JniException {
+		String trace = "rpc-sleep-100ms";
+		File file = new File(Path.getTraceDir(), trace);
+		// make sure we have this trace
+		assertTrue("Missing trace " + trace, file.isDirectory());
+
+		String tracePath = file.getPath();
+		SystemModel model = new SystemModel();
+		BlockingTaskListener listener = new BlockingTaskListener();
+		listener.setModel(model);
+		model.addTaskListener(listener);
+
+		ModelBuilder.buildFromTrace(tracePath, model);
+
+		BlockingModel bm = model.getBlockingModel();
+		Task foundTask = model.getLatestTaskByCmdBasename("clihog");
+		SortedSet<BlockingItem> taskItems = bm.getBlockingItemsForTask(foundTask);
+		assertTrue(taskItems.size() >= 1);
+		
+		BlockingItem read = taskItems.last();
+		double p = 10000000;
+		assertEquals(read.getDuration(), 100000000, p);
+		
+		TreeSet<BlockingItem> children = read.getChildren(model);
+		assertTrue(children.size() >= 1);
+		
+		BlockingItem sleep = children.last();
+		assertEquals(sleep.getDuration(), 100000000, p);
+	}
+	
 }
