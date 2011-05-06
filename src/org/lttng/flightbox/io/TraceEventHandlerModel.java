@@ -280,8 +280,6 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 			parentTask.addChild(task);
 			List<FileDescriptor> openedFd = parentTask.getOpenedFileDescriptors();
 			task.addFileDescriptors(openedFd);
-			List<SocketInet> openedSocket = parentTask.getOpenedSockets();
-			task.addSockets(openedSocket);
 		}
 		model.addTask(task);
 	}
@@ -332,7 +330,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		s.setType(type.intValue());
 		s.setProtocol(protocol.intValue());
 		s.setStartTime(eventTs);
-		currentTask.addSocket(s);
+		currentTask.addFileDescriptor(s);
 
 	}
 
@@ -356,11 +354,12 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 			return;
 
 		Long fd = (Long) event.parseFieldByName("fd");
-		SocketInet sock = currentTask.getLatestSocket(fd.intValue());
-
-		if (sock == null)
+		FileDescriptor file = currentTask.getLatestFileDescriptor(fd.intValue());
+		
+		if (file == null || !(file instanceof SocketInet))
 			return;
 
+		SocketInet sock = (SocketInet) file;
 		sock.setOwner(currentTask);
 		sock.setSrcAddr((Long)info.getField(Field.SRC_ADDR));
 		sock.setSrcPort((Integer)info.getField(Field.SRC_PORT));
@@ -413,7 +412,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 			}
 		}
 
-		currentTask.addSocket(sock);
+		currentTask.addFileDescriptor(sock);
 	}
 
 	public void handle_net_socket_shutdown(TraceReader reader, JniEvent event) {
@@ -430,10 +429,11 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		if (ret != 0)
 			return;
 
-		SocketInet sock = currentTask.getLatestSocket(fd.intValue());
-		if (sock == null)
+		FileDescriptor file = currentTask.getLatestFileDescriptor(fd.intValue());
+		if (file == null || !(file instanceof SocketInet))
 			return;
 
+		SocketInet sock = (SocketInet) file;
 		sock.setEndTime(eventTs);
 
 	}
@@ -503,10 +503,10 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		Long count = (Long) event.parseFieldByName("count");
 		
 		// FIXME: we to merge SocketInet and FileDescriptors into one collection
-		SocketInet latestSocket = currentTask.getLatestSocket(fd.intValue());
-		if (latestSocket == null)
+		FileDescriptor file = currentTask.getLatestFileDescriptor(fd.intValue());
+		if (file == null)
 			return;
-		latestSocket.setOwner(currentTask);
+		file.setOwner(currentTask);
 		
 	}
 
@@ -521,10 +521,10 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		Long count = (Long) event.parseFieldByName("count");
 
 		// FIXME: we to merge SocketInet and FileDescriptors into one collection
-		SocketInet latestSocket = currentTask.getLatestSocket(fd.intValue());
-		if (latestSocket == null)
+		FileDescriptor file = currentTask.getLatestFileDescriptor(fd.intValue());
+		if (file == null)
 			return;
-		latestSocket.setOwner(currentTask);
+		file.setOwner(currentTask);
 	}
 
 	public void handle_fs_close(TraceReader reader, JniEvent event) {

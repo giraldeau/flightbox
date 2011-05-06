@@ -15,6 +15,7 @@ import org.lttng.flightbox.io.TraceEventHandlerModel;
 import org.lttng.flightbox.io.TraceEventHandlerModelMeta;
 import org.lttng.flightbox.io.TraceReader;
 import org.lttng.flightbox.junit.Path;
+import org.lttng.flightbox.model.FileDescriptor;
 import org.lttng.flightbox.model.SocketInet;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
@@ -50,9 +51,6 @@ public class TestModelSocket {
 		SocketInet clientSocket = findSocket(client);
 		SocketInet serverSocket = findSocket(server);
 
-		//System.out.println(client.getSockets());
-		//System.out.println(server.getSockets());
-
 		assertNotNull(clientSocket);
 		assertNotNull(serverSocket);
 
@@ -66,14 +64,22 @@ public class TestModelSocket {
 
 	}
 
+	/** 
+	 * returns the first defined socket of the task
+	 * @param task
+	 * @return
+	 */
 	public SocketInet findSocket(Task task) {
-		HashMap<Integer, TreeSet<SocketInet>> sockets = task.getSockets();
+		HashMap<Integer, TreeSet<FileDescriptor>> fds = task.getFileDescriptors();
 		SocketInet sock = null;
-		for (Integer i : sockets.keySet()) {
-			SocketInet last = sockets.get(i).last();
-			if (last.isSet()) {
-				sock = last;
-				break;
+		for (Integer i : fds.keySet()) {
+			FileDescriptor last = fds.get(i).last();
+			if (last instanceof SocketInet) {
+				SocketInet s = (SocketInet) last;
+				if (s.isSet()) {
+					sock = s;
+					break;
+				}
 			}
 		}
 		return sock;

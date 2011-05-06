@@ -29,8 +29,7 @@ public class Task extends SystemResource implements Comparable<Task> {
 	private boolean isKernelThread;
 	private final Stack<StateInfo> stateStack;
 	private final HashSet<ITaskListener> listeners;
-	private final HashMap<Integer, TreeSet<FileDescriptor>> fds;
-	private final HashMap<Integer, TreeSet<SocketInet>> sockets;
+	private final IdMap<FileDescriptor> fdsMap;
 	private final ArrayList<StateInfo> wakeUpFifo;
 
 	public Task(int pid, long createTs) {
@@ -43,9 +42,14 @@ public class Task extends SystemResource implements Comparable<Task> {
 		stateStack = new Stack<StateInfo>();
 		listeners = new HashSet<ITaskListener>();
 		isKernelThread = false;
-		fds = new HashMap<Integer, TreeSet<FileDescriptor>>();
-		sockets = new HashMap<Integer, TreeSet<SocketInet>>();
 		wakeUpFifo = new ArrayList<StateInfo>();
+		fdsMap = new IdMap<FileDescriptor>();
+		fdsMap.setProvider(new IdProvider<FileDescriptor>() {
+			@Override
+			public int getId(FileDescriptor obj) {
+				return obj.getFd();
+			}
+		});
 	}
 
 	@Override
@@ -204,31 +208,28 @@ public class Task extends SystemResource implements Comparable<Task> {
 	}
 
 	public void addFileDescriptor(FileDescriptor fd) {
-		TreeSet<FileDescriptor> set = fds.get(fd.getFd());
-		if (set == null) {
-			set = new TreeSet<FileDescriptor>();
-			fds.put(fd.getFd(), set);
+		FileDescriptor latest = fdsMap.getLatest(fd.getFd());
+		if (latest != null && latest.isOpen()) {
+			latest.setEndTime(fd.getStartTime());
 		}
-		set.add(fd);
+		fdsMap.add(fd);
 		fd.setOwner(this);
 	}
 
-	public FileDescriptor getLatestFileDescriptor(int fd) {
-		TreeSet<FileDescriptor> set = fds.get(fd);
-		if (set == null || set.size() == 0)
-			return null;
-		return set.last();
+	public FileDescriptor getLatestFileDescriptor(int id) {
+		return fdsMap.getLatest(id);
 	}
 
 	public HashMap<Integer, TreeSet<FileDescriptor>> getFileDescriptors() {
-		return this.fds;
+		return fdsMap.getMap();
 	}
 
 	public List<FileDescriptor> getOpenedFileDescriptors() {
+		HashMap<Integer, TreeSet<FileDescriptor>> map = fdsMap.getMap();
 		ArrayList<FileDescriptor> openedFd = new ArrayList<FileDescriptor>();
 		TreeSet<FileDescriptor> set;
-		for (Integer i: fds.keySet()) {
-			set = fds.get(i);
+		for (Integer i: map.keySet()) {
+			set = map.get(i);
 			FileDescriptor last = set.last();
 			if (last.isOpen()) {
 				openedFd.add(last);
@@ -243,47 +244,6 @@ public class Task extends SystemResource implements Comparable<Task> {
 		}
 	}
 
-    /* FIXME: this should a standalone collection */
-	public void addSocket(SocketInet fd) {
-		TreeSet<SocketInet> set = sockets.get(fd.getFd());
-		if (set == null) {
-			set = new TreeSet<SocketInet>();
-			sockets.put(fd.getFd(), set);
-		}
-		set.add(fd);
-		fd.setOwner(this);
-	}
-
-	public SocketInet getLatestSocket(int fd) {
-		TreeSet<SocketInet> set = sockets.get(fd);
-		if (set == null || set.size() == 0)
-			return null;
-		return set.last();
-	}
-
-	public HashMap<Integer, TreeSet<SocketInet>> getSockets() {
-		return this.sockets;
-	}
-
-	public List<SocketInet> getOpenedSockets() {
-		ArrayList<SocketInet> openedFd = new ArrayList<SocketInet>();
-		TreeSet<SocketInet> set;
-		for (Integer i: sockets.keySet()) {
-			set = sockets.get(i);
-			SocketInet last = set.last();
-			if (last.isOpen()) {
-				openedFd.add(last);
-			}
-		}
-		return openedFd;
-	}
-
-	public void addSockets(List<SocketInet> sock) {
-		for (SocketInet s: sock) {
-			addFileDescriptor(s);
-		}
-	}
-
 	public ArrayList<StateInfo> getWakeUpFifo() {
 		return wakeUpFifo;
 	}
@@ -294,10 +254,15 @@ public class Task extends SystemResource implements Comparable<Task> {
 	}
 
 	public boolean matchSocket(SocketInet sock) {
-		for (TreeSet<SocketInet> set: sockets.values()) {
-			SocketInet last = set.last();
-			if (last.getOwner() == this && last.isComplementary(sock)) {
-				return true;
+		HashMap<Integer, TreeSet<FileDescriptor>> map = fdsMap.getMap();
+		for (TreeSet<FileDescriptor> set: map.values()) {
+			for (FileDescriptor fd: set) {
+				if (fd instanceof SocketInet) {
+					SocketInet s = (SocketInet) fd;
+					if (s.getOwner() == this && s.isComplementary(sock)) {
+						return true;
+					}					
+				}
 			}
 		}
 		return false;

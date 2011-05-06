@@ -120,5 +120,23 @@ public class TestDependencyAnalysis {
 		BlockingItem sleep = children.last();
 		assertEquals(sleep.getDuration(), 100000000, p);
 	}
+
+	@Test
+	public void testFDWaitingStats() throws JniException {
+		String trace = "dd-100M";
+		File file = new File(Path.getTraceDir(), trace);
+		// make sure we have this trace
+		assertTrue("Missing trace " + trace, file.isDirectory());
+
+		String tracePath = file.getPath();
+		SystemModel model = new SystemModel();
+		BlockingTaskListener listener = new BlockingTaskListener();
+		listener.setModel(model);
+		model.addTaskListener(listener);
+
+		ModelBuilder.buildFromTrace(tracePath, model);
+
+		BlockingModel bm = model.getBlockingModel();
+	}
 	
 }
