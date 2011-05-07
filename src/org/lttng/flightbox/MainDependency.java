@@ -12,14 +12,17 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
+import org.lttng.flightbox.cpu.TraceEventHandlerProcess;
 import org.lttng.flightbox.dep.BlockingModel;
 import org.lttng.flightbox.dep.BlockingReport;
 import org.lttng.flightbox.dep.BlockingStats;
 import org.lttng.flightbox.dep.BlockingTaskListener;
 import org.lttng.flightbox.dep.BlockingItem;
+import org.lttng.flightbox.io.ITraceEventHandler;
 import org.lttng.flightbox.io.ModelBuilder;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
+import org.lttng.flightbox.statistics.ResourceUsage;
 
 public class MainDependency {
 
@@ -31,6 +34,7 @@ public class MainDependency {
 		options.addOption("t", "trace", true, "trace path");
 		options.addOption("c", "cmd", true, "filter by command");
 		options.addOption("p", "pid", true, "filter by pid");
+		options.addOption("v", "verbose", false, "verbose output");
 
 		CommandLineParser parser = new PosixParser();
 		CommandLine cmd = null;
@@ -46,6 +50,7 @@ public class MainDependency {
 		String cmdFilter = null;
 		Integer pidFilter = null;
 		boolean hasFilter = false;
+		boolean verbose = false;
 		
 		if (cmd.hasOption("help")) {
 			printUsage();
@@ -69,6 +74,10 @@ public class MainDependency {
 			cmdFilter = cmd.getOptionValue("cmd");
 		}
 		
+		if (cmd.hasOption("verbose")) {
+			verbose = true;
+		}
+		
 		hasFilter = (pidFilter != null || cmdFilter != null);
 		
 		File traceFile = new File(tracePath);
@@ -83,8 +92,11 @@ public class MainDependency {
 		model.addTaskListener(listener);
 		listener.setModel(model);
 
+		TraceEventHandlerProcess handlerProcess = new TraceEventHandlerProcess();
+		ITraceEventHandler[] handlers = new ITraceEventHandler[] { handlerProcess };
+		
 		try {
-			ModelBuilder.buildFromTrace(tracePath, model);
+			ModelBuilder.buildFromTrace(tracePath, model, handlers);
 		} catch (JniException e) {
 			System.out.println("Error while reading the trace");
 			System.out.println(e.getMessage());
@@ -110,10 +122,13 @@ public class MainDependency {
 		BlockingModel bm = model.getBlockingModel();
 		
 		StringBuilder str = new StringBuilder();
-		for(TreeSet<Task> set: tasks.values()) {
-			for (Task t: set) {
-				SortedSet<BlockingItem> taskItems = bm.getBlockingItemsForTask(t);
-				BlockingReport.printReport(str, taskItems, model);
+		
+		if (verbose) {
+			for(TreeSet<Task> set: tasks.values()) {
+				for (Task t: set) {
+					SortedSet<BlockingItem> taskItems = bm.getBlockingItemsForTask(t);
+					BlockingReport.printReport(str, taskItems, model);
+				}
 			}
 		}
 
@@ -124,6 +139,12 @@ public class MainDependency {
 			}
 		}
 
+		ResourceUsage<Long> cpuStats = handlerProcess.getUsageStats();
+		for(TreeSet<Task> set: tasks.values()) {
+			for (Task t: set) {
+				BlockingReport.printCpuAccounting(str, t, model, cpuStats);
+			}
+		}
 
 		System.out.println(str.toString());
 		System.out.println("Analysis time: " + (t2 - t1) + "ms");

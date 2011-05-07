@@ -45,9 +45,11 @@ public class CpuAccountingItem implements Comparable<CpuAccountingItem> {
 			}
 			for (BlockingItem subItem: subItems) {
 				Task subTask = subItem.getSubTask(model);
-				CpuAccountingItem acc = new CpuAccountingItem(subTask);
-				acc.setItem(subItem);
-				children.add(acc);
+				if (subTask != null) {
+					CpuAccountingItem acc = new CpuAccountingItem(subTask);
+					acc.setItem(subItem);
+					children.add(acc);
+				}
 			}
 			updateChildren = false;
 		}
@@ -85,9 +87,11 @@ public class CpuAccountingItem implements Comparable<CpuAccountingItem> {
 				long t1 = item.getStartTime();
 				long t2 = item.getEndTime();
 				Task subTask = item.getSubTask(model);
-				BucketSeries stats = cpuStats.getStats((long)subTask.getProcessId());
-				Bucket sum = stats.getSum(t1, t2);
-				subTime += sum.getTime(TaskState.USER);
+				if (subTask != null) {
+					BucketSeries stats = cpuStats.getStats((long)subTask.getProcessId());
+					Bucket sum = stats.getSum(t1, t2);
+					subTime += sum.getTime(TaskState.USER);
+				}
 			}
 			updateSubTime = false;
 		}
@@ -111,6 +115,10 @@ public class CpuAccountingItem implements Comparable<CpuAccountingItem> {
 		if (other == this.item || other == null)
 			return 0;
 		return item.compareTo(other);
+	}
+
+	public Task getTask() {
+		return this.task;
 	}
 	
 }

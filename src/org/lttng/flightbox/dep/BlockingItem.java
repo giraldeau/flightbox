@@ -75,6 +75,9 @@ public class BlockingItem implements Comparable<BlockingItem> {
 	}
 
 	public Task getSubTask(SystemModel model) {
+		if (wakeUp == null) {
+			return null;
+		}
 		if (wakeUp.getTaskState() == TaskState.EXIT) {
 			return wakeUp.getTask();
 		} else if (wakeUp.getTaskState() == TaskState.SOFTIRQ) {
