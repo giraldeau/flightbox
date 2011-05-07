@@ -13,6 +13,7 @@ import org.lttng.flightbox.model.state.SoftIRQInfo;
 import org.lttng.flightbox.model.state.StateInfo;
 import org.lttng.flightbox.model.state.SyscallInfo;
 import org.lttng.flightbox.model.state.StateInfo.Field;
+import org.lttng.flightbox.statistics.ResourceUsage;
 
 public class BlockingItem implements Comparable<BlockingItem> {
 
@@ -22,6 +23,8 @@ public class BlockingItem implements Comparable<BlockingItem> {
 	private SyscallInfo waitingSyscall;
 	private long startTime;
 	private long endTime;
+	private TreeSet<BlockingItem> children;
+	private CpuAccountingItem cpuAccounting;
 	
 	public Task getTask() {
 		return task;
@@ -58,13 +61,22 @@ public class BlockingItem implements Comparable<BlockingItem> {
 	}
 	
 	public TreeSet<BlockingItem> getChildren(SystemModel model) {
-		TreeSet<BlockingItem> result = new TreeSet<BlockingItem>();
+		if (children != null) {
+			return children;
+		}
+		children = new TreeSet<BlockingItem>();
 		if (wakeUp == null)
-			return result;
+			return children;
 		
 		BlockingModel bm = model.getBlockingModel();
+		Task subTask = getSubTask(model);
+		populateSubBlocking(bm, children, subTask);
+		return children;
+	}
+
+	public Task getSubTask(SystemModel model) {
 		if (wakeUp.getTaskState() == TaskState.EXIT) {
-			populateSubBlocking(bm, result, wakeUp.getTask());
+			return wakeUp.getTask();
 		} else if (wakeUp.getTaskState() == TaskState.SOFTIRQ) {
 			/* 
 			 * wakeup from a received packet : wakeup always in softirq
@@ -80,16 +92,16 @@ public class BlockingItem implements Comparable<BlockingItem> {
 			if (srvSocket.isSet()) {
 				HashMap<Integer, TreeSet<Task>> tasks = model.getTasks();
 				for (Integer pid: tasks.keySet()) {
-					Task last = tasks.get(pid).last();
-					if (last.matchSocket(srvSocket)) {
-						populateSubBlocking(bm, result, last);
+					Task task = tasks.get(pid).last();
+					if (task.matchSocket(srvSocket)) {
+						return task;
 					}
 				}
 			}
 		}
-		return result;
+		return null;
 	}
-
+	
 	private void copySocketInfo(StateInfo info, SocketInet sock) {
 		if ((Boolean)info.getField(Field.IS_XMIT)) {
 			sock.setSrcAddr((Long) info.getField(Field.SRC_ADDR));
@@ -133,4 +145,5 @@ public class BlockingItem implements Comparable<BlockingItem> {
 	public Task getWakeUpTask() {
 		return wakeUpTask;
 	}
+	
 }

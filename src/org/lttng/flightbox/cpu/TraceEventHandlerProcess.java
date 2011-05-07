@@ -44,7 +44,7 @@ public class TraceEventHandlerProcess extends TraceEventHandlerBase {
 		numCpu = trace.getCpuNumber();
 		start = trace.getStartTime().getTime();
 		end = trace.getEndTime().getTime();
-		procStats = new ResourceUsage<Long>((long)start, (long)end, 50);
+		procStats = new ResourceUsage<Long>((long)start, (long)end, 200);
 		procInfo = new TreeMap<Long, Task>();
 		currentCpuProcess = new TreeMap<Long, Long>();
 	}

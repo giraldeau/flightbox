@@ -30,7 +30,7 @@ public class Task extends SystemResource implements Comparable<Task> {
 	private final Stack<StateInfo> stateStack;
 	private final HashSet<ITaskListener> listeners;
 	private final IdMap<FileDescriptor> fdsMap;
-	private final ArrayList<StateInfo> wakeUpFifo;
+	private StateInfo lastWakeup;
 
 	public Task(int pid, long createTs) {
 		this();
@@ -42,7 +42,6 @@ public class Task extends SystemResource implements Comparable<Task> {
 		stateStack = new Stack<StateInfo>();
 		listeners = new HashSet<ITaskListener>();
 		isKernelThread = false;
-		wakeUpFifo = new ArrayList<StateInfo>();
 		fdsMap = new IdMap<FileDescriptor>();
 		fdsMap.setProvider(new IdProvider<FileDescriptor>() {
 			@Override
@@ -244,10 +243,14 @@ public class Task extends SystemResource implements Comparable<Task> {
 		}
 	}
 
-	public ArrayList<StateInfo> getWakeUpFifo() {
-		return wakeUpFifo;
+	public StateInfo getLastWakeUp() {
+		return lastWakeup;
 	}
 
+	public void setLastWakeUp(StateInfo info) {
+		this.lastWakeup = info;
+	}
+	
 	@Override
 	public String toString() {
 		return "[task pid=" + processId + "]";

@@ -227,11 +227,9 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		}
 
 		if (wakeCause != null) {
-			ArrayList<StateInfo> wakeUpFifo = wakedTask.getWakeUpFifo();
-			// only net.socket_accept will consume wakeUpFifo
 			// FIXME: is it the best way to handle multiple wakeup for a task?
 			if (wakeCause.getTaskState() == TaskState.SOFTIRQ) {
-				wakeUpFifo.add(wakeCause);
+				wakedTask.setLastWakeUp(wakeCause);
 			}
 		}
 
@@ -393,10 +391,8 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		//s.setProtocol(protocol.intValue());
 		sock.setStartTime(eventTs);
 
-		ArrayList<StateInfo> wakeUpFifo = currentTask.getWakeUpFifo();
-		if (wakeUpFifo.size() > 0 ) {
-			// get the oldest element
-			StateInfo info = wakeUpFifo.remove(0);
+		StateInfo info = currentTask.getLastWakeUp();
+		if (info != null ) {
 			if (info != null && info.getField(Field.SRC_ADDR) != null) {
 				if ((Boolean) info.getField(Field.IS_XMIT)) {
 					sock.setSrcAddr((Long)info.getField(Field.SRC_ADDR));
