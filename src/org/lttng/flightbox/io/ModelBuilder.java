@@ -23,7 +23,7 @@ public class ModelBuilder {
 		handler.setModel(model);
 		TraceReader readerTrace = new TraceReader(tracePath);
 		readerTrace.register(handler);
-		if (handler != null) {
+		if (handlers != null) {
 			for (ITraceEventHandler hand: handlers) {
 				readerTrace.register(hand);
 			}
