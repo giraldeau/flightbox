@@ -19,6 +19,7 @@ import org.lttng.flightbox.dep.BlockingStatsElement;
 import org.lttng.flightbox.dep.BlockingTaskListener;
 import org.lttng.flightbox.dep.BlockingItem;
 import org.lttng.flightbox.dep.CpuAccountingItem;
+import org.lttng.flightbox.io.ITraceEventHandler;
 import org.lttng.flightbox.io.ModelBuilder;
 import org.lttng.flightbox.io.TraceReader;
 import org.lttng.flightbox.junit.Path;
@@ -186,13 +187,12 @@ public class TestDependencyAnalysis {
 		listener.setModel(model);
 		model.addTaskListener(listener);
 
-		ModelBuilder.buildFromTrace(tracePath, model);
+		TraceEventHandlerProcess handlerProcess = new TraceEventHandlerProcess();
+		ITraceEventHandler[] handlers = new ITraceEventHandler[] { handlerProcess };
+		
+		ModelBuilder.buildFromTrace(tracePath, model, handlers);
 
-		TraceReader readerTrace = new TraceReader(tracePath);
-		TraceEventHandlerProcess handler = new TraceEventHandlerProcess();
-		readerTrace.register(handler);
-		readerTrace.process();
-		ResourceUsage<Long> cpuStats = handler.getUsageStats();
+		ResourceUsage<Long> cpuStats = handlerProcess.getUsageStats();
 		
 		BlockingModel bm = model.getBlockingModel();
 		Task foundTask = model.getLatestTaskByCmdBasename("clihog");

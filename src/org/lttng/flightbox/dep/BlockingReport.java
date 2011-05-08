@@ -16,8 +16,8 @@ import org.lttng.flightbox.statistics.ResourceUsage;
 
 public class BlockingReport {
 
-	private static String fmt = "%1$-20s%2$12s%3$12s%4$12s%5$12s%6$12s%7$12s\n";
-	private static String fmtCpu = "%1$-20s%2$12s%3$12s%4$12s\n";
+	private static String fmt = "%1$-30s%2$12s%3$12s%4$12s%5$12s%6$12s%7$12s\n";
+	private static String fmtCpu = "%1$-30s%2$12s%3$12s%4$12s\n";
 	private static String fmtMs = "%1$10.3f";
 	private static String fmtInt = "%1$10d";
 

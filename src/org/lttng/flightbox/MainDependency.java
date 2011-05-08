@@ -103,20 +103,22 @@ public class MainDependency {
 		}
 		long t2 = System.currentTimeMillis();
 
-		HashMap<Integer, TreeSet<Task>> tasks = new HashMap<Integer, TreeSet<Task>>();
+		TreeSet<Task> tasks = new TreeSet<Task>();
 		
 		if (hasFilter) {
 			TreeSet<Task> foundTask = null; 
 			if (pidFilter != null) {
 				foundTask = model.getTasks().get(pidFilter);
 			} else if (cmdFilter != null) {
-				foundTask = model.getTaskByCmd(cmdFilter, true);
+				foundTask = model.getTaskByCmdBasename(cmdFilter);
 			}
 			if (foundTask != null && !foundTask.isEmpty()) {
-				tasks.put(foundTask.first().getProcessId(), foundTask);
+				tasks.addAll(foundTask);
 			}
 		} else {
-			tasks = model.getTasks();
+			for (TreeSet<Task> set: model.getTasks().values()) {
+				tasks.addAll(set);
+			}
 		}
 		
 		BlockingModel bm = model.getBlockingModel();
@@ -124,26 +126,20 @@ public class MainDependency {
 		StringBuilder str = new StringBuilder();
 		
 		if (verbose) {
-			for(TreeSet<Task> set: tasks.values()) {
-				for (Task t: set) {
-					SortedSet<BlockingItem> taskItems = bm.getBlockingItemsForTask(t);
-					BlockingReport.printReport(str, taskItems, model);
-				}
+			for (Task t: tasks) {
+				SortedSet<BlockingItem> taskItems = bm.getBlockingItemsForTask(t);
+				BlockingReport.printReport(str, taskItems, model);
 			}
 		}
 
-		for(TreeSet<Task> set: tasks.values()) {
-			for (Task t: set) {
-				BlockingStats stats = bm.getBlockingStatsForTask(t);
-				BlockingReport.printSummary(str, t, stats, model);
-			}
+		for (Task t: tasks) {
+			BlockingStats stats = bm.getBlockingStatsForTask(t);
+			BlockingReport.printSummary(str, t, stats, model);
 		}
 
 		ResourceUsage<Long> cpuStats = handlerProcess.getUsageStats();
-		for(TreeSet<Task> set: tasks.values()) {
-			for (Task t: set) {
-				BlockingReport.printCpuAccounting(str, t, model, cpuStats);
-			}
+		for (Task t: tasks) {
+			BlockingReport.printCpuAccounting(str, t, model, cpuStats);
 		}
 
 		System.out.println(str.toString());

@@ -78,7 +78,8 @@ public class BlockingItem implements Comparable<BlockingItem> {
 		if (wakeUp == null) {
 			return null;
 		}
-		if (wakeUp.getTaskState() == TaskState.EXIT) {
+		if (wakeUp.getTaskState() == TaskState.EXIT || 
+				wakeUp.getTaskState() == TaskState.SYSCALL) {
 			return wakeUp.getTask();
 		} else if (wakeUp.getTaskState() == TaskState.SOFTIRQ) {
 			/* 

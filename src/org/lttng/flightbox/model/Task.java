@@ -38,6 +38,10 @@ public class Task extends SystemResource implements Comparable<Task> {
 		this.setStartTime(createTs);
 	}
 
+	public Task(int pid) {
+		this(pid, 0);
+	}
+	
 	public Task() {
 		stateStack = new Stack<StateInfo>();
 		listeners = new HashSet<ITaskListener>();

@@ -19,5 +19,6 @@
 	<classpathentry kind="lib" path="lib/org.eclipse.ui.workbench_3.6.2.M20110210-1200.jar"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.core.commands_3.6.0.I20100512-1500.jar"/>
 	<classpathentry kind="lib" path="lib/commons-math-2.2.jar"/>
+	<classpathentry kind="lib" path="lib/jgrapht-jdk1.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
