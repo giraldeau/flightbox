@@ -48,6 +48,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		hooks.add(new TraceHook("fs", "exec"));
 		hooks.add(new TraceHook("fs", "open"));
 		hooks.add(new TraceHook("fs", "read"));
+		hooks.add(new TraceHook("fs", "select"));
 		hooks.add(new TraceHook("fs", "write"));
 		hooks.add(new TraceHook("fs", "close"));
 	}
@@ -374,7 +375,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 			return;
 
 		StateInfo state = currentTask.peekState();
-		if (state.getTaskState() != TaskState.SYSCALL)
+		if (state == null || state.getTaskState() != TaskState.SYSCALL)
 			return;
 
 		//SyscallInfo info = (SyscallInfo) state;
@@ -501,6 +502,10 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		handle_fs_generic(reader, event, false);
 	}
 
+	public void handle_fs_select(TraceReader reader, JniEvent event) {
+		handle_fs_generic(reader, event, false);
+	}
+	
 	public void handle_fs_generic(TraceReader reader, JniEvent event, boolean isRead) {
 		long eventTs = event.getEventTime().getTime();
 		Long cpu = event.getParentTracefile().getCpuNumber();
@@ -510,7 +515,6 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 			return;
 		
 		Long fd = (Long) event.parseFieldByName("fd");
-		Long count = (Long) event.parseFieldByName("count");
 		
 		FileDescriptor file = currentTask.getLatestFileDescriptor(fd.intValue());
 		if (file == null)
