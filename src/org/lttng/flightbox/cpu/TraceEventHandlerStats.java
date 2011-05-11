@@ -18,10 +18,8 @@ public class TraceEventHandlerStats extends TraceEventHandlerBase {
 
 	HashMap<Long, EventData> cpuHistory;
 	ResourceUsage<Long> cpuStats;
-	private int numCpu;
 	private double start;
 	private double end;
-	private TraceReader traceReader;
 	
 	public TraceEventHandlerStats() {
 		super();
@@ -33,15 +31,12 @@ public class TraceEventHandlerStats extends TraceEventHandlerBase {
 		this.trace = trace;
 		count = 0;
 		cpuHistory = new HashMap<Long, EventData>();
-		numCpu = trace.getCpuNumber();
 		start = (double) trace.getStartTime().getTime();
 		end = (double) trace.getEndTime().getTime();
-		cpuStats = new ResourceUsage<Long>((long)start, (long)end, 50);
+		cpuStats = new ResourceUsage<Long>((long)start, (long)end, 400);
 	}
 	
 	public void handle_kernel_sched_schedule(TraceReader reader, JniEvent event) {
-		String eventName = event.getMarkersMap().get(event.getEventMarkerId()).getName();
-		
 		count++;
 		Long cpu = event.getParentTracefile().getCpuNumber();
 		long eventTs = event.getEventTime().getTime();

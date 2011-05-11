@@ -111,6 +111,10 @@ public class ProcessUsageView extends Composite {
 		resetSumInterval();
 	}
 
+	public ResourceUsage<Long> getStats() {
+		return procStats;
+	}
+	
 	public void updateDataSet() {
 		//dataSet.clear();
 		dataSet = new ArrayList<TableData>();

@@ -16,7 +16,7 @@ public class ChartHighlighter implements ICustomPaintListener {
 
 	public ChartHighlighter() {
 		Display display = Display.getCurrent();
-	    fg = display.getSystemColor(SWT.COLOR_RED);
+	    fg = display.getSystemColor(SWT.COLOR_BLACK);
 	    width = 1;
 	}
 	
@@ -33,7 +33,7 @@ public class ChartHighlighter implements ICustomPaintListener {
 	@Override
 	public void paintControl(PaintEvent e) {
 		int oldAlpha = e.gc.getAlpha();
-		e.gc.setAlpha(128);
+		e.gc.setAlpha(32);
 		e.gc.setBackground(fg);
 		e.gc.fillRectangle(d1, 0, d2 - d1, height);
 		e.gc.setAlpha(oldAlpha);

@@ -6,4 +6,5 @@ IP=$(ip -f inet addr show $IFACE | grep inet| awk {'print $2'} | cut -d/ -f1)
 srvhog 9876 &
 sleep 2
 clihog $IP 9876 hog
+sleep 2
 

@@ -6,12 +6,15 @@ import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.lttng.flightbox.model.Task.TaskState;
+import org.lttng.flightbox.statistics.BucketSeries;
 import org.lttng.flightbox.statistics.ResourceUsage;
 import org.swtchart.Chart;
 import org.swtchart.IAxis;
+import org.swtchart.ILegend;
 import org.swtchart.ILineSeries;
 import org.swtchart.ILineSeries.PlotSymbolType;
 import org.swtchart.IPlotArea;
@@ -57,6 +60,8 @@ public class CpuUsageChart extends Composite {
 		chart.getTitle().setText("CPU Usage according to time");
 		chart.getAxisSet().getXAxis(0).getTitle().setText("Time");
 		chart.getAxisSet().getYAxis(0).getTitle().setText("CPU Usage");
+		ILegend legend = chart.getLegend();
+		legend.setVisible(false);
 		
 		Listener listener = new Listener() {
 
@@ -112,6 +117,11 @@ public class CpuUsageChart extends Composite {
 		resetHighlight();
 	}
 	
+
+	public ResourceUsage<Long> getStats() {
+		return this.stats;
+	}
+	
 	public void updateData() {
 		// clear the chart
 		ISeriesSet set = chart.getSeriesSet();
@@ -120,6 +130,15 @@ public class CpuUsageChart extends Composite {
 		}
 		if (stats != null) {
 			// recompute the chart
+			BucketSeries totalAvg = stats.getTotalAvg();
+			ILineSeries lineSeries = (ILineSeries) chart.getSeriesSet()
+			.createSeries(SeriesType.LINE, "CPU");
+			lineSeries.setSymbolType(PlotSymbolType.NONE);
+			lineSeries.setXSeries(totalAvg.getXSeries());
+			lineSeries.setYSeries(totalAvg.getYSeries(TaskState.USER));
+			lineSeries.setAntialias(SWT.OFF);
+			lineSeries.setLineColor(Display.getCurrent().getSystemColor(SWT.COLOR_BLUE));
+			/*
 			for(int i=0; i<stats.getNumEntry(); i++) {
 				double[] dataX = stats.getXSeries(new Long(i));
 				double[] dataY = stats.getYSeries(new Long(i), TaskState.USER);
@@ -129,8 +148,9 @@ public class CpuUsageChart extends Composite {
 				lineSeries.setXSeries(dataX);
 				lineSeries.setYSeries(dataY);
 				lineSeries.setAntialias(SWT.ON);
-				//lineSeries.setLineColor(color);
+				
 			}
+			*/
 		}
 		// adjust the axis range
 		chart.getAxisSet().adjustRange();
@@ -146,6 +166,20 @@ public class CpuUsageChart extends Composite {
 
 	public void resetHighlight() {
 		highlighter.setPixelInterval(0, 0);
+	}
+
+
+	public void setProcessSeries(double[] x, double[] y) {
+		if (x == null || y == null)
+			return;
+		ILineSeries lineSeries = (ILineSeries) chart.getSeriesSet()
+		.createSeries(SeriesType.LINE, "Selection");
+		lineSeries.setSymbolType(PlotSymbolType.NONE);
+		lineSeries.setXSeries(x);
+		lineSeries.setYSeries(y);
+		lineSeries.setAntialias(SWT.OFF);
+		lineSeries.setLineColor(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+		chart.redraw();
 	}
 
 }

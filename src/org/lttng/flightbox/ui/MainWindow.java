@@ -178,6 +178,7 @@ public class MainWindow {
 		}
 
 		cpuStats = cpuHandler.getUsageStats();
+		
 		ResourceUsage<Long> procStats = procHandler.getUsageStats();
         TreeMap<Long, Task> procInfo = procHandler.getProcInfo();
 
