@@ -143,7 +143,7 @@ public class TestTaskGraph {
 
 		ModelBuilder.buildFromTrace(tracePath, model);
 
-		TreeSet<Task> taskSet = model.getTaskByCmdBasename("rpc-hog-100ms");
+		TreeSet<Task> taskSet = model.getTaskByCmdBasename("clihog");
 		Graph<Task, DefaultEdge> graph = GraphBuilder.build(taskSet.first(), model);
 		GraphBuilder.printGraph(graph);
 		
