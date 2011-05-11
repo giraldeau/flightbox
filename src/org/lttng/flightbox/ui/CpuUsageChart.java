@@ -1,16 +1,20 @@
 package org.lttng.flightbox.ui;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.lttng.flightbox.model.Task.TaskState;
 import org.lttng.flightbox.statistics.ResourceUsage;
-import org.lttng.flightbox.ui.ChartHighlighter.TimeInterval;
 import org.swtchart.Chart;
+import org.swtchart.IAxis;
 import org.swtchart.ILineSeries;
 import org.swtchart.ILineSeries.PlotSymbolType;
+import org.swtchart.IPlotArea;
 import org.swtchart.ISeries;
 import org.swtchart.ISeries.SeriesType;
 import org.swtchart.ISeriesSet;
@@ -30,7 +34,24 @@ public class CpuUsageChart extends Composite {
 		this.setLayout(new FillLayout());
 		
 		chart = new Chart(this, SWT.NONE);
-		highlighter = new ChartHighlighter(chart, SWT.NONE);
+		IPlotArea plotArea = (IPlotArea) chart.getPlotArea();
+		highlighter = new ChartHighlighter();
+		plotArea.addCustomPaintListener(highlighter);
+		chart.addControlListener(new ControlListener() {
+
+			@Override
+			public void controlResized(ControlEvent arg0) {
+				Composite area = chart.getPlotArea();
+				Rectangle bounds = area.getBounds();
+				highlighter.setHeight(bounds.height);
+				highlighter.setWidth(bounds.width);
+			}
+
+			@Override
+			public void controlMoved(ControlEvent arg0) {
+			}
+			
+		});
 		
 		// set titles
 		chart.getTitle().setText("CPU Usage according to time");
@@ -51,7 +72,6 @@ public class CpuUsageChart extends Composite {
 					break;
 				case SWT.MouseMove:
 					if (track) { 
-						//updateAll(e);
 						highlighter.setPixelInterval(down, e.x);
 						chart.redraw();		
 					}
@@ -66,11 +86,13 @@ public class CpuUsageChart extends Composite {
 			public void updateAll(Event e) {
 				highlighter.setPixelInterval(down, e.x);
 				if (processView != null) {
-					TimeInterval interval = highlighter.getInterval();
+					IAxis xAxis = chart.getAxisSet().getXAxis(0);
+					double x1 = xAxis.getDataCoordinate(down);
+					double x2 = xAxis.getDataCoordinate(e.x);
 					if (Math.abs(down - e.x) == 0){
 						processView.resetSumInterval();
 					} else {
-						processView.setSumInterval(interval.t1, interval.t2);
+						processView.setSumInterval(x1, x2);
 					}
 					processView.sortTable();
 				}

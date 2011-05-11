@@ -7,7 +7,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="/usr/share/java/jdom1.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/jaxen.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/swt.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/swt.jar" sourcepath="lib/org.swtchart_0.7.0.v20110128.jar"/>
 	<classpathentry kind="lib" path="lib/libstatehistory-java.jar"/>
 	<classpathentry kind="lib" path="lib/commons-cli-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.core.runtime_3.6.0.v20100505.jar"/>
@@ -20,5 +20,6 @@
 	<classpathentry kind="lib" path="lib/org.eclipse.core.commands_3.6.0.I20100512-1500.jar"/>
 	<classpathentry kind="lib" path="lib/commons-math-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/jgrapht-jdk1.6.jar"/>
+	<classpathentry kind="lib" path="lib/org.swtchart_0.7.0.v20110128.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
