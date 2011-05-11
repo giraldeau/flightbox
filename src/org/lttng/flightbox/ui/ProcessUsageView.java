@@ -152,7 +152,8 @@ public class ProcessUsageView extends Composite {
 		TableItem item = new TableItem(table, SWT.NONE);
 		TableData elem = dataSet.get(index);
 		String cmd = new File(elem.cmd).getName();
-		item.setText(new String[] {elem.pid.toString(), cmd, new Double(elem.time/Bucket.NANO).toString()});
+		String time = String.format("%.3f", elem.time / Bucket.NANO * 1000);
+		item.setText(new String[] {elem.pid.toString(), cmd, time});
 		item.setData(elem);
 	}
 
