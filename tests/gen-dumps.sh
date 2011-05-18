@@ -1,9 +1,7 @@
 #!/bin/sh
 out=textdump
 mkdir -p $out
-for i in $(ls -1d traces/*); do
-    echo "dumping $i"
-    lttv -m textDump -t $i > $out/$(basename $i).dump
-done
 
+max=$(cat /proc/cpuinfo | grep processor| wc -l)
 
+ls -1d traces/* | xargs -n 1 --max-procs=$max -I trace ./dump.sh trace
