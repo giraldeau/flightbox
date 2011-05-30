@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
+import org.eclipse.linuxtools.lttng.jni.common.Jni_C_Pointer;
 import org.lttng.flightbox.model.DiskFile;
 import org.lttng.flightbox.model.FileDescriptor;
 import org.lttng.flightbox.model.Processor;
@@ -43,8 +44,8 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		hooks.add(new TraceHook("net", "socket_connect"));
 		hooks.add(new TraceHook("net", "socket_accept"));
 		hooks.add(new TraceHook("net", "socket_shutdown"));
-		hooks.add(new TraceHook("net", "dev_xmit_extended"));
-		hooks.add(new TraceHook("net", "tcpv4_rcv_extended"));
+		hooks.add(new TraceHook("net", "socket_connect_inet"));
+		hooks.add(new TraceHook("net", "socket_accept_inet"));
 		hooks.add(new TraceHook("fs", "exec"));
 		hooks.add(new TraceHook("fs", "open"));
 		hooks.add(new TraceHook("fs", "read"));
@@ -98,8 +99,26 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		state.setEndTime(eventTs);
 		state.setRetCode(syscallRet.intValue());
 
+		mergeSocketInfo(state);
+		
 		currentTask.popState();
+	}
 
+	private void mergeSocketInfo(SyscallInfo state) {
+		if (state.getField(Field.SOCKET) == null)
+			return;
+		
+		SocketInet sock = (SocketInet) state.getField(Field.SOCKET);
+		if (!sock.isSet()) {
+			if (state.getField(Field.DST_ADDR) != null)
+				sock.setDstAddr((Long)state.getField(Field.DST_ADDR));
+			if (state.getField(Field.SRC_ADDR) != null)
+				sock.setSrcAddr((Long)state.getField(Field.SRC_ADDR));
+			if (state.getField(Field.DST_PORT) != null)
+				sock.setDstPort((Integer)state.getField(Field.DST_PORT));
+			if (state.getField(Field.SRC_PORT) != null)
+				sock.setSrcPort((Integer)state.getField(Field.SRC_PORT));
+		}
 	}
 
 	public void handle_kernel_irq_entry(TraceReader reader, JniEvent event) {
@@ -316,21 +335,22 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		Long type = (Long) event.parseFieldByName("type");
 		Long protocol = (Long) event.parseFieldByName("protocol");
 		Long ret = (Long) event.parseFieldByName("ret");
-		/* does sock attribute useful at all? */
-		//Long protocol = (Long) event.parseFieldByName("sock");
-
+		Jni_C_Pointer pointer = (Jni_C_Pointer) event.parseFieldByName("sock");
+		
 		if (ret < 0)
 			return;
 
-		SocketInet s = new SocketInet();
-		s.setFd(ret.intValue());
-		s.setOwner(currentTask);
-		s.setFamily(family.intValue());
-		s.setType(type.intValue());
-		s.setProtocol(protocol.intValue());
-		s.setStartTime(eventTs);
-		currentTask.addFileDescriptor(s);
-
+		if (family == SocketInet.AF_INET) {
+			SocketInet s = new SocketInet();
+			s.setFd(ret.intValue());
+			s.setOwner(currentTask);
+			s.setFamily(family.intValue());
+			s.setType(type.intValue());
+			s.setProtocol(protocol.intValue());
+			s.setPointer(pointer.getPointer());
+			s.setStartTime(eventTs);
+			currentTask.addFileDescriptor(s);
+		}
 	}
 
 	public void handle_net_socket_bind(TraceReader reader, JniEvent event) {
@@ -345,11 +365,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 			return;
 
 		StateInfo state = currentTask.peekState();
-		if (state.getTaskState() != TaskState.SYSCALL)
-			return;
-
-		SyscallInfo info = (SyscallInfo) state;
-		if (info.getField(Field.SRC_ADDR) == null)
+		if (state == null || state.getTaskState() != TaskState.SYSCALL)
 			return;
 
 		Long fd = (Long) event.parseFieldByName("fd");
@@ -360,10 +376,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 
 		SocketInet sock = (SocketInet) file;
 		sock.setOwner(currentTask);
-		sock.setSrcAddr((Long)info.getField(Field.SRC_ADDR));
-		sock.setSrcPort((Integer)info.getField(Field.SRC_PORT));
-		sock.setDstAddr((Long)info.getField(Field.DST_ADDR));
-		sock.setDstPort((Integer)info.getField(Field.DST_PORT));
+		state.setField(Field.SOCKET, sock);
 	}
 
 	public void handle_net_socket_accept(TraceReader reader, JniEvent event) {
@@ -378,38 +391,16 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		if (state == null || state.getTaskState() != TaskState.SYSCALL)
 			return;
 
-		//SyscallInfo info = (SyscallInfo) state;
-		//if (info.getField(Field.SRC_ADDR) == null)
-		//	return;
-
 		Long ret = (Long) event.parseFieldByName("ret");
+		Jni_C_Pointer pointer = (Jni_C_Pointer) event.parseFieldByName("sock");
 
 		SocketInet sock = new SocketInet();
 		sock.setFd(ret.intValue());
+		sock.setPointer(pointer.getPointer());
 		sock.setOwner(currentTask);
-		//s.setFamily(family.intValue());
-		//s.setType(type.intValue());
-		//s.setProtocol(protocol.intValue());
 		sock.setStartTime(eventTs);
-
-		StateInfo info = currentTask.getLastWakeUp();
-		if (info != null ) {
-			if (info != null && info.getField(Field.SRC_ADDR) != null) {
-				if ((Boolean) info.getField(Field.IS_XMIT)) {
-					sock.setSrcAddr((Long)info.getField(Field.SRC_ADDR));
-					sock.setSrcPort((Integer)info.getField(Field.SRC_PORT));
-					sock.setDstAddr((Long)info.getField(Field.DST_ADDR));
-					sock.setDstPort((Integer)info.getField(Field.DST_PORT));
-				} else {
-					sock.setSrcAddr((Long)info.getField(Field.DST_ADDR));
-					sock.setSrcPort((Integer)info.getField(Field.DST_PORT));
-					sock.setDstAddr((Long)info.getField(Field.SRC_ADDR));
-					sock.setDstPort((Integer)info.getField(Field.SRC_PORT));					
-				}
-			}
-		}
-
 		currentTask.addFileDescriptor(sock);
+		state.setField(Field.SOCKET, sock);
 	}
 
 	public void handle_net_socket_shutdown(TraceReader reader, JniEvent event) {
@@ -435,15 +426,15 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 
 	}
 
-	public void handle_net_dev_xmit_extended(TraceReader reader, JniEvent event) {
-		handle_net_common(reader, event, Boolean.TRUE);
+	public void handle_net_socket_connect_inet(TraceReader reader, JniEvent event) {
+		handle_net_common(reader, event);
+	}
+	
+	public void handle_net_socket_accept_inet(TraceReader reader, JniEvent event) {
+		handle_net_common(reader, event);
 	}
 
-	public void handle_net_tcpv4_rcv_extended(TraceReader reader, JniEvent event) {
-		handle_net_common(reader, event, Boolean.FALSE);
-	}
-
-	public void handle_net_common(TraceReader reader, JniEvent event, Boolean isXmit) {
+	public void handle_net_common(TraceReader reader, JniEvent event) {
 		long eventTs = event.getEventTime().getTime();
 		Long cpu = event.getParentTracefile().getCpuNumber();
 		Processor p = model.getProcessors().get(cpu.intValue());
@@ -451,20 +442,19 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		if (currentTask == null)
 			return;
 		StateInfo info = currentTask.peekState();
-		TaskState type = info.getTaskState(); 
-		if (type != TaskState.SOFTIRQ && type != TaskState.SYSCALL)
+		TaskState type = info.getTaskState();
+		if (type != TaskState.SYSCALL)
 			return;
-
+		
 		Long x;
 		x = (Long) event.parseFieldByName("saddr");
 		info.setField(Field.SRC_ADDR, x);
-		x = (Long) event.parseFieldByName("source");
+		x = (Long) event.parseFieldByName("sport");
 		info.setField(Field.SRC_PORT, x.intValue());
 		x = (Long) event.parseFieldByName("daddr");
 		info.setField(Field.DST_ADDR, x);
-		x = (Long) event.parseFieldByName("dest");
+		x = (Long) event.parseFieldByName("dport");
 		info.setField(Field.DST_PORT, x.intValue());
-		info.setField(Field.IS_XMIT, isXmit);
 	}
 	
 	public void handle_fs_open(TraceReader reader, JniEvent event) {

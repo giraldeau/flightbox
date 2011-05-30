@@ -41,7 +41,7 @@ public class TestModelSocket {
 		readerTrace.register(handler);
 		readerTrace.process();
 
-		// the latest netcat is the client
+		// the last netcat is the client
 		TreeSet<Task> tasks = model.getTaskByCmd("netcat", true);
 		assertEquals(2, tasks.size());
 

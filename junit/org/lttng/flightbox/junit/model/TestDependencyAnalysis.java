@@ -32,7 +32,7 @@ import org.lttng.flightbox.statistics.ResourceUsage;
 
 public class TestDependencyAnalysis {
 
-	//@Test
+	@Test
 	public void testNanosleep() throws JniException {
 		String tracePath = new File(Path.getTraceDir(), "sleep-1x-1sec").getPath();
 		SystemModel model = new SystemModel();
@@ -53,7 +53,7 @@ public class TestDependencyAnalysis {
 		assertEquals(1000000000.0, duration, 10000000.0);
 	}
 
-	//@Test
+	@Test
 	public void testInception() throws JniException {
 		String trace = "inception-3x-100ms";
 		File file = new File(Path.getTraceDir(), trace);
@@ -102,7 +102,7 @@ public class TestDependencyAnalysis {
 		assertEquals(waitPid.getDuration(), 600000000, p);
 	}
 
-	//@Test
+	@Test
 	public void testRcpHog() throws JniException {
 		String trace = "rpc-sleep-100ms";
 		File file = new File(Path.getTraceDir(), trace);
@@ -147,7 +147,7 @@ public class TestDependencyAnalysis {
 		assertEquals(9876, sock.getDstPort());
 	}
 
-	//@Test
+	@Test
 	public void testFDWaitingStats() throws JniException {
 		String trace = "ioburst-512";
 		File file = new File(Path.getTraceDir(), trace);

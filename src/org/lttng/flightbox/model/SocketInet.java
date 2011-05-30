@@ -78,6 +78,7 @@ public class SocketInet extends FileDescriptor {
 	private int dstPort;
 	private int protocol;
 	private boolean isXmit;
+	private long pointer;
 
 	public int getType() {
 		return type;
@@ -187,6 +188,12 @@ public class SocketInet extends FileDescriptor {
 			(byte)(value >>> 16),
 			(byte)(value >>> 8),
 			(byte)(value) };
+	}
+	public void setPointer(long pointer) {
+		this.pointer = pointer;
+	}
+	public long getPointer() {
+		return pointer;
 	}
 
 }

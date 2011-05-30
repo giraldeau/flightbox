@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.lttng.flightbox.model.FileDescriptor;
 import org.lttng.flightbox.model.SocketInet;
 import org.lttng.flightbox.model.SymbolTable;
 import org.lttng.flightbox.model.SystemModel;
@@ -75,6 +76,9 @@ public class BlockingItem implements Comparable<BlockingItem> {
 	}
 
 	public Task getSubTask(SystemModel model) {
+		/* FIXME: must have all system call somewhere */
+		int SYS_READ = 3;
+		
 		if (wakeUp == null) {
 			return null;
 		}
@@ -87,37 +91,37 @@ public class BlockingItem implements Comparable<BlockingItem> {
 			 * socket info either in softirq or syscall
 			 * get the task associated with this socket
 			 */
-			SocketInet srvSocket = new SocketInet();
-			if (wakeUp.getField(Field.SRC_ADDR) != null) {
-				copySocketInfo(wakeUp, srvSocket);
-			} else if (waitingSyscall.getField(Field.SRC_ADDR) != null) {
-				copySocketInfo(waitingSyscall, srvSocket);
-			}
-			if (srvSocket.isSet()) {
-				HashMap<Integer, TreeSet<Task>> tasks = model.getTasks();
-				for (Integer pid: tasks.keySet()) {
-					Task task = tasks.get(pid).last();
-					if (task.matchSocket(srvSocket)) {
-						return task;
-					}
+
+			if (waitingSyscall.getSyscallId() == SYS_READ) {
+				FileDescriptor fd = waitingSyscall.getFileDescriptor();
+				if (fd instanceof SocketInet) {
+					SocketInet sock = (SocketInet) fd;
+					return findConnectedTask(model, sock);
 				}
 			}
 		}
 		return null;
 	}
 	
-	private void copySocketInfo(StateInfo info, SocketInet sock) {
-		if ((Boolean)info.getField(Field.IS_XMIT)) {
-			sock.setSrcAddr((Long) info.getField(Field.SRC_ADDR));
-			sock.setDstAddr((Long) info.getField(Field.DST_ADDR));
-			sock.setSrcPort((Integer) info.getField(Field.SRC_PORT));
-			sock.setDstPort((Integer) info.getField(Field.DST_PORT));
-		} else {
-			sock.setSrcAddr((Long) info.getField(Field.DST_ADDR));
-			sock.setDstAddr((Long) info.getField(Field.SRC_ADDR));
-			sock.setSrcPort((Integer) info.getField(Field.DST_PORT));
-			sock.setDstPort((Integer) info.getField(Field.SRC_PORT));			
+	private Task findConnectedTask(SystemModel model, SocketInet sock) {
+		Task found = null;
+		if (sock.isSet()) {
+			HashMap<Integer, TreeSet<Task>> tasks = model.getTasks();
+			for (Integer pid: tasks.keySet()) {
+				Task task = tasks.get(pid).last();
+				if (task.matchSocket(sock)) {
+					found = task;
+					break;
+				}
+			}
 		}
+		return found;
+	}
+	private void copySocketInfo(StateInfo info, SocketInet sock) {
+		sock.setSrcAddr((Long) info.getField(Field.SRC_ADDR));
+		sock.setDstAddr((Long) info.getField(Field.DST_ADDR));
+		sock.setSrcPort((Integer) info.getField(Field.SRC_PORT));
+		sock.setDstPort((Integer) info.getField(Field.DST_PORT));
 	}
 	
 	public void populateSubBlocking(BlockingModel blockingModel, TreeSet<BlockingItem> subBlock, Task subTask) {
@@ -126,9 +130,9 @@ public class BlockingItem implements Comparable<BlockingItem> {
 		}
 		TreeSet<BlockingItem> items = blockingModel.getBlockingItemsForTask(subTask);
 		BlockingItem fromElement = new BlockingItem();
-		fromElement.setStartTime(startTime);
+		fromElement.setStartTime(waitingSyscall.getStartTime());
 		BlockingItem toElement = new BlockingItem();
-		toElement.setStartTime(endTime);
+		toElement.setStartTime(waitingSyscall.getEndTime());
 		SortedSet<BlockingItem> subSet = items.subSet(fromElement, toElement);
 		subBlock.addAll(subSet);
 	}
@@ -150,4 +154,7 @@ public class BlockingItem implements Comparable<BlockingItem> {
 		return wakeUpTask;
 	}
 	
+	public String toString() {
+		return waitingSyscall.toString() + " " + startTime + " " + endTime + " (" + getDuration() + ")";
+	}
 }
