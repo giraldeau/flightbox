@@ -2,7 +2,9 @@ package org.lttng.flightbox.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
 import org.lttng.flightbox.dep.BlockingModel;
@@ -205,4 +207,34 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 		return blockingModel;
 	}
 
+	public Set<Task> findConnectedTask(Task task) {
+		HashSet<Task> found = new HashSet<Task>();
+		for (Set<FileDescriptor> fds: task.getFileDescriptors().values()) {
+			for (FileDescriptor fd: fds) {
+				if (fd instanceof SocketInet) {
+					SocketInet sock = (SocketInet) fd;
+					Task t = findTaskByComplementSocket(sock);
+					if (t != null)
+						found.add(t);
+				}
+			}
+		}
+		return found;
+	}
+
+	public Task findTaskByComplementSocket(SocketInet sock) {
+		Task found = null;
+		if (sock.isSet()) {
+			HashMap<Integer, TreeSet<Task>> tasks = getTasks();
+			for (Integer pid: tasks.keySet()) {
+				Task task = tasks.get(pid).last();
+				if (task.matchSocket(sock)) {
+					found = task;
+					break;
+				}
+			}
+		}
+		return found;
+	}
+	
 }

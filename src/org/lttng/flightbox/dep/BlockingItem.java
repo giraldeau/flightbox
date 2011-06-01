@@ -96,32 +96,11 @@ public class BlockingItem implements Comparable<BlockingItem> {
 				FileDescriptor fd = waitingSyscall.getFileDescriptor();
 				if (fd instanceof SocketInet) {
 					SocketInet sock = (SocketInet) fd;
-					return findConnectedTask(model, sock);
+					return model.findTaskByComplementSocket(sock);
 				}
 			}
 		}
 		return null;
-	}
-	
-	private Task findConnectedTask(SystemModel model, SocketInet sock) {
-		Task found = null;
-		if (sock.isSet()) {
-			HashMap<Integer, TreeSet<Task>> tasks = model.getTasks();
-			for (Integer pid: tasks.keySet()) {
-				Task task = tasks.get(pid).last();
-				if (task.matchSocket(sock)) {
-					found = task;
-					break;
-				}
-			}
-		}
-		return found;
-	}
-	private void copySocketInfo(StateInfo info, SocketInet sock) {
-		sock.setSrcAddr((Long) info.getField(Field.SRC_ADDR));
-		sock.setDstAddr((Long) info.getField(Field.DST_ADDR));
-		sock.setSrcPort((Integer) info.getField(Field.SRC_PORT));
-		sock.setDstPort((Integer) info.getField(Field.DST_PORT));
 	}
 	
 	public void populateSubBlocking(BlockingModel blockingModel, TreeSet<BlockingItem> subBlock, Task subTask) {
