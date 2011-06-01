@@ -11,6 +11,7 @@ import java.util.TreeSet;
 
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.junit.Test;
+import org.lttng.flightbox.io.ModelBuilder;
 import org.lttng.flightbox.io.TraceEventHandlerModel;
 import org.lttng.flightbox.io.TraceEventHandlerModelMeta;
 import org.lttng.flightbox.io.TraceReader;
@@ -24,29 +25,20 @@ public class TestModelSocket {
 
 	@Test
 	public void testRetreiveSocket() throws JniException {
-		String tracePath = new File(Path.getTraceDir(), "tcp-simple").getPath();
+		String tracePath = new File(Path.getTraceDir(), "rpc-sleep-100ms").getPath();
 		SystemModel model = new SystemModel();
 
-		// read metadata and statedump
-		TraceEventHandlerModelMeta handlerMeta = new TraceEventHandlerModelMeta();
-		handlerMeta.setModel(model);
-		TraceReader readerMeta = new TraceReader(tracePath);
-		readerMeta.register(handlerMeta);
-		readerMeta.process();
-
-		// read all trace events
-		TraceEventHandlerModel handler = new TraceEventHandlerModel();
-		handler.setModel(model);
-		TraceReader readerTrace = new TraceReader(tracePath);
-		readerTrace.register(handler);
-		readerTrace.process();
+		ModelBuilder.buildFromTrace(tracePath, model);
 
 		// the last netcat is the client
-		TreeSet<Task> tasks = model.getTaskByCmd("netcat", true);
-		assertEquals(2, tasks.size());
+		TreeSet<Task> tasksServer = model.getTaskByCmd("srvhog", true);
+		assertEquals(1, tasksServer.size());
 
-		Task server = tasks.first();
-		Task client = tasks.last();
+		TreeSet<Task> tasksClient = model.getTaskByCmd("clihog", true);
+		assertEquals(1, tasksClient.size());
+
+		Task server = tasksServer.first();
+		Task client = tasksClient.first();
 
 		SocketInet clientSocket = findSocket(client);
 		SocketInet serverSocket = findSocket(server);
@@ -54,14 +46,16 @@ public class TestModelSocket {
 		assertNotNull(clientSocket);
 		assertNotNull(serverSocket);
 
-		assertEquals(8765, clientSocket.getDstPort());
-		assertEquals(8765, serverSocket.getSrcPort());
+		assertEquals(9876, clientSocket.getDstPort());
+		assertEquals(9876, serverSocket.getSrcPort());
 		
 		assertTrue(clientSocket.isComplementary(serverSocket));
 
 		assertFalse(clientSocket.isOpen());
 		assertFalse(serverSocket.isOpen());
 
+		assertTrue(clientSocket.isClient());
+		assertFalse(serverSocket.isClient());
 	}
 
 	/** 

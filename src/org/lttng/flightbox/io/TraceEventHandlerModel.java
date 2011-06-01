@@ -118,6 +118,8 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 				sock.setDstPort((Integer)state.getField(Field.DST_PORT));
 			if (state.getField(Field.SRC_PORT) != null)
 				sock.setSrcPort((Integer)state.getField(Field.SRC_PORT));
+			if (state.getField(Field.IS_CLIENT) != null)
+				sock.setClient((Boolean)state.getField(Field.IS_CLIENT));
 		}
 	}
 
@@ -427,14 +429,14 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 	}
 
 	public void handle_net_socket_connect_inet(TraceReader reader, JniEvent event) {
-		handle_net_common(reader, event);
+		handle_net_common(reader, event, true);
 	}
 	
 	public void handle_net_socket_accept_inet(TraceReader reader, JniEvent event) {
-		handle_net_common(reader, event);
+		handle_net_common(reader, event, false);
 	}
 
-	public void handle_net_common(TraceReader reader, JniEvent event) {
+	public void handle_net_common(TraceReader reader, JniEvent event, Boolean isClient) {
 		long eventTs = event.getEventTime().getTime();
 		Long cpu = event.getParentTracefile().getCpuNumber();
 		Processor p = model.getProcessors().get(cpu.intValue());
@@ -455,6 +457,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		info.setField(Field.DST_ADDR, x);
 		x = (Long) event.parseFieldByName("dport");
 		info.setField(Field.DST_PORT, x.intValue());
+		info.setField(Field.IS_CLIENT, isClient);
 	}
 	
 	public void handle_fs_open(TraceReader reader, JniEvent event) {
