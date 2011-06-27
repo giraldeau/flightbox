@@ -1,35 +1,36 @@
 package org.lttng.flightbox.statistics2;
 
-import java.util.ArrayList;
+public class Samples {
 
-public class Samples<X extends Number,Y extends Number> {
-/*
-	X start;
-	X end;
-	X precision;
-	ArrayList<Y> samples;
-	int initialCapacity;
+	long start;
+	long end;
+	double[] samples;
 	
-	public Samples(X start, X end, X precision) {
+	public Samples(long start, long end, int size) {
 		this.start = start;
 		this.end = end;
-		this.precision = precision;
+		samples = new double[size]; 
 	}
 	
-	public Y sum(X x1, X x2) {
-		Y total;
+	public double sum(long x1, long x2) {
+		double total = 0;
 		int i = sampleIndex(x1);
 		int j = sampleIndex(x2);
 		for (int x=i; x<j; x++) {
-			total += samples.get(x);
+			total += samples[x];
 		}
 		return total;
 	}
 	
-	public int sampleIndex(X x) {
-		X duration = end - start;
-		int index = x / duration * samples.size();
+	public int sampleIndex(long x) {
+		if (x < start || x > end)
+			throw new IndexOutOfBoundsException();
+		if (x == start)
+			return 0;
+		if (x == end)
+			return samples.length - 1;
+		long duration = end - start;
+		int index = (int) ((x * samples.length) / duration) - 1;
 		return index;
 	}
-	*/
 }
