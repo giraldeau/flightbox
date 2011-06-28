@@ -77,7 +77,7 @@ public class SocketInet extends FileDescriptor {
 	private int srcPort;
 	private int dstPort;
 	private int protocol;
-	private boolean isXmit;
+	private boolean isClient;
 	private long pointer;
 
 	public int getType() {
@@ -167,11 +167,11 @@ public class SocketInet extends FileDescriptor {
 	public String toString() {
 		return "[socket " + srcAddr + ":" + srcPort + "->" + dstAddr + ":" + dstPort + "]";
 	}
-	public void setXmit(boolean isXmit) {
-		this.isXmit = isXmit;
+	public void setClient(boolean isXmit) {
+		this.isClient = isXmit;
 	}
-	public boolean isXmit() {
-		return isXmit;
+	public boolean isClient() {
+		return isClient;
 	}
 	public static String formatIPv4(long addr) {
 		StringBuilder str = new StringBuilder();

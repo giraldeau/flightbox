@@ -13,7 +13,7 @@ public abstract class StateInfo {
 		PREV_PID, NEXT_PID, PARENT_PID, CHILD_PID,
 		PID, TGID, CHILD_TGID, FILENAME, IP, FD,
 		STATE, CPU_ID, SRC_ADDR, SRC_PORT, DST_ADDR, DST_PORT,
-		SOCKET
+		SOCKET, IS_CLIENT
 	}
 
 	private Task task;
