@@ -1,0 +1,816 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inventory>
+  <channel name="kernel">
+    <event name="kthread_create">
+      <field name="fn" type="Long" />
+      <field name="pid" type="Long" />
+    </event>
+    <event name="kthread_stop_ret">
+      <field name="ret" type="Long" />
+    </event>
+    <event name="vprintk">
+      <field name="loglevel" type="Long" />
+      <field name="string" type="String" />
+      <field name="ip" type="Long" />
+    </event>
+    <event name="page_fault_nosem_entry">
+      <field name="ip" type="Long" />
+      <field name="address" type="Long" />
+      <field name="trap_id" type="Long" />
+    </event>
+    <event name="process_free">
+      <field name="pid" type="Long" />
+    </event>
+    <event name="sched_wait_task">
+      <field name="pid" type="Long" />
+      <field name="state" type="Long" />
+    </event>
+    <event name="tasklet_low_exit">
+      <field name="func" type="Long" />
+      <field name="data" type="Long" />
+    </event>
+    <event name="crash_kexec">
+      <field name="image" type="Long" />
+      <field name="ip" type="Long" />
+    </event>
+    <event name="timer_itimer_set">
+      <field name="which" type="Long" />
+      <field name="interval_sec" type="Long" />
+      <field name="interval_usec" type="Long" />
+      <field name="value_sec" type="Long" />
+      <field name="value_usec" type="Long" />
+    </event>
+    <event name="timer_set">
+      <field name="expires" type="Long" />
+      <field name="function" type="Long" />
+      <field name="data" type="Long" />
+    </event>
+    <event name="process_exit">
+      <field name="pid" type="Long" />
+    </event>
+    <event name="timer_update_time">
+      <field name="jiffies" type="Long" />
+      <field name="xtime_sec" type="Long" />
+      <field name="xtime_nsec" type="Long" />
+      <field name="walltomonotonic_sec" type="Long" />
+      <field name="walltomonotonic_nsec" type="Long" />
+    </event>
+    <event name="tasklet_high_entry">
+      <field name="func" type="Long" />
+      <field name="data" type="Long" />
+    </event>
+    <event name="send_signal">
+      <field name="pid" type="Long" />
+      <field name="signal" type="Long" />
+    </event>
+    <event name="panic">
+      <field name="info" type="String" />
+    </event>
+    <event name="page_fault_exit">
+      <field name="res" type="Long" />
+    </event>
+    <event name="kthread_stop">
+      <field name="pid" type="Long" />
+    </event>
+    <event name="irq_next_handler">
+      <field name="handler" type="Long" />
+      <field name="prev_ret" type="Long" />
+    </event>
+    <event name="page_fault_entry">
+      <field name="ip" type="Long" />
+      <field name="address" type="Long" />
+      <field name="trap_id" type="Long" />
+      <field name="write_access" type="Long" />
+    </event>
+    <event name="module_free">
+      <field name="name" type="String" />
+    </event>
+    <event name="irq_entry">
+      <field name="ip" type="Long" />
+      <field name="handler" type="Long" />
+      <field name="irq_id" type="Long" />
+      <field name="kernel_mode" type="Long" />
+    </event>
+    <event name="printk">
+      <field name="ip" type="Long" />
+    </event>
+    <event name="timer_itimer_expired">
+      <field name="pid" type="Long" />
+    </event>
+    <event name="page_fault_get_user_entry">
+      <field name="address" type="Long" />
+      <field name="write_access" type="Long" />
+    </event>
+    <event name="kernel_kexec">
+      <field name="image" type="Long" />
+    </event>
+    <event name="process_wait">
+      <field name="pid" type="Long" />
+    </event>
+    <event name="tasklet_low_entry">
+      <field name="func" type="Long" />
+      <field name="data" type="Long" />
+    </event>
+    <event name="timer_timeout">
+      <field name="pid" type="Long" />
+    </event>
+    <event name="softirq_raise">
+      <field name="softirq_id" type="Long" />
+    </event>
+    <event name="page_fault_get_user_exit">
+      <field name="res" type="Long" />
+    </event>
+    <event name="syscall_exit">
+      <field name="ret" type="Long" />
+    </event>
+    <event name="syscall_entry">
+      <field name="ip" type="Long" />
+      <field name="syscall_id" type="Long" />
+    </event>
+    <event name="tasklet_high_exit">
+      <field name="func" type="Long" />
+      <field name="data" type="Long" />
+    </event>
+    <event name="sched_wakeup_new_task">
+      <field name="pid" type="Long" />
+      <field name="state" type="Long" />
+      <field name="cpu_id" type="Long" />
+    </event>
+    <event name="trap_entry">
+      <field name="ip" type="Long" />
+      <field name="trap_id" type="Long" />
+    </event>
+    <event name="process_fork">
+      <field name="parent_pid" type="Long" />
+      <field name="child_pid" type="Long" />
+      <field name="child_tgid" type="Long" />
+    </event>
+    <event name="sched_try_wakeup">
+      <field name="pid" type="Long" />
+      <field name="cpu_id" type="Long" />
+      <field name="state" type="Long" />
+    </event>
+    <event name="softirq_entry">
+      <field name="softirq_id" type="Long" />
+    </event>
+    <event name="sched_migrate_task">
+      <field name="pid" type="Long" />
+      <field name="state" type="Long" />
+      <field name="dest_cpu" type="Long" />
+    </event>
+    <event name="module_load">
+      <field name="name" type="String" />
+    </event>
+    <event name="softirq_exit">
+      <field name="softirq_id" type="Long" />
+    </event>
+    <event name="irq_exit">
+      <field name="handled" type="Long" />
+    </event>
+    <event name="sched_schedule">
+      <field name="prev_pid" type="Long" />
+      <field name="next_pid" type="Long" />
+      <field name="prev_state" type="Long" />
+    </event>
+    <event name="kprobe">
+      <field name="ip" type="Long" />
+    </event>
+  </channel>
+  <channel name="fs">
+    <event name="open">
+      <field name="fd" type="Long" />
+      <field name="filename" type="String" />
+    </event>
+    <event name="exec">
+      <field name="filename" type="String" />
+    </event>
+    <event name="writev">
+      <field name="fd" type="Long" />
+      <field name="vlen" type="Long" />
+    </event>
+    <event name="llseek">
+      <field name="fd" type="Long" />
+      <field name="offset" type="Long" />
+      <field name="origin" type="Long" />
+    </event>
+    <event name="read">
+      <field name="count" type="Long" />
+      <field name="fd" type="Long" />
+    </event>
+    <event name="buffer_wait_start">
+      <field name="bh" type="Long" />
+    </event>
+    <event name="buffer_wait_end">
+      <field name="bh" type="Long" />
+    </event>
+    <event name="ioctl">
+      <field name="fd" type="Long" />
+      <field name="cmd" type="Long" />
+      <field name="arg" type="Long" />
+    </event>
+    <event name="pread64">
+      <field name="fd" type="Long" />
+      <field name="count" type="Long" />
+      <field name="pos" type="Long" />
+    </event>
+    <event name="readv">
+      <field name="fd" type="Long" />
+      <field name="vlen" type="Long" />
+    </event>
+    <event name="pipe">
+      <field name="readfd" type="Long" />
+      <field name="writefd" type="Long" />
+    </event>
+    <event name="pollfd">
+      <field name="fd" type="Long" />
+    </event>
+    <event name="write">
+      <field name="count" type="Long" />
+      <field name="fd" type="Long" />
+    </event>
+    <event name="select">
+      <field name="fd" type="Long" />
+      <field name="end_time_sec" type="Long" />
+      <field name="end_time_nsec" type="Long" />
+    </event>
+    <event name="lseek">
+      <field name="fd" type="Long" />
+      <field name="offset" type="Long" />
+      <field name="origin" type="Long" />
+    </event>
+    <event name="pwrite64">
+      <field name="fd" type="Long" />
+      <field name="count" type="Long" />
+      <field name="pos" type="Long" />
+    </event>
+    <event name="close">
+      <field name="fd" type="Long" />
+    </event>
+    <event name="dup">
+      <field name="oldfd" type="Long" />
+      <field name="newfd" type="Long" />
+    </event>
+  </channel>
+  <channel name="ipc">
+    <event name="msg_create">
+      <field name="id" type="Long" />
+      <field name="flags" type="Long" />
+    </event>
+    <event name="shm_create">
+      <field name="id" type="Long" />
+      <field name="flags" type="Long" />
+    </event>
+    <event name="call">
+      <field name="call" type="Long" />
+      <field name="first" type="Long" />
+    </event>
+    <event name="sem_create">
+      <field name="id" type="Long" />
+      <field name="flags" type="Long" />
+    </event>
+  </channel>
+  <channel name="net">
+    <event name="dev_receive">
+      <field name="skb" type="Long" />
+      <field name="protocol" type="Long" />
+    </event>
+    <event name="socket_bind_inet">
+      <field name="addr" type="Long" />
+      <field name="port" type="Long" />
+    </event>
+    <event name="udpv4_rcv">
+      <field name="skb" type="Long" />
+    </event>
+    <event name="socket_call">
+      <field name="call" type="Long" />
+      <field name="a0" type="Long" />
+    </event>
+    <event name="socket_getpeername">
+      <field name="fd" type="Long" />
+      <field name="usockaddr" type="Long" />
+      <field name="usockaddr_len" type="Long" />
+      <field name="ret" type="Long" />
+    </event>
+    <event name="socket_setsockopt">
+      <field name="fd" type="Long" />
+      <field name="level" type="Long" />
+      <field name="optname" type="Long" />
+      <field name="optval" type="Long" />
+      <field name="optlen" type="Long" />
+      <field name="ret" type="Long" />
+    </event>
+    <event name="dev_xmit">
+      <field name="skb" type="Long" />
+      <field name="protocol" type="Long" />
+    </event>
+    <event name="napi_complete">
+      <field name="napi_struct" type="Long" />
+      <field name="name" type="String" />
+    </event>
+    <event name="socket_connect">
+      <field name="fd" type="Long" />
+      <field name="uservaddr" type="Long" />
+      <field name="addrlen" type="Long" />
+      <field name="ret" type="Long" />
+      <field name="sock" type="Long" />
+    </event>
+    <event name="socket_shutdown">
+      <field name="fd" type="Long" />
+      <field name="how" type="Long" />
+      <field name="ret" type="Long" />
+    </event>
+    <event name="tcpv4_rcv">
+      <field name="skb" type="Long" />
+    </event>
+    <event name="socket_create">
+      <field name="family" type="Long" />
+      <field name="type" type="Long" />
+      <field name="protocol" type="Long" />
+      <field name="sock" type="Long" />
+      <field name="ret" type="Long" />
+    </event>
+    <event name="socket_getsockopt">
+      <field name="fd" type="Long" />
+      <field name="level" type="Long" />
+      <field name="optname" type="Long" />
+      <field name="optval" type="Long" />
+      <field name="optlen" type="Long" />
+      <field name="ret" type="Long" />
+    </event>
+    <event name="socket_sendmsg">
+      <field name="sock" type="Long" />
+      <field name="msg" type="Long" />
+      <field name="size" type="Long" />
+      <field name="ret" type="Long" />
+    </event>
+    <event name="socket_connect_inet">
+      <field name="daddr" type="Long" />
+      <field name="saddr" type="Long" />
+      <field name="dport" type="Long" />
+      <field name="sport" type="Long" />
+    </event>
+    <event name="napi_poll">
+      <field name="napi_struct" type="Long" />
+      <field name="name" type="String" />
+    </event>
+    <event name="tcpv4_rcv_extended">
+      <field name="skb" type="Long" />
+      <field name="saddr" type="Long" />
+      <field name="daddr" type="Long" />
+      <field name="tot_len" type="Long" />
+      <field name="ihl" type="Long" />
+      <field name="source" type="Long" />
+      <field name="dest" type="Long" />
+      <field name="seq" type="Long" />
+      <field name="ack_seq" type="Long" />
+      <field name="doff" type="Long" />
+      <field name="ack" type="Long" />
+      <field name="rst" type="Long" />
+      <field name="syn" type="Long" />
+      <field name="fin" type="Long" />
+    </event>
+    <event name="napi_schedule">
+      <field name="napi_struct" type="Long" />
+      <field name="name" type="String" />
+    </event>
+    <event name="socket_socketpair">
+      <field name="family" type="Long" />
+      <field name="type" type="Long" />
+      <field name="protocol" type="Long" />
+      <field name="usockvec" type="Long" />
+      <field name="ret" type="Long" />
+    </event>
+    <event name="socket_getsockname">
+      <field name="fd" type="Long" />
+      <field name="usockaddr" type="Long" />
+      <field name="usockaddr_len" type="Long" />
+      <field name="ret" type="Long" />
+    </event>
+    <event name="socket_recvmsg">
+      <field name="sock" type="Long" />
+      <field name="msg" type="Long" />
+      <field name="size" type="Long" />
+      <field name="flags" type="Long" />
+      <field name="ret" type="Long" />
+    </event>
+    <event name="udpv4_rcv_extended">
+      <field name="skb" type="Long" />
+      <field name="saddr" type="Long" />
+      <field name="daddr" type="Long" />
+      <field name="unicast" type="Long" />
+      <field name="ulen" type="Long" />
+      <field name="source" type="Long" />
+      <field name="dest" type="Long" />
+      <field name="data_start" type="Long" />
+    </event>
+    <event name="socket_accept_inet">
+      <field name="daddr" type="Long" />
+      <field name="saddr" type="Long" />
+      <field name="dport" type="Long" />
+      <field name="sport" type="Long" />
+    </event>
+    <event name="dev_xmit_extended">
+      <field name="skb" type="Long" />
+      <field name="network_protocol" type="Long" />
+      <field name="transport_protocol" type="Long" />
+      <field name="saddr" type="Long" />
+      <field name="daddr" type="Long" />
+      <field name="tot_len" type="Long" />
+      <field name="ihl" type="Long" />
+      <field name="source" type="Long" />
+      <field name="dest" type="Long" />
+      <field name="seq" type="Long" />
+      <field name="ack_seq" type="Long" />
+      <field name="doff" type="Long" />
+      <field name="ack" type="Long" />
+      <field name="rst" type="Long" />
+      <field name="syn" type="Long" />
+      <field name="fin" type="Long" />
+    </event>
+    <event name="socket_bind">
+      <field name="fd" type="Long" />
+      <field name="umyaddr" type="Long" />
+      <field name="addrlen" type="Long" />
+      <field name="ret" type="Long" />
+    </event>
+    <event name="socket_accept">
+      <field name="fd" type="Long" />
+      <field name="upeer_sockaddr" type="Long" />
+      <field name="upeer_addrlen" type="Long" />
+      <field name="flags" type="Long" />
+      <field name="ret" type="Long" />
+      <field name="sock" type="Long" />
+    </event>
+    <event name="socket_listen">
+      <field name="fd" type="Long" />
+      <field name="backlog" type="Long" />
+      <field name="ret" type="Long" />
+    </event>
+  </channel>
+  <channel name="mm">
+    <event name="swap_out">
+      <field name="pfn" type="Long" />
+      <field name="filp" type="Long" />
+      <field name="offset" type="Long" />
+    </event>
+    <event name="huge_page_alloc">
+      <field name="pfn" type="Long" />
+    </event>
+    <event name="wait_on_page_end">
+      <field name="pfn" type="Long" />
+      <field name="bit_nr" type="Long" />
+    </event>
+    <event name="wait_on_page_start">
+      <field name="pfn" type="Long" />
+      <field name="bit_nr" type="Long" />
+    </event>
+    <event name="swap_file_close">
+      <field name="filp" type="Long" />
+    </event>
+    <event name="swap_file_open">
+      <field name="filp" type="Long" />
+      <field name="filename" type="String" />
+    </event>
+    <event name="page_alloc">
+      <field name="pfn" type="Long" />
+      <field name="order" type="Long" />
+    </event>
+    <event name="add_to_page_cache">
+      <field name="inode" type="Long" />
+      <field name="sdev" type="Long" />
+    </event>
+    <event name="remove_from_page_cache">
+      <field name="inode" type="Long" />
+      <field name="sdev" type="Long" />
+    </event>
+    <event name="page_free">
+      <field name="pfn" type="Long" />
+      <field name="order" type="Long" />
+    </event>
+    <event name="huge_page_free">
+      <field name="pfn" type="Long" />
+    </event>
+    <event name="swap_in">
+      <field name="pfn" type="Long" />
+      <field name="filp" type="Long" />
+      <field name="offset" type="Long" />
+    </event>
+  </channel>
+  <channel name="block">
+    <event name="getrq_bio">
+      <field name="sector" type="Long" />
+      <field name="size" type="Long" />
+      <field name="rw(FAILFAST_DRIVER,FAILFAST_TRANSPORT,FAILFAST_DEV,DISCARD,META,SYNC,BARRIER,AHEAD,RW)" type="Long" />
+      <field name="not_uptodate" type="Long" />
+    </event>
+    <event name="rq_insert_pc">
+      <field name="data_len" type="Long" />
+      <field name="rw" type="Long" />
+      <field name="errors" type="Long" />
+    </event>
+    <event name="rq_complete_pc">
+      <field name="data_len" type="Long" />
+      <field name="rw" type="Long" />
+      <field name="errors" type="Long" />
+    </event>
+    <event name="rq_issue_pc">
+      <field name="data_len" type="Long" />
+      <field name="rw" type="Long" />
+      <field name="errors" type="Long" />
+    </event>
+    <event name="rq_requeue_pc">
+      <field name="data_len" type="Long" />
+      <field name="rw" type="Long" />
+      <field name="errors" type="Long" />
+    </event>
+    <event name="bio_complete">
+      <field name="sector" type="Long" />
+      <field name="size" type="Long" />
+      <field name="rw(FAILFAST_DRIVER,FAILFAST_TRANSPORT,FAILFAST_DEV,DISCARD,META,SYNC,BARRIER,AHEAD,RW)" type="Long" />
+      <field name="not_uptodate" type="Long" />
+      <field name="error" type="Long" />
+    </event>
+    <event name="rq_insert_fs">
+      <field name="hard_sector" type="Long" />
+      <field name="rw" type="Long" />
+      <field name="errors" type="Long" />
+    </event>
+    <event name="bio_frontmerge">
+      <field name="sector" type="Long" />
+      <field name="size" type="Long" />
+      <field name="rw(FAILFAST_DRIVER,FAILFAST_TRANSPORT,FAILFAST_DEV,DISCARD,META,SYNC,BARRIER,AHEAD,RW)" type="Long" />
+      <field name="not_uptodate" type="Long" />
+    </event>
+    <event name="rq_remap">
+      <field name="device_from" type="Long" />
+      <field name="sector_from" type="Long" />
+      <field name="nr_sector" type="Long" />
+      <field name="device_to" type="Long" />
+      <field name="sector_to" type="Long" />
+      <field name="size" type="Long" />
+    </event>
+    <event name="split">
+      <field name="sector" type="Long" />
+      <field name="size" type="Long" />
+      <field name="rw(FAILFAST_DRIVER,FAILFAST_TRANSPORT,FAILFAST_DEV,DISCARD,META,SYNC,BARRIER,AHEAD,RW)" type="Long" />
+      <field name="not_uptodate" type="Long" />
+      <field name="pdu" type="Long" />
+    </event>
+    <event name="rq_abort_pc">
+      <field name="data_len" type="Long" />
+      <field name="rw" type="Long" />
+      <field name="errors" type="Long" />
+    </event>
+    <event name="bio_remap">
+      <field name="device_from" type="Long" />
+      <field name="sector_from" type="Long" />
+      <field name="nr_sector" type="Long" />
+      <field name="device_to" type="Long" />
+      <field name="sector_to" type="Long" />
+      <field name="size" type="Long" />
+      <field name="rw(FAILFAST_DRIVER,FAILFAST_TRANSPORT,FAILFAST_DEV,DISCARD,META,SYNC,BARRIER,AHEAD,RW)" type="Long" />
+      <field name="not_uptodate" type="Long" />
+    </event>
+    <event name="rq_abort_fs">
+      <field name="hard_sector" type="Long" />
+      <field name="rw" type="Long" />
+      <field name="errors" type="Long" />
+    </event>
+    <event name="sleeprq_bio">
+      <field name="sector" type="Long" />
+      <field name="size" type="Long" />
+      <field name="rw(FAILFAST_DRIVER,FAILFAST_TRANSPORT,FAILFAST_DEV,DISCARD,META,SYNC,BARRIER,AHEAD,RW)" type="Long" />
+      <field name="not_uptodate" type="Long" />
+    </event>
+    <event name="unplug_timer">
+      <field name="pdu" type="Long" />
+    </event>
+    <event name="rq_issue_fs">
+      <field name="hard_sector" type="Long" />
+      <field name="rw" type="Long" />
+      <field name="errors" type="Long" />
+    </event>
+    <event name="sleeprq">
+      <field name="rw" type="Long" />
+    </event>
+    <event name="unplug_io">
+      <field name="pdu" type="Long" />
+    </event>
+    <event name="getrq">
+      <field name="rw" type="Long" />
+    </event>
+    <event name="bio_backmerge">
+      <field name="sector" type="Long" />
+      <field name="size" type="Long" />
+      <field name="rw(FAILFAST_DRIVER,FAILFAST_TRANSPORT,FAILFAST_DEV,DISCARD,META,SYNC,BARRIER,AHEAD,RW)" type="Long" />
+      <field name="not_uptodate" type="Long" />
+    </event>
+    <event name="rq_requeue_fs">
+      <field name="hard_sector" type="Long" />
+      <field name="rw" type="Long" />
+      <field name="errors" type="Long" />
+    </event>
+    <event name="bio_queue">
+      <field name="sector" type="Long" />
+      <field name="size" type="Long" />
+      <field name="rw(FAILFAST_DRIVER,FAILFAST_TRANSPORT,FAILFAST_DEV,DISCARD,META,SYNC,BARRIER,AHEAD,RW)" type="Long" />
+      <field name="not_uptodate" type="Long" />
+    </event>
+    <event name="rq_complete_fs">
+      <field name="hard_sector" type="Long" />
+      <field name="rw" type="Long" />
+      <field name="errors" type="Long" />
+    </event>
+    <event name="bio_bounce">
+      <field name="sector" type="Long" />
+      <field name="size" type="Long" />
+      <field name="rw(FAILFAST_DRIVER,FAILFAST_TRANSPORT,FAILFAST_DEV,DISCARD,META,SYNC,BARRIER,AHEAD,RW)" type="Long" />
+      <field name="not_uptodate" type="Long" />
+    </event>
+  </channel>
+  <channel name="swap_state">
+    <event name="statedump_swap_files">
+      <field name="filp" type="Long" />
+      <field name="vfsmount" type="Long" />
+      <field name="dname" type="String" />
+    </event>
+  </channel>
+  <channel name="jbd2">
+    <event name="checkpoint">
+      <field name="dev" type="String" />
+      <field name="need_checkpoint" type="Long" />
+    </event>
+    <event name="start_commit">
+      <field name="dev" type="String" />
+      <field name="transaction" type="Long" />
+    </event>
+    <event name="end_commit">
+      <field name="dev" type="String" />
+      <field name="transaction" type="Long" />
+      <field name="head" type="Long" />
+    </event>
+  </channel>
+  <channel name="pm">
+    <event name="idle_exit">
+      <field name="irqstate" type="Long" />
+    </event>
+    <event name="idle_entry">
+      <field name="irqstate" type="Long" />
+    </event>
+    <event name="suspend_entry">
+      <field name="irqstate" type="Long" />
+    </event>
+    <event name="suspend_exit">
+      <field name="irqstate" type="Long" />
+    </event>
+  </channel>
+  <channel name="module_state">
+    <event name="list_module">
+      <field name="name" type="String" />
+      <field name="state" type="Long" />
+      <field name="refcount" type="Long" />
+    </event>
+  </channel>
+  <channel name="fd_state">
+    <event name="file_descriptor">
+      <field name="filename" type="String" />
+      <field name="pid" type="Long" />
+      <field name="fd" type="Long" />
+    </event>
+  </channel>
+  <channel name="netif_state">
+    <event name="insert_ifa_ipv4">
+      <field name="label" type="String" />
+      <field name="address" type="Long" />
+    </event>
+    <event name="network_ipv4_interface">
+      <field name="name" type="String" />
+      <field name="address" type="Long" />
+      <field name="up" type="Long" />
+    </event>
+    <event name="insert_ifa_ipv6">
+      <field name="label" type="String" />
+      <field name="a15" type="Long" />
+      <field name="a14" type="Long" />
+      <field name="a13" type="Long" />
+      <field name="a12" type="Long" />
+      <field name="a11" type="Long" />
+      <field name="a10" type="Long" />
+      <field name="a9" type="Long" />
+      <field name="a8" type="Long" />
+      <field name="a7" type="Long" />
+      <field name="a6" type="Long" />
+      <field name="a5" type="Long" />
+      <field name="a4" type="Long" />
+      <field name="a3" type="Long" />
+      <field name="a2" type="Long" />
+      <field name="a1" type="Long" />
+      <field name="a0" type="Long" />
+    </event>
+    <event name="del_ifa_ipv4">
+      <field name="label" type="String" />
+      <field name="address" type="Long" />
+    </event>
+    <event name="network_ip_interface">
+      <field name="name" type="String" />
+      <field name="address" type="Long" />
+      <field name="up" type="Long" />
+    </event>
+  </channel>
+  <channel name="enum_tables">
+    <event name="vmx_kvm_exit">
+      <field name="id" type="Long" />
+      <field name="symbol" type="String" />
+    </event>
+  </channel>
+  <channel name="metadata">
+    <event name="core_marker_id">
+      <field name="channel" type="String" />
+      <field name="name" type="String" />
+      <field name="event_id" type="Long" />
+      <field name="int" type="Long" />
+      <field name="long" type="Long" />
+      <field name="pointer" type="Long" />
+      <field name="size_t" type="Long" />
+      <field name="alignment" type="Long" />
+    </event>
+    <event name="core_marker_format">
+      <field name="channel" type="String" />
+      <field name="name" type="String" />
+      <field name="format" type="String" />
+    </event>
+  </channel>
+  <channel name="rcu">
+    <event name="tree_call_rcu_bh">
+      <field name="func" type="Long" />
+      <field name="ip" type="Long" />
+    </event>
+    <event name="tree_call_rcu">
+      <field name="func" type="Long" />
+      <field name="ip" type="Long" />
+    </event>
+    <event name="tree_callback">
+      <field name="func" type="Long" />
+    </event>
+  </channel>
+  <channel name="kprobe_state">
+    <event name="kprobe_table">
+      <field name="ip" type="Long" />
+      <field name="symbol" type="String" />
+    </event>
+  </channel>
+  <channel name="softirq_state">
+    <event name="softirq_vec">
+      <field name="id" type="Long" />
+      <field name="address" type="Long" />
+      <field name="symbol" type="String" />
+    </event>
+  </channel>
+  <channel name="syscall_state">
+    <event name="sys_call_table">
+      <field name="id" type="Long" />
+      <field name="address" type="Long" />
+      <field name="symbol" type="String" />
+    </event>
+  </channel>
+  <channel name="userspace">
+    <event name="event">
+      <field name="string" type="String" />
+    </event>
+  </channel>
+  <channel name="vm_state">
+    <event name="vm_map">
+      <field name="pid" type="Long" />
+      <field name="start" type="Long" />
+      <field name="end" type="Long" />
+      <field name="flags" type="Long" />
+      <field name="pgoff" type="Long" />
+      <field name="inode" type="Long" />
+    </event>
+  </channel>
+  <channel name="task_state">
+    <event name="process_state">
+      <field name="pid" type="Long" />
+      <field name="parent_pid" type="Long" />
+      <field name="name" type="String" />
+      <field name="type" type="Long" />
+      <field name="mode" type="Long" />
+      <field name="submode" type="Long" />
+      <field name="status" type="Long" />
+      <field name="tgid" type="Long" />
+    </event>
+  </channel>
+  <channel name="irq_state">
+    <event name="idt_table">
+      <field name="irq" type="Long" />
+      <field name="address" type="Long" />
+      <field name="symbol" type="String" />
+    </event>
+    <event name="interrupt">
+      <field name="name" type="String" />
+      <field name="action" type="String" />
+      <field name="irq_id" type="Long" />
+    </event>
+  </channel>
+</inventory>
+

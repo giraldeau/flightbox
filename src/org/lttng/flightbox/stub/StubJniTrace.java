@@ -97,10 +97,12 @@ public class StubJniTrace extends JniTrace {
 		return cst.newInstance(s);
 	}
 	
-	public void setEventsSource(Document doc) {
+	public void setEventsSource(Document doc, Document inventory) {
 		Element root = doc.getRootElement();
 		cpu = Integer.parseInt(root.getAttributeValue("cpus"));
-		List<Element> channels = root.getChildren("channel");
+		
+		Element invRoot = inventory.getRootElement();
+		List<Element> channels = invRoot.getChildren("channel");
 		String channelName;
 		String eventName;
 		String fieldName;
@@ -146,5 +148,9 @@ public class StubJniTrace extends JniTrace {
 	@Override
 	public int getCpuNumber() {
 		return cpu;
+	}
+
+	public void setInventory(Document inventory) {
+		
 	}
 }

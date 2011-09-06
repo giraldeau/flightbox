@@ -1,7 +1,5 @@
 package org.lttng.flightbox.xml;
 
-import java.util.List;
-
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -15,6 +13,7 @@ public class MarkerInventoryJDOM {
 	static String event = "event";
 	static String field = "field";
 	static String name = "name";
+	static String type = "type";
 	XPath xquery;
 	StringBuilder str;
 	
@@ -77,15 +76,16 @@ public class MarkerInventoryJDOM {
 		return e != null;
 	}
 
-	public void addField(String channelName, String eventName, String fieldName) throws JDOMException {
-		getOrAddField(channelName, eventName, fieldName);
+	public void addField(String channelName, String eventName, String fieldName, String fieldType) throws JDOMException {
+		getOrAddField(channelName, eventName, fieldName, fieldType);
 	}
 	
-	public Element getOrAddField(String channelName, String eventName, String fieldName) throws JDOMException {
+	public Element getOrAddField(String channelName, String eventName, String fieldName, String fieldType) throws JDOMException {
 		Element e = getField(channelName, eventName, fieldName);
 		if (e == null) {
 			e = new Element(field);
 			e.setAttribute(name, fieldName);
+			e.setAttribute(type, fieldType);
 			Element c = getOrAddEvent(channelName, eventName);
 			c.addContent(e);
 		}

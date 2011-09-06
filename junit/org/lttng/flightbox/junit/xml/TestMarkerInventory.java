@@ -25,7 +25,7 @@ public class TestMarkerInventory {
 	@Test
 	public void testMarkerInventoryAddField() throws JDOMException {
 		MarkerInventoryJDOM inventory = new MarkerInventoryJDOM();
-		inventory.addField("foo", "bar", "baz");
+		inventory.addField("foo", "bar", "baz", "Long");
 		assertTrue(inventory.haveField("foo", "bar", "baz"));
 	}
 	

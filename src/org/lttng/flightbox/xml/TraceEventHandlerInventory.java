@@ -22,7 +22,6 @@ public class TraceEventHandlerInventory extends TraceEventHandlerBase {
 	
 	public TraceEventHandlerInventory() {
 		super();
-		hooks.add(new TraceHook("metadata", "core_marker_id"));
 		hooks.add(new TraceHook("metadata", "core_marker_format"));
 		inventory = new MarkerInventoryJDOM();
 	}
@@ -30,14 +29,7 @@ public class TraceEventHandlerInventory extends TraceEventHandlerBase {
 	@Override
 	public void handleInit(TraceReader reader, JniTrace trace) {
 	}
-	
-	public void handle_metadata_core_marker_id(TraceReader reader, JniEvent event) throws JDOMException {
-		String channelName = (String) event.parseFieldByName("channel");
-		String eventName = (String) event.parseFieldByName("name");
-		Element e = inventory.getOrAddEvent(channelName, eventName);
-		e.setAttribute("id", Integer.toString(event.getEventMarkerId()));
-	}
-	
+		
 	public void handle_metadata_core_marker_format(TraceReader reader, JniEvent event) throws JDOMException {
 		String channelName = (String) event.parseFieldByName("channel");
 		String eventName = (String) event.parseFieldByName("name");
@@ -50,9 +42,11 @@ public class TraceEventHandlerInventory extends TraceEventHandlerBase {
 		for (int i=0; i<fmt.length; i+=2) {
 			String fieldName = fmt[i];
 			String format = fmt[i+1];
-			Element e = inventory.getOrAddField(channelName, eventName, fieldName);
+			if (format.compareTo("%s") == 0)
+				inventory.getOrAddField(channelName, eventName, fieldName, "String");
+			else
+				inventory.getOrAddField(channelName, eventName, fieldName, "Long");
 		}
-				
 	}
 	
 	@Override

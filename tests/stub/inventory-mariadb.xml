@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inventory>
+  <channel name="ust">
+    <event name="ust_connection_start"/>
+    <event name="ust_connection_done"/>
+    <event name="ust_command_start"/>
+    <event name="ust_command_done"/>
+    <event name="ust_query_start"/>
+    <event name="ust_query_done"/>
+  </channel>
+</inventory>
+
