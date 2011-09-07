@@ -76,9 +76,6 @@ public class BlockingItem implements Comparable<BlockingItem> {
 	}
 
 	public Task getSubTask(SystemModel model) {
-		/* FIXME: must have all system call somewhere */
-		int SYS_READ = 3;
-		
 		if (wakeUp == null) {
 			return null;
 		}
@@ -92,7 +89,9 @@ public class BlockingItem implements Comparable<BlockingItem> {
 			 * get the task associated with this socket
 			 */
 
-			if (waitingSyscall.getSyscallId() == SYS_READ) {
+			int id = waitingSyscall.getSyscallId();
+			String name = model.getSyscallTable().get(id);
+			if (name.equals("sys_read")) {
 				FileDescriptor fd = waitingSyscall.getFileDescriptor();
 				if (fd instanceof SocketInet) {
 					SocketInet sock = (SocketInet) fd;

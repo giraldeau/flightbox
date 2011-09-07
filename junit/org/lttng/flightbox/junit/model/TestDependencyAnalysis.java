@@ -84,13 +84,13 @@ public class TestDependencyAnalysis {
 		Task master = foundTask.getParentProcess().getParentProcess();
 		SortedSet<BlockingItem> masterItems = bm.getBlockingItemsForTask(master);
 		BlockingItem nanoSleep = null, waitPid = null;
-		int SYS_NANOSLEEP = 162;
-		int SYS_WAITPID = 7;
 		for (BlockingItem item: masterItems) {
+			int id = item.getWaitingSyscall().getSyscallId();
+			String name = model.getSyscallTable().get(id);
 			assertNotNull(item.getWakeUp());
-			if (item.getWaitingSyscall().getSyscallId() == SYS_NANOSLEEP) {
+			if (name.equals("sys_nanosleep")) {
 			    nanoSleep = item;
-			} else if (item.getWaitingSyscall().getSyscallId() == SYS_WAITPID) {
+			} else if (name.equals("sys_wait4")) {
 			    waitPid = item;
 			}
 		}
@@ -149,7 +149,7 @@ public class TestDependencyAnalysis {
 
 	@Test
 	public void testFDWaitingStats() throws JniException {
-		String trace = "ioburst-512-sync";
+		String trace = "ioburst-512";
 		File file = new File(Path.getTraceDir(), trace);
 		// make sure we have this trace
 		assertTrue("Missing trace " + trace, file.isDirectory());
@@ -214,6 +214,8 @@ public class TestDependencyAnalysis {
 		TreeSet<BlockingItem> items = bm.getBlockingItemsForTask(foundTask);
 		BlockingItem read = items.last();
 		double p = 10000000;
+		// hum... sometimes, the duration is not right
+		// seems like a but in lttng
 		assertEquals(100000000, read.getDuration(), p);
 		
 		// server is busy and never block

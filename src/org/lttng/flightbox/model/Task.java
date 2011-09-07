@@ -112,7 +112,7 @@ public class Task extends SystemResource implements Comparable<Task> {
 		return parentProcess;
 	}
 
-	public void setParentProcess(Task parentProcess) {
+	public void setParentTask(Task parentProcess) {
 		this.parentProcess = parentProcess;
 	}
 

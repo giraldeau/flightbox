@@ -121,7 +121,7 @@ public class TraceEventHandlerModelMeta extends TraceEventHandlerBase {
 		// avoid recursivity for swapper threads
 		if (pid != parentPid) {
 			Task parent = getOrCreateTask(parentPid.intValue());
-			task.setParentProcess(parent);
+			task.setParentTask(parent);
 		}
 
 		model.addTask(task);

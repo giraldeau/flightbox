@@ -323,6 +323,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		if (parentTask != null) {
 			task.setCmd(parentTask.getCmd());
 			parentTask.addChild(task);
+			task.setParentTask(parentTask);
 			List<FileDescriptor> openedFd = parentTask.getOpenedFileDescriptors();
 			task.addFileDescriptors(openedFd);
 		}

@@ -37,4 +37,8 @@ public class SyscallInfo extends StateInfo {
 		return fileDescriptor;
 	}
 
+	@Override
+	public String toString() {
+		return super.toString() + "(" + syscallId + ")";
+	}
 }

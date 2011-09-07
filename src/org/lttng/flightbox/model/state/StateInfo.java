@@ -51,7 +51,7 @@ public abstract class StateInfo {
 
 	@Override
 	public String toString() {
-		return "[state=" + taskState.toString() + ",pid=" + getTask().getProcessId() + "]";
+		return taskState.toString();
 	}
 
 	public void setTask(Task task) {
