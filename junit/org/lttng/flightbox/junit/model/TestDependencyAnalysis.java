@@ -9,19 +9,17 @@ import java.util.HashMap;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.commons.math.stat.descriptive.SummaryStatistics;
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.junit.Test;
 import org.lttng.flightbox.cpu.TraceEventHandlerProcess;
+import org.lttng.flightbox.dep.BlockingItem;
 import org.lttng.flightbox.dep.BlockingModel;
 import org.lttng.flightbox.dep.BlockingStats;
 import org.lttng.flightbox.dep.BlockingStatsElement;
 import org.lttng.flightbox.dep.BlockingTaskListener;
-import org.lttng.flightbox.dep.BlockingItem;
 import org.lttng.flightbox.dep.CpuAccountingItem;
 import org.lttng.flightbox.io.ITraceEventHandler;
 import org.lttng.flightbox.io.ModelBuilder;
-import org.lttng.flightbox.io.TraceReader;
 import org.lttng.flightbox.junit.Path;
 import org.lttng.flightbox.model.DiskFile;
 import org.lttng.flightbox.model.FileDescriptor;
@@ -31,7 +29,7 @@ import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.statistics.ResourceUsage;
 
 public class TestDependencyAnalysis {
-
+	
 	@Test
 	public void testNanosleep() throws JniException {
 		String tracePath = new File(Path.getTraceDir(), "sleep-1x-1sec").getPath();
@@ -149,7 +147,7 @@ public class TestDependencyAnalysis {
 
 	@Test
 	public void testFDWaitingStats() throws JniException {
-		String trace = "ioburst-512";
+		String trace = "ioburst-512-sync";
 		File file = new File(Path.getTraceDir(), trace);
 		// make sure we have this trace
 		assertTrue("Missing trace " + trace, file.isDirectory());

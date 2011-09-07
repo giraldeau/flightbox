@@ -1,9 +1,6 @@
 package org.lttng.flightbox.io;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.TreeSet;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
@@ -13,7 +10,6 @@ import org.lttng.flightbox.model.FileDescriptor;
 import org.lttng.flightbox.model.Processor;
 import org.lttng.flightbox.model.SocketInet;
 import org.lttng.flightbox.model.StateInfoFactory;
-import org.lttng.flightbox.model.SymbolTable;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.model.Task.TaskState;
@@ -59,6 +55,9 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		hooks.add(new TraceHook("fs", "select"));
 		hooks.add(new TraceHook("fs", "write"));
 		hooks.add(new TraceHook("fs", "close"));
+		
+		/* dont clone task class because causes recursive cloning */
+		cloner.dontClone(Task.class);
 	}
 
 	@Override
@@ -292,26 +291,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 			Task currentTask = p.getCurrentTask();
 			currentTask.setCmd(filename);
 	}
-/*
-	public void handle_kernel_process_fork(TraceReader reader, JniEvent event) {
-		Long parentPid = (Long) event.parseFieldByName("parent_pid");
-		Long childPid = (Long) event.parseFieldByName("child_pid");
-		long eventTs = event.getEventTime().getTime();
-		Task task = null;
-		Task parentTask = model.getLatestTaskByPID(parentPid.intValue());
-		// clone the parent if known
-		if (parentTask != null) {
-			task = cloner.deepClone(parentTask);
-			task.setParentProcess(parentTask);
-			parentTask.addChild(task);
-		} else {
-			task = new Task();
-		}
-		task.setProcessId(childPid.intValue());
-		task.setStartTime(eventTs);
-		model.addTask(task);
-	}
-*/
+
 	public void handle_kernel_process_fork(TraceReader reader, JniEvent event) {
 		Long parentPid = (Long) event.parseFieldByName("parent_pid");
 		Long childPid = (Long) event.parseFieldByName("child_pid");
@@ -325,7 +305,13 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 			parentTask.addChild(task);
 			task.setParentTask(parentTask);
 			List<FileDescriptor> openedFd = parentTask.getOpenedFileDescriptors();
-			task.addFileDescriptors(openedFd);
+			task.addFileDescriptors(cloner.deepClone(openedFd));
+			// disable listeners while setting the state of the new task
+			task.setEnableListeners(false);
+			for (StateInfo info :parentTask.getStates()) {
+				task.pushState(cloner.deepClone(info));
+			}
+			task.setEnableListeners(true);
 		}
 		model.addTask(task);
 	}

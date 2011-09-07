@@ -31,11 +31,13 @@ public class Task extends SystemResource implements Comparable<Task> {
 	private final HashSet<ITaskListener> listeners;
 	private final IdMap<FileDescriptor> fdsMap;
 	private StateInfo lastWakeup;
+	private boolean listenersEnabled;
 
 	public Task(int pid, long createTs) {
 		this();
 		this.processId = pid;
 		this.setStartTime(createTs);
+		setEnableListeners(true);
 	}
 
 	public Task(int pid) {
@@ -171,6 +173,8 @@ public class Task extends SystemResource implements Comparable<Task> {
 	}
 
 	public void firePushState(StateInfo nextState) {
+		if (!listenersEnabled)
+			return;
 		if (parent != null) {
 			parent.pushState(this, nextState);
 		} else {
@@ -181,6 +185,8 @@ public class Task extends SystemResource implements Comparable<Task> {
 	}
 
 	private void firePopState() {
+		if (!listenersEnabled)
+			return;
 		StateInfo nextState = null;
 		if (stateStack.size() > 1) {
 			nextState = stateStack.get(stateStack.size() - 2);
@@ -290,4 +296,15 @@ public class Task extends SystemResource implements Comparable<Task> {
 		return null;
 	}
 
+	public void setEnableListeners(boolean notify) {
+		this.listenersEnabled = notify;
+	}
+
+	public boolean isListenersEnabled() {
+		return this.listenersEnabled;
+	}
+
+	public List<StateInfo> getStates() {
+		return this.stateStack;
+	}
 }
