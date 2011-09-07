@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<trace cpus="2">
-  <channel name="kernel">
-    <event name="process_fork">
-        <field name="child_pid" type="Long"/>
-    </event>
-      <event name="process_exit">
-        <field name="pid" type="Long"/>
-    </event>
-  </channel>
+<trace cpus="2" inventory="inventory-linux-2.6.35.xml">
   <events>
     <event ts="1" cpu="0" channel="kernel" name="process_fork" child_pid="21207"/>
     <event ts="2" cpu="0" channel="kernel" name="process_exit" pid="21207"/>

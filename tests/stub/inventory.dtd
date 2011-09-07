@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!ELEMENT inventory (channel)*>
+<!ELEMENT channel (event)*>
+<!ELEMENT event (field)*>
+<!ELEMENT field EMPTY>
+<!ATTLIST channel
+   name    CDATA       #REQUIRED
+>
+<!ATTLIST event
+   name    CDATA       #REQUIRED
+>
+<!ATTLIST field
+   name    CDATA       #REQUIRED
+>

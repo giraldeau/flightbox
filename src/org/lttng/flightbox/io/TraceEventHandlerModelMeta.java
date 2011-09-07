@@ -9,8 +9,7 @@ import org.lttng.flightbox.model.Task;
 public class TraceEventHandlerModelMeta extends TraceEventHandlerBase {
 
 	private SystemModel model;
-	private long nbNotMetaEvent;
-
+	
 	public TraceEventHandlerModelMeta() {
 		super();
 		hooks.add(new TraceHook("task_state", "process_state"));
@@ -57,6 +56,7 @@ public class TraceEventHandlerModelMeta extends TraceEventHandlerBase {
 	}
 
 	public void handle_metadata_core_marker_format(TraceReader reader, JniEvent event) {
+		
 	}
 
 	public void handle_metadata_core_marker_id(TraceReader reader, JniEvent event) {

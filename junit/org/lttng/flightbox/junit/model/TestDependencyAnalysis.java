@@ -214,7 +214,7 @@ public class TestDependencyAnalysis {
 		TreeSet<BlockingItem> items = bm.getBlockingItemsForTask(foundTask);
 		BlockingItem read = items.last();
 		double p = 10000000;
-		assertEquals(read.getDuration(), 100000000, p);
+		assertEquals(100000000, read.getDuration(), p);
 		
 		// server is busy and never block
 		assertTrue(read.getChildren(model).isEmpty());
