@@ -149,7 +149,7 @@ public class TestDependencyAnalysis {
 
 	@Test
 	public void testFDWaitingStats() throws JniException {
-		String trace = "ioburst-512";
+		String trace = "ioburst-512-sync";
 		File file = new File(Path.getTraceDir(), trace);
 		// make sure we have this trace
 		assertTrue("Missing trace " + trace, file.isDirectory());
