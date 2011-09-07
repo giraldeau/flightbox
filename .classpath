@@ -21,5 +21,7 @@
 	<classpathentry kind="lib" path="lib/commons-math-2.2.jar"/>
 	<classpathentry kind="lib" path="lib/jgrapht-jdk1.6.jar"/>
 	<classpathentry kind="lib" path="lib/org.swtchart_0.7.0.v20110128.jar"/>
+	<classpathentry kind="lib" path="lib/cloning-1.7.4.jar"/>
+	<classpathentry kind="lib" path="lib/objenesis-1.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

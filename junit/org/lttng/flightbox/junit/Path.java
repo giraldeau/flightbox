@@ -24,5 +24,10 @@ public class Path {
 	public static File getTraceDir() {
 		return new File("./tests/traces/");
 	}
-	
+	public static File getGraphDir() {
+		File graphDir = new File("./tests/graph/");
+		if (!graphDir.exists())
+			graphDir.mkdirs();
+		return graphDir;
+	}
 }

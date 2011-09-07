@@ -25,10 +25,13 @@ import org.lttng.flightbox.model.state.StateInfo.Field;
 import org.lttng.flightbox.model.state.SyscallInfo;
 import org.lttng.flightbox.model.state.WaitInfo;
 
+import com.rits.cloning.Cloner;
+
 public class TraceEventHandlerModel extends TraceEventHandlerBase {
 
 	private SystemModel model;
-
+	private static final Cloner cloner = new Cloner();
+	
 	public TraceEventHandlerModel() {
 		super();
 		hooks.add(new TraceHook("kernel", "sched_schedule"));
@@ -289,7 +292,26 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 			Task currentTask = p.getCurrentTask();
 			currentTask.setCmd(filename);
 	}
-
+/*
+	public void handle_kernel_process_fork(TraceReader reader, JniEvent event) {
+		Long parentPid = (Long) event.parseFieldByName("parent_pid");
+		Long childPid = (Long) event.parseFieldByName("child_pid");
+		long eventTs = event.getEventTime().getTime();
+		Task task = null;
+		Task parentTask = model.getLatestTaskByPID(parentPid.intValue());
+		// clone the parent if known
+		if (parentTask != null) {
+			task = cloner.deepClone(parentTask);
+			task.setParentProcess(parentTask);
+			parentTask.addChild(task);
+		} else {
+			task = new Task();
+		}
+		task.setProcessId(childPid.intValue());
+		task.setStartTime(eventTs);
+		model.addTask(task);
+	}
+*/
 	public void handle_kernel_process_fork(TraceReader reader, JniEvent event) {
 		Long parentPid = (Long) event.parseFieldByName("parent_pid");
 		Long childPid = (Long) event.parseFieldByName("child_pid");
@@ -300,14 +322,13 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		Task parentTask = model.getLatestTaskByPID(parentPid.intValue());
 		if (parentTask != null) {
 			task.setCmd(parentTask.getCmd());
-			task.setParentProcess(parentTask);
 			parentTask.addChild(task);
 			List<FileDescriptor> openedFd = parentTask.getOpenedFileDescriptors();
 			task.addFileDescriptors(openedFd);
 		}
 		model.addTask(task);
 	}
-
+	
 	public void handle_kernel_process_exit(TraceReader reader, JniEvent event) {
 		long eventTs = event.getEventTime().getTime();
 		Long cpu = event.getParentTracefile().getCpuNumber();

@@ -21,14 +21,14 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 import org.junit.Test;
 import org.lttng.flightbox.dep.BlockingTaskListener;
-import org.lttng.flightbox.dep.GraphBuilder;
+import org.lttng.flightbox.dep.DependencyGraphBuilder;
 import org.lttng.flightbox.io.ModelBuilder;
 import org.lttng.flightbox.junit.Path;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
 
 public class TestTaskGraph {
-
+	
 	@Test
 	public void testGraphLib() {
 		Task t1 = new Task(1);
@@ -121,16 +121,22 @@ public class TestTaskGraph {
 				vertexIDProvider, vertexNameProvider, edgeNameProvider, 
 				vertexAttributeProvider, edgeAttributeProvider);
 
-		FileWriter writer = new FileWriter("out.dot");
+		FileWriter writer = new FileWriter(new File(Path.getGraphDir(), "test-graph.dot"));
 		exporter.export(writer, graph);
 		writer.close();
 	}
 	
 	@Test
 	public void testClientServerRelationGraph() throws JniException, IOException {
-		//String trace = "inception-3x-3x-100ms";
-		//String trace = "wk-rpc";
-		String trace = "rpc-hog-100ms";
+		testRelationGraph("rpc-hog-100ms", "clihog");
+	}
+
+	@Test
+	public void testParentChildRelationGraph() throws JniException, IOException {
+		testRelationGraph("inception-3x-100ms", "inception");
+	}
+
+	public void testRelationGraph(String trace, String binary) throws JniException, IOException {
 		File file = new File(Path.getTraceDir(), trace);
 		// make sure we have this trace
 		assertTrue("Missing trace " + trace, file.isDirectory());
@@ -143,13 +149,14 @@ public class TestTaskGraph {
 
 		ModelBuilder.buildFromTrace(tracePath, model);
 
-		TreeSet<Task> taskSet = model.getTaskByCmdBasename("clihog");
-		Graph<Task, DefaultEdge> graph = GraphBuilder.build(taskSet.first(), model);
-		GraphBuilder.printGraph(graph);
+		TreeSet<Task> taskSet = model.getTaskByCmdBasename(binary);
+		Graph<Task, DefaultEdge> graph = DependencyGraphBuilder.build(taskSet.first(), model);
+		DependencyGraphBuilder.printGraph(graph);
 		
-		FileWriter writer = new FileWriter(trace + "-task-graph.dot");
-		GraphBuilder.toDot(writer, graph);
-		writer.close();
+		File outDir = Path.getGraphDir();
+		FileWriter writer = new FileWriter(new File(outDir, trace + "-task-graph.dot"));
+		DependencyGraphBuilder.toDot(writer, graph);
+		writer.close();		
 	}
 	
 }

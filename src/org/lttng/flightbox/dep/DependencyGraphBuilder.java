@@ -19,7 +19,7 @@ import org.jgrapht.traverse.DepthFirstIterator;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
 
-public class GraphBuilder {
+public class DependencyGraphBuilder {
 
 	public static Graph<Task, DefaultEdge> build(Task task, SystemModel model) {
 		DirectedMultigraph<Task, DefaultEdge> graph = new DirectedMultigraph<Task, DefaultEdge>(DefaultEdge.class);
