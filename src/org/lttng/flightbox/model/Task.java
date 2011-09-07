@@ -275,4 +275,19 @@ public class Task extends SystemResource implements Comparable<Task> {
 		return false;
 	}
 
+	public SocketInet getSocketByPointer(long pointer) {
+		HashMap<Integer, TreeSet<FileDescriptor>> map = fdsMap.getMap();
+		for (TreeSet<FileDescriptor> set: map.values()) {
+			for (FileDescriptor fd: set) {
+				if (fd instanceof SocketInet) {
+					SocketInet s = (SocketInet) fd;
+					if (s.getPointer() == pointer) {
+						return s;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
 }

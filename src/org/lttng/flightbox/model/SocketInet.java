@@ -79,6 +79,8 @@ public class SocketInet extends FileDescriptor {
 	private int protocol;
 	private boolean isClient;
 	private long pointer;
+	private long send;
+	private long recv;
 
 	public int getType() {
 		return type;
@@ -195,5 +197,22 @@ public class SocketInet extends FileDescriptor {
 	public long getPointer() {
 		return pointer;
 	}
-
+	public void incrementSend(long len) {
+		this.send += len;
+	}
+	public long getSend() {
+		return this.send;
+	}
+	public void setSend(long send) {
+		this.send = send;
+	}
+	public void incrementRecv(long len) {
+		this.recv += len;
+	}
+	public long getRecv() {
+		return this.recv;
+	}
+	public void setRecv(long recv) {
+		this.recv = recv;
+	}
 }

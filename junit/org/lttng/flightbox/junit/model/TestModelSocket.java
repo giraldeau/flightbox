@@ -60,7 +60,7 @@ public class TestModelSocket {
 		assertFalse(serverSocket.isClient());
 	}
 	
-	@Test
+	//@Test
 	public void testRetreiveSocketMultiThreadServer() throws JniException {
 		String tracePath = new File("tests/trace-wk-rpc/").getPath();
 		SystemModel model = new SystemModel();

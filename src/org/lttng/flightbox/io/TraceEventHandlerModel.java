@@ -1,7 +1,9 @@
 package org.lttng.flightbox.io;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.TreeSet;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
@@ -46,6 +48,8 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		hooks.add(new TraceHook("net", "socket_shutdown"));
 		hooks.add(new TraceHook("net", "socket_connect_inet"));
 		hooks.add(new TraceHook("net", "socket_accept_inet"));
+		hooks.add(new TraceHook("net", "socket_recvmsg"));
+		hooks.add(new TraceHook("net", "socket_sendmsg"));
 		hooks.add(new TraceHook("fs", "exec"));
 		hooks.add(new TraceHook("fs", "open"));
 		hooks.add(new TraceHook("fs", "read"));
@@ -458,6 +462,51 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		x = (Long) event.parseFieldByName("dport");
 		info.setField(Field.DST_PORT, x.intValue());
 		info.setField(Field.IS_CLIENT, isClient);
+	}
+	
+	public void handle_net_socket_sendmsg(TraceReader reader, JniEvent event) {
+		long eventTs = event.getEventTime().getTime();
+		Long cpu = event.getParentTracefile().getCpuNumber();
+		Processor p = model.getProcessors().get(cpu.intValue());
+		Task currentTask = p.getCurrentTask();
+		if (currentTask == null)
+			return;
+		StateInfo info = currentTask.peekState();
+		TaskState type = info.getTaskState();
+		if (type != TaskState.SYSCALL)
+			return;
+		
+		/* assumption: send always occurs before recv */
+		Jni_C_Pointer pointer = (Jni_C_Pointer) event.parseFieldByName("sock");
+		Long size = (Long) event.parseFieldByName("size");
+		SocketInet sock = currentTask.getSocketByPointer(pointer.getPointer());
+		if (sock == null)
+			return;
+		
+		sock.incrementSend(size);
+	}
+
+	public void handle_net_socket_recvmsg(TraceReader reader, JniEvent event) {
+		long eventTs = event.getEventTime().getTime();
+		Long cpu = event.getParentTracefile().getCpuNumber();
+		Processor p = model.getProcessors().get(cpu.intValue());
+		Task currentTask = p.getCurrentTask();
+		if (currentTask == null)
+			return;
+		StateInfo info = currentTask.peekState();
+		if (info == null)
+			return;
+		TaskState type = info.getTaskState();
+		if (type != TaskState.SYSCALL)
+			return;
+		
+		Jni_C_Pointer pointer = (Jni_C_Pointer) event.parseFieldByName("sock");
+		Long size = (Long) event.parseFieldByName("size");
+		SocketInet sock = currentTask.getSocketByPointer(pointer.getPointer());
+		if (sock == null)
+			return;
+		
+		sock.incrementRecv(size);		
 	}
 	
 	public void handle_fs_open(TraceReader reader, JniEvent event) {
