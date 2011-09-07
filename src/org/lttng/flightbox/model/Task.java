@@ -17,7 +17,7 @@ import org.lttng.flightbox.model.state.StateInfo;
 public class Task extends SystemResource implements Comparable<Task> {
 
 	public enum TaskState {
-		WAIT, USER, IRQ, SOFTIRQ, SYSCALL, TRAP, ZOMBIE, EXIT
+		ALIVE, WAIT, USER, IRQ, SOFTIRQ, SYSCALL, TRAP, ZOMBIE, EXIT
 	}
 
 	private int processId;

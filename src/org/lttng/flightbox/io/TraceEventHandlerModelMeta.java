@@ -3,8 +3,11 @@ package org.lttng.flightbox.io;
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
 import org.lttng.flightbox.model.DiskFile;
+import org.lttng.flightbox.model.StateInfoFactory;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
+import org.lttng.flightbox.model.Task.TaskState;
+import org.lttng.flightbox.model.state.StateInfo;
 
 public class TraceEventHandlerModelMeta extends TraceEventHandlerBase {
 
@@ -124,6 +127,11 @@ public class TraceEventHandlerModelMeta extends TraceEventHandlerBase {
 			task.setParentTask(parent);
 		}
 
+		// push default base state
+		StateInfo info = StateInfoFactory.makeStateInfo(TaskState.ALIVE);
+		info.setStartTime(eventTs);
+		task.pushState(info);
+		
 		model.addTask(task);
 	}
 

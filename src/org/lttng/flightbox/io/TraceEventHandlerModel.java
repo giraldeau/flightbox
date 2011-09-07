@@ -13,6 +13,7 @@ import org.lttng.flightbox.model.StateInfoFactory;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.model.Task.TaskState;
+import org.lttng.flightbox.model.state.AliveInfo;
 import org.lttng.flightbox.model.state.ExitInfo;
 import org.lttng.flightbox.model.state.IRQInfo;
 import org.lttng.flightbox.model.state.SoftIRQInfo;
@@ -227,6 +228,10 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 			exit.setEndTime(eventTs);
 			prevTask.setEndTime(eventTs);
 			prevTask.popState();
+			// remove alive state
+			AliveInfo alive = (AliveInfo) prevTask.peekState();
+			alive.setEndTime(eventTs);
+			prevTask.popState();
 			return;
 		}
 
@@ -300,6 +305,9 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		task.setProcessId(childPid.intValue());
 		task.setStartTime(eventTs);
 		Task parentTask = model.getLatestTaskByPID(parentPid.intValue());
+		StateInfo info = StateInfoFactory.makeStateInfo(TaskState.ALIVE);
+		info.setStartTime(eventTs);
+		task.pushState(info);
 		if (parentTask != null) {
 			task.setCmd(parentTask.getCmd());
 			parentTask.addChild(task);
@@ -308,8 +316,10 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 			task.addFileDescriptors(cloner.deepClone(openedFd));
 			// disable listeners while setting the state of the new task
 			task.setEnableListeners(false);
-			for (StateInfo info :parentTask.getStates()) {
-				task.pushState(cloner.deepClone(info));
+			for (StateInfo state :parentTask.getStates()) {
+				if (state instanceof AliveInfo)
+					continue;
+				task.pushState(cloner.deepClone(state));
 			}
 			task.setEnableListeners(true);
 		}
@@ -325,8 +335,9 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 			return;
 
 		// pop the syscall state
-		SyscallInfo syscallExit = (SyscallInfo) currentTask.peekState();
-		if (syscallExit != null) {
+		StateInfo state = currentTask.peekState();
+		if (state != null && (state instanceof SyscallInfo)) {
+			SyscallInfo syscallExit = (SyscallInfo) state;
 			syscallExit.setEndTime(eventTs);
 			currentTask.popState();
 		}

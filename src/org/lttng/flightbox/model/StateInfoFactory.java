@@ -1,6 +1,7 @@
 package org.lttng.flightbox.model;
 
 import org.lttng.flightbox.model.Task.TaskState;
+import org.lttng.flightbox.model.state.AliveInfo;
 import org.lttng.flightbox.model.state.ExitInfo;
 import org.lttng.flightbox.model.state.IRQInfo;
 import org.lttng.flightbox.model.state.SoftIRQInfo;
@@ -40,6 +41,8 @@ public class StateInfoFactory {
 		case EXIT:
 			info = new ExitInfo();
 			break;
+		case ALIVE:
+			info = new AliveInfo();
 		default:
 			break;
 		}
