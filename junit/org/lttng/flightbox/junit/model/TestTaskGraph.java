@@ -108,15 +108,6 @@ public class TestTaskGraph {
 			}
 		};
 
-		/* 
-		 * must provide vertex and edge attribute provider, otherwise null
-		 * pointer exception is raised. Could it be a bug?
-		 */
-		/*
-		DOTExporter<Task, MyEdge> exporter = new DOTExporter<Task, MyEdge>(
-				vertexIDProvider, vertexNameProvider, edgeNameProvider);
-		*/
-		
 		DOTExporter<Task, MyEdge> exporter = new DOTExporter<Task, MyEdge>(
 				vertexIDProvider, vertexNameProvider, edgeNameProvider, 
 				vertexAttributeProvider, edgeAttributeProvider);

@@ -1,4 +1,4 @@
-package org.lttng.flightbox.dep;
+package org.lttng.flightbox.graph;
 
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -9,12 +9,7 @@ import org.lttng.flightbox.model.Task;
 public class ExecutionGraphBuilder {
 
 	public static Graph<ExecVertex, DefaultWeightedEdge> build(Task task, SystemModel model) {
-		
-		DirectedWeightedMultigraph<ExecVertex, DefaultWeightedEdge> graph =
-			new DirectedWeightedMultigraph<ExecVertex, DefaultWeightedEdge>(DefaultWeightedEdge.class);
-
-		BlockingModel bm = model.getBlockingModel();
-		return graph;
+		return null;
 	}
 	
 }
