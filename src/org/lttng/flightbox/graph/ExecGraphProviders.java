@@ -1,5 +1,6 @@
 package org.lttng.flightbox.graph;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.jgrapht.ext.ComponentAttributeProvider;
@@ -25,6 +26,7 @@ public class ExecGraphProviders {
 				@Override
 				public String getVertexName(ExecVertex vertex) {
 					return vertex.getLabel();
+					//return "test";
 				}
 			};
 		}
@@ -48,7 +50,7 @@ public class ExecGraphProviders {
 			edgeNameProvider = new EdgeNameProvider<ExecEdge>() {
 				@Override
 				public String getEdgeName(ExecEdge edge) {
-					return edge.getLabel();
+					return String.format("%.0f", edge.getWeight());
 				}
 			};
 		}
@@ -60,7 +62,7 @@ public class ExecGraphProviders {
 			vertexAttributeProvider = new ComponentAttributeProvider<ExecVertex>() {
 				@Override
 				public Map<String, String> getComponentAttributes(ExecVertex vertex) {
-					return null;
+					return new HashMap<String, String>();
 				}
 			};
 		}
@@ -71,8 +73,10 @@ public class ExecGraphProviders {
 		if (edgeAttributeProvider == null) {
 			edgeAttributeProvider = new ComponentAttributeProvider<ExecEdge>() {
 				@Override
-				public Map<String, String> getComponentAttributes(ExecEdge vertex) {
-					return null;
+				public Map<String, String> getComponentAttributes(ExecEdge edge) {
+					HashMap<String, String> attr = new HashMap<String, String>();
+					//attr.put("w", String.format("%.0f", edge.getWeight()));
+					return attr;
 				}
 			};
 		}

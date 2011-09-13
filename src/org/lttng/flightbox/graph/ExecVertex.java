@@ -1,6 +1,6 @@
 package org.lttng.flightbox.graph;
 
-public class ExecVertex {
+public class ExecVertex implements Comparable<ExecVertex> {
 
 	private String label;
 	private static int count = 0;
@@ -26,6 +26,14 @@ public class ExecVertex {
 
 	public int getId() {
 		return id;
+	}
+	@Override
+	public int compareTo(ExecVertex o) {
+		if (o.id < this.id)
+			return -1;
+		if (o.id == this.id)
+			return 0;
+		return 1;
 	}
 
 }

@@ -16,4 +16,7 @@ public class ExecEdge extends DefaultWeightedEdge {
 		this.label = label;
 	}
 
+	public double getWeight() {
+		return super.getWeight();
+	}
 }
