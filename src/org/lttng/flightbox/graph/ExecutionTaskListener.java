@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.TreeSet;
 
 import org.jgrapht.WeightedGraph;
-import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.DirectedWeightedMultigraph;
 import org.lttng.flightbox.model.ITaskListener;
 import org.lttng.flightbox.model.Task;

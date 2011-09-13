@@ -34,11 +34,7 @@ public class TestExecutionGraph {
 		ModelBuilder.buildFromTrace(tracePath, model);
 		
 		WeightedGraph<ExecVertex, ExecEdge> execGraph = listener.getExecGraph();
-		DOTExporter<ExecVertex, ExecEdge> dot =
-			new DOTExporter<ExecVertex, ExecEdge>(ExecGraphProviders.getVertexIDProvider(),
-					ExecGraphProviders.getVertexNameProvider(), ExecGraphProviders.getEdgeNameProvider(),
-					ExecGraphProviders.getVertexAttributeProvider(), ExecGraphProviders.getEdgeAttributeProvider());
-		
+		DOTExporter<ExecVertex, ExecEdge> dot = ExecGraphProviders.getDOTExporter();
 		OutputStreamWriter writer = new OutputStreamWriter(System.out);
 		dot.export(writer, execGraph);
 	}

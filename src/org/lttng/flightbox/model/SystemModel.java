@@ -69,8 +69,8 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 		processors.clear();
 		for (int i=0; i < numOfProcessors; i++) {
 			Processor p = new Processor(i);
-			p.setParent(this);
 			processors.add(p);
+			p.addListener(this);
 		}
 	}
 
@@ -94,7 +94,7 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 			tasksByPid.put(pid, taskSet);
 		}
 		taskSet.add(t1);
-		t1.setParent(this);
+		t1.addListener(this);
 	}
 
 	public void removeTask(Task t1) {
@@ -102,7 +102,7 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 		if (taskSet != null && taskSet.contains(t1)) {
 			taskSet.remove(t1);
 		}
-		t1.setParent(null);
+		t1.removeListener(this);
 	}
 
 	@Override

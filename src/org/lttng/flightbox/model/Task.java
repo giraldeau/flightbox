@@ -34,17 +34,9 @@ public class Task extends SystemResource implements Comparable<Task> {
 	private boolean listenersEnabled;
 
 	public Task(int pid, long createTs) {
-		this();
 		this.processId = pid;
-		this.setStartTime(createTs);
+		setStartTime(createTs);
 		setEnableListeners(true);
-	}
-
-	public Task(int pid) {
-		this(pid, 0);
-	}
-	
-	public Task() {
 		stateStack = new Stack<StateInfo>();
 		listeners = new HashSet<ITaskListener>();
 		isKernelThread = false;
@@ -55,6 +47,14 @@ public class Task extends SystemResource implements Comparable<Task> {
 				return obj.getFd();
 			}
 		});
+	}
+
+	public Task(int pid) {
+		this(pid, 0);
+	}
+	
+	public Task() {
+		this(0, 0L);
 	}
 
 	@Override
@@ -175,12 +175,8 @@ public class Task extends SystemResource implements Comparable<Task> {
 	public void firePushState(StateInfo nextState) {
 		if (!listenersEnabled)
 			return;
-		if (parent != null) {
-			parent.pushState(this, nextState);
-		} else {
-			for (ITaskListener l: listeners) {
-				l.pushState(this, nextState);
-			}
+		for (ITaskListener l: listeners) {
+			l.pushState(this, nextState);
 		}
 	}
 
@@ -191,12 +187,8 @@ public class Task extends SystemResource implements Comparable<Task> {
 		if (stateStack.size() > 1) {
 			nextState = stateStack.get(stateStack.size() - 2);
 		}
-		if (parent != null) {
-			parent.popState(this, nextState);
-		} else {
-			for (ITaskListener l: listeners) {
-				l.popState(this, nextState);
-			}
+		for (ITaskListener l: listeners) {
+			l.popState(this, nextState);
 		}
 	}
 

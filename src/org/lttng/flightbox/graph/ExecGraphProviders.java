@@ -3,6 +3,7 @@ package org.lttng.flightbox.graph;
 import java.util.Map;
 
 import org.jgrapht.ext.ComponentAttributeProvider;
+import org.jgrapht.ext.DOTExporter;
 import org.jgrapht.ext.EdgeNameProvider;
 import org.jgrapht.ext.VertexNameProvider;
 
@@ -35,7 +36,7 @@ public class ExecGraphProviders {
 			vertexIDProvider = new VertexNameProvider<ExecVertex>() {
 				@Override
 				public String getVertexName(ExecVertex vertex) {
-					return "0";
+					return String.format("%d", vertex.getId());
 				}
 			};
 		}
@@ -76,5 +77,11 @@ public class ExecGraphProviders {
 			};
 		}
 		return edgeAttributeProvider;
-	}	
+	}
+	
+	public static DOTExporter<ExecVertex, ExecEdge> getDOTExporter() {
+		return new DOTExporter<ExecVertex, ExecEdge>(ExecGraphProviders.getVertexIDProvider(),
+					ExecGraphProviders.getVertexNameProvider(), ExecGraphProviders.getEdgeNameProvider(),
+					ExecGraphProviders.getVertexAttributeProvider(), ExecGraphProviders.getEdgeAttributeProvider());
+	}
 }

@@ -67,22 +67,14 @@ public class Processor extends SystemResource implements Comparable<Processor> {
 	}
 
 	private void fireStateChange(ProcessorState nextState) {
-		if (parent != null) {
-			parent.stateChange(this, nextState);
-		} else {
-			for (IProcessorListener l: listeners) {
-				l.stateChange(this, nextState);
-			}
+		for (IProcessorListener l: listeners) {
+			l.stateChange(this, nextState);
 		}
 	}
 
 	private void fireLowPowerModeChange(boolean nextLowPowerMode) {
-		if (parent != null) {
-			parent.lowPowerModeChange(this, nextLowPowerMode);
-		} else {
-			for (IProcessorListener l: listeners) {
-				l.lowPowerModeChange(this, nextLowPowerMode);
-			}
+		for (IProcessorListener l: listeners) {
+			l.lowPowerModeChange(this, nextLowPowerMode);
 		}
 	}
 

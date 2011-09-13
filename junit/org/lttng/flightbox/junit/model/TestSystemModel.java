@@ -45,6 +45,8 @@ public class TestSystemModel {
 
 		@Override
 		public void pushState(Task task, StateInfo nextState) {
+			if (task.getCmd() == null)
+				return;
 			if (task.getCmd().compareTo("/usr/local/bin/inception") == 0) {
 				dumpInfo(task, task.peekState(), nextState, "push");
 			}
@@ -52,6 +54,8 @@ public class TestSystemModel {
 
 		@Override
 		public void popState(Task task, StateInfo nextState) {
+			if (task.getCmd() == null)
+				return;
 			if (task.getCmd().compareTo("/usr/local/bin/inception") == 0) {
 				dumpInfo(task, task.peekState(), nextState, "pop");
 			}

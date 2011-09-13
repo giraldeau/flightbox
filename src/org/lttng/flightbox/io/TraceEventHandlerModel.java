@@ -307,6 +307,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		Task parentTask = model.getLatestTaskByPID(parentPid.intValue());
 		StateInfo info = StateInfoFactory.makeStateInfo(TaskState.ALIVE);
 		info.setStartTime(eventTs);
+		model.addTask(task);
 		task.pushState(info);
 		if (parentTask != null) {
 			task.setCmd(parentTask.getCmd());
@@ -323,7 +324,6 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 			}
 			task.setEnableListeners(true);
 		}
-		model.addTask(task);
 	}
 	
 	public void handle_kernel_process_exit(TraceReader reader, JniEvent event) {
