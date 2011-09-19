@@ -60,6 +60,7 @@ public class StubTraceReader extends TraceReader {
 		
 		newTrace = new StubJniTrace();
 		((StubJniTrace)newTrace).setEventsSource(doc, inventory);
+		
 		return newTrace;
 	}
 	

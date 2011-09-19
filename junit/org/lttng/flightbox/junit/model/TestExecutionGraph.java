@@ -1,7 +1,5 @@
 package org.lttng.flightbox.junit.model;
 
-import static org.junit.Assert.assertTrue;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -25,17 +23,12 @@ public class TestExecutionGraph {
 	
 	@Test
 	public void testSimpleExecutionGraph() throws JniException, IOException {
-		String trace = "inception-3x-100ms";
-		File file = new File(Path.getTraceDir(), trace);
-		// make sure we have this trace
-		assertTrue("Missing trace " + trace, file.isDirectory());
-
-		String tracePath = file.getPath();
+		String trace = "tests/stub/process_fork_exit.xml";
 		SystemModel model = new SystemModel();
 		ExecutionTaskListener listener = new ExecutionTaskListener();
 		model.addTaskListener(listener);
 
-		ModelBuilder.buildFromTrace(tracePath, model);
+		ModelBuilder.buildFromStubTrace(trace, model);
 		
 		WeightedGraph<ExecVertex, ExecEdge> execGraph = listener.getExecGraph();
 		Set<ExecVertex> toRemove = new HashSet<ExecVertex>();
@@ -46,12 +39,12 @@ public class TestExecutionGraph {
 			}
 		}
 		System.out.println("remove " + toRemove.size() + " items");
-		execGraph.removeAllVertices(toRemove);
+		//execGraph.removeAllVertices(toRemove);
 		
 		DOTExporter<ExecVertex, ExecEdge> dot = ExecGraphProviders.getDOTExporter();
 		OutputStreamWriter writer = new OutputStreamWriter(System.out);
-		//dot.export(writer, execGraph);
-		FileWriter fwriter = new FileWriter(new File(Path.getGraphDir(), "exec-graph-" + trace + ".dot"));
+		dot.export(writer, execGraph);
+		FileWriter fwriter = new FileWriter(new File(Path.getGraphDir(), "exec-graph-fork-exit.dot"));
 		dot.export(fwriter, execGraph);
 	}
 }

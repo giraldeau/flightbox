@@ -277,9 +277,8 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		if (info instanceof WaitInfo) {
 			WaitInfo wait = (WaitInfo) info;
 			wait.setBlocking(true);
-			wait.setEndTime(eventTs);
 			if (currentTask != null && currentTask.isKernelThread() && wakeCause == null) {
-				wait.setWakeUpProcess(currentTask);
+				wait.setWakeUpTask(currentTask);
 			} else {
 				wait.setWakeUp(wakeCause);
 			}

@@ -51,8 +51,8 @@ public class TestStubs {
 		long cpu = ev.getParentTracefile().getCpuNumber();
 		assertEquals(cpu, 0L);
 		String eventName = ev.getMarkersMap().get(ev.getEventMarkerId()).getName();
-		assertEquals(eventName, "process_fork");
-		assertEquals(((Long)ev.parseFieldByName("child_pid")).longValue(), 21207L);
+		assertEquals(eventName, "process_state");
+		assertEquals(((Long)ev.parseFieldByName("pid")).longValue(), 0L);
 		
 	}
 	
@@ -63,7 +63,7 @@ public class TestStubs {
 		TraceEventHandlerCounter handler = new TraceEventHandlerCounter();
 		reader.register(handler);
 		reader.process();
-		assertEquals(4, handler.getCount());
+		assertEquals(9, handler.getCount());
 	}
 	
 	@Test

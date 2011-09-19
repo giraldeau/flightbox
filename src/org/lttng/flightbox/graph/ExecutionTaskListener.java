@@ -9,7 +9,7 @@ import org.jgrapht.graph.DirectedWeightedMultigraph;
 import org.lttng.flightbox.model.ITaskListener;
 import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.model.Task.TaskState;
-import org.lttng.flightbox.model.state.AliveInfo;
+import org.lttng.flightbox.model.state.ExitInfo;
 import org.lttng.flightbox.model.state.StateInfo;
 import org.lttng.flightbox.model.state.WaitInfo;
 
@@ -25,8 +25,11 @@ public class ExecutionTaskListener implements ITaskListener {
 	
 	@Override
 	public void pushState(Task task, StateInfo nextState) {
-		if (nextState.getTaskState() == TaskState.ALIVE) {
+		TaskState taskState = nextState.getTaskState();
+		switch (taskState) {
+		case ALIVE:
 			ExecVertex v = new ExecVertex();
+			v.setTimestamp(nextState.getStartTime());
 			v.setLabel(task.toString() + " fork");
 			graph.addVertex(v);
 			TreeSet<ExecVertex> set = taskVertex.get(task);
@@ -35,6 +38,9 @@ public class ExecutionTaskListener implements ITaskListener {
 				taskVertex.put(task, set);
 			}
 			set.add(v);
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -43,9 +49,10 @@ public class ExecutionTaskListener implements ITaskListener {
 		StateInfo currState = task.peekState();
 		TaskState taskState = currState.getTaskState();
 		switch (taskState) {
-		case ALIVE :
-			AliveInfo alive = (AliveInfo) currState;
+		case EXIT :
+			ExitInfo exit = (ExitInfo) currState;
 			ExecVertex v = new ExecVertex();
+			v.setTimestamp(exit.getStartTime());
 			v.setLabel(task.toString() + " exit");
 			graph.addVertex(v);
 			TreeSet<ExecVertex> set = taskVertex.get(task);
@@ -55,7 +62,7 @@ public class ExecutionTaskListener implements ITaskListener {
 			}
 			if (set != null && set.size() > 0) {
 				graph.addEdge(set.last(), v);
-				graph.setEdgeWeight(graph.getEdge(set.last(), v), (double) alive.getDuration());
+				graph.setEdgeWeight(graph.getEdge(set.last(), v), (double) exit.getDuration());
 			}
 			set.add(v);
 			break;
@@ -64,9 +71,10 @@ public class ExecutionTaskListener implements ITaskListener {
 			if (!wait.isBlocking())
 				break;
 			// create two vertex, one at block start and end
-			// TODO: link to the related subtask
 			ExecVertex v1 = new ExecVertex();
 			ExecVertex v2 = new ExecVertex();
+			v1.setTimestamp(wait.getStartTime());
+			v2.setTimestamp(wait.getEndTime());
 			v1.setLabel(task.toString() + " wait");
 			v2.setLabel(task.toString() + " wake");
 			graph.addVertex(v1);
@@ -80,14 +88,30 @@ public class ExecutionTaskListener implements ITaskListener {
 				ExecVertex last = vset.last();
 				ExecEdge e1 = graph.addEdge(last, v1);
 				ExecEdge e2 = graph.addEdge(v1, v2);
-				//graph.setEdgeWeight(e1, ???);
+				graph.setEdgeWeight(e1, wait.getStartTime() - last.getTimestamp());
 				graph.setEdgeWeight(e2, wait.getDuration());
 			}
 			vset.add(v1);
 			vset.add(v2);
+			linkSubTask(task, wait, v1, v2);
 			break;
 		default:
 			break;
+		}
+	}
+
+	private void linkSubTask(Task task, WaitInfo wait, ExecVertex v1, ExecVertex v2) {
+		Task subTask = wait.getWakeUp().getTask();
+		/* link the parent and the child, do it only in case of a wait to avoid noise */
+		if (subTask.getParentProcess() == task) {
+			TreeSet<ExecVertex> set = taskVertex.get(subTask);
+			graph.addEdge(v1, set.first());
+		}
+		
+		/* the task was waiting on a process, assuming the other task already exited */
+		if (wait.getWakeUp().getTaskState() == TaskState.EXIT) {
+			TreeSet<ExecVertex> set = taskVertex.get(subTask);
+			graph.addEdge(set.last(), v2);
 		}
 	}
 

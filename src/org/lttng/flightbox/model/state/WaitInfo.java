@@ -39,7 +39,7 @@ public class WaitInfo extends StateInfo {
 		this.waitingSyscall = syscallInfo;
 	}
 
-	public void setWakeUpProcess(Task task) {
+	public void setWakeUpTask(Task task) {
 		this.wakeUpProcess = task;
 	}
 

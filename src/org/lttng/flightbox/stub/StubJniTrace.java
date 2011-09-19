@@ -12,6 +12,7 @@ import javax.management.RuntimeErrorException;
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
 import org.eclipse.linuxtools.lttng.jni.JniTracefile;
+import org.eclipse.linuxtools.lttng.jni.common.JniTime;
 import org.eclipse.linuxtools.lttng.jni.common.Jni_C_Pointer_And_Library_Id;
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.jdom.Attribute;
@@ -152,5 +153,10 @@ public class StubJniTrace extends JniTrace {
 
 	public void setInventory(Document inventory) {
 		
+	}
+	
+	@Override
+	public JniTime getStartTime() {
+		return new JniTime();
 	}
 }
