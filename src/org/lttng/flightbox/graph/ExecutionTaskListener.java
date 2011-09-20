@@ -30,7 +30,7 @@ public class ExecutionTaskListener implements ITaskListener {
 		case ALIVE:
 			ExecVertex v1 = new ExecVertex();
 			v1.setTimestamp(nextState.getStartTime());
-			v1.setLabel(task.toString() + " S");
+			v1.setLabel(task.getProcessId() + " S");
 			graph.addVertex(v1);
 			TreeSet<ExecVertex> set = taskVertex.get(task);
 			if (set == null) {
@@ -43,7 +43,7 @@ public class ExecutionTaskListener implements ITaskListener {
 			if (parent != null) {
 				ExecVertex v2 = new ExecVertex();
 				v2.setTimestamp(nextState.getStartTime());
-				v2.setLabel(parent.toString() + " F");
+				v2.setLabel(parent.getProcessId() + " F");
 				graph.addVertex(v2);
 				set = taskVertex.get(parent);
 				if (set == null) {
@@ -73,7 +73,7 @@ public class ExecutionTaskListener implements ITaskListener {
 			ExitInfo exit = (ExitInfo) currState;
 			ExecVertex v = new ExecVertex();
 			v.setTimestamp(exit.getStartTime());
-			v.setLabel(task.toString() + " E");
+			v.setLabel(task.getProcessId() + " E");
 			graph.addVertex(v);
 			TreeSet<ExecVertex> set = taskVertex.get(task);
 			if (set == null) {
@@ -81,8 +81,9 @@ public class ExecutionTaskListener implements ITaskListener {
 				taskVertex.put(task, set);
 			}
 			if (set != null && set.size() > 0) {
-				graph.addEdge(set.last(), v);
-				graph.setEdgeWeight(graph.getEdge(set.last(), v), (double) exit.getDuration());
+				ExecVertex last = set.last();
+				ExecEdge e = graph.addEdge(last, v);
+				graph.setEdgeWeight(e, exit.getEndTime() - last.getTimestamp());
 			}
 			set.add(v);
 			break;
@@ -95,8 +96,8 @@ public class ExecutionTaskListener implements ITaskListener {
 			ExecVertex v2 = new ExecVertex();
 			v1.setTimestamp(wait.getStartTime());
 			v2.setTimestamp(wait.getEndTime());
-			v1.setLabel(task.toString() + " B");
-			v2.setLabel(task.toString() + " W");
+			v1.setLabel(task.getProcessId() + " B");
+			v2.setLabel(task.getProcessId() + " W");
 			graph.addVertex(v1);
 			graph.addVertex(v2);
 			TreeSet<ExecVertex> vset = taskVertex.get(task);
@@ -104,7 +105,7 @@ public class ExecutionTaskListener implements ITaskListener {
 				vset = new TreeSet<ExecVertex>();
 				taskVertex.put(task, vset);
 			}
-			if (vset != null && vset.size() > 0) {
+			if (!vset.isEmpty()) {
 				ExecVertex last = vset.last();
 				ExecEdge e1 = graph.addEdge(last, v1);
 				ExecEdge e2 = graph.addEdge(v1, v2);
