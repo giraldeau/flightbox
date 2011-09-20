@@ -307,6 +307,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		StateInfo info = StateInfoFactory.makeStateInfo(TaskState.ALIVE);
 		info.setStartTime(eventTs);
 		model.addTask(task);
+		task.setParentTask(parentTask);
 		task.pushState(info);
 		if (parentTask != null) {
 			task.setCmd(parentTask.getCmd());

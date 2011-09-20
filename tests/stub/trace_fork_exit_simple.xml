@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<trace cpus="2" inventory="inventory-linux-2.6.35.xml">
+  <events>
+    <!-- state dump --> 
+  	<event ts="1" cpu="0" channel="task_state" name="process_state" pid="0" parent_pid="0" type="0" tgid="0"/>
+  	<event ts="1" cpu="0" channel="syscall_state" name="sys_call_table" id="61" symbol="sys_wait4+0x0/0x100"/>
+  	<event ts="2" cpu="0" channel="global_state" name="statedump_end"/>
+  	
+  	<!-- master fork -->
+    <event ts="10" cpu="0" channel="kernel" name="process_fork" child_pid="1" parent_pid="0"/>
+    <event ts="20" cpu="0" channel="kernel" name="sched_schedule" prev_pid="0" next_pid="1"/>
+    
+    <!-- child fork -->
+    <event ts="30" cpu="1" channel="kernel" name="process_fork" child_pid="2" parent_pid="1"/>
+    <event ts="40" cpu="1" channel="kernel" name="sched_schedule" prev_pid="0" next_pid="2"/>
+    
+    <!-- master and child executes until exit -->
+    <!-- child exit -->
+    <event ts="70" cpu="1" channel="kernel" name="process_exit" pid="2"/>
+    <event ts="90" cpu="1" channel="kernel" name="sched_schedule" prev_pid="2" next_pid="0"/>
+
+    <!-- master exit -->
+    <event ts="110" cpu="0" channel="kernel" name="process_exit" pid="1"/>
+    <event ts="120" cpu="0" channel="kernel" name="sched_schedule" prev_pid="1" next_pid="0"/>
+    
+  </events>
+</trace>

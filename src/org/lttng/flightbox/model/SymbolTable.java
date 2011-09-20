@@ -37,4 +37,11 @@ public class SymbolTable {
 		return symbols;
 	}
 
+	public String dumpTable() {
+		StringBuilder str = new StringBuilder();
+		for (Integer i: symbols.keySet()) {
+			str.append(String.format("%-3d %s\n", i, symbols.get(i)));
+		}
+		return str.toString();
+	}
 }

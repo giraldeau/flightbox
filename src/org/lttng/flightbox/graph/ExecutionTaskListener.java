@@ -28,16 +28,36 @@ public class ExecutionTaskListener implements ITaskListener {
 		TaskState taskState = nextState.getTaskState();
 		switch (taskState) {
 		case ALIVE:
-			ExecVertex v = new ExecVertex();
-			v.setTimestamp(nextState.getStartTime());
-			v.setLabel(task.toString() + " fork");
-			graph.addVertex(v);
+			ExecVertex v1 = new ExecVertex();
+			v1.setTimestamp(nextState.getStartTime());
+			v1.setLabel(task.toString() + " S");
+			graph.addVertex(v1);
 			TreeSet<ExecVertex> set = taskVertex.get(task);
 			if (set == null) {
 				set = new TreeSet<ExecVertex>();
 				taskVertex.put(task, set);
 			}
-			set.add(v);
+			set.add(v1);
+			// link parent
+			Task parent = task.getParentProcess();
+			if (parent != null) {
+				ExecVertex v2 = new ExecVertex();
+				v2.setTimestamp(nextState.getStartTime());
+				v2.setLabel(parent.toString() + " F");
+				graph.addVertex(v2);
+				set = taskVertex.get(parent);
+				if (set == null) {
+					set = new TreeSet<ExecVertex>();
+					taskVertex.put(parent, set);
+				}
+				if (!set.isEmpty()) {
+					ExecVertex last = set.last();
+					graph.addEdge(last, v2);
+				}
+				set.add(v2);
+				ExecEdge e = graph.addEdge(v2, v1);
+				graph.setEdgeWeight(e, 0.0);
+			}
 			break;
 		default:
 			break;
@@ -53,7 +73,7 @@ public class ExecutionTaskListener implements ITaskListener {
 			ExitInfo exit = (ExitInfo) currState;
 			ExecVertex v = new ExecVertex();
 			v.setTimestamp(exit.getStartTime());
-			v.setLabel(task.toString() + " exit");
+			v.setLabel(task.toString() + " E");
 			graph.addVertex(v);
 			TreeSet<ExecVertex> set = taskVertex.get(task);
 			if (set == null) {
@@ -75,8 +95,8 @@ public class ExecutionTaskListener implements ITaskListener {
 			ExecVertex v2 = new ExecVertex();
 			v1.setTimestamp(wait.getStartTime());
 			v2.setTimestamp(wait.getEndTime());
-			v1.setLabel(task.toString() + " wait");
-			v2.setLabel(task.toString() + " wake");
+			v1.setLabel(task.toString() + " B");
+			v2.setLabel(task.toString() + " W");
 			graph.addVertex(v1);
 			graph.addVertex(v2);
 			TreeSet<ExecVertex> vset = taskVertex.get(task);
@@ -101,17 +121,13 @@ public class ExecutionTaskListener implements ITaskListener {
 	}
 
 	private void linkSubTask(Task task, WaitInfo wait, ExecVertex v1, ExecVertex v2) {
-		Task subTask = wait.getWakeUp().getTask();
-		/* link the parent and the child, do it only in case of a wait to avoid noise */
-		if (subTask.getParentProcess() == task) {
-			TreeSet<ExecVertex> set = taskVertex.get(subTask);
-			graph.addEdge(v1, set.first());
-		}
-		
+		Task subTask = wait.getWakeUp().getTask();		
 		/* the task was waiting on a process, assuming the other task already exited */
 		if (wait.getWakeUp().getTaskState() == TaskState.EXIT) {
 			TreeSet<ExecVertex> set = taskVertex.get(subTask);
-			graph.addEdge(set.last(), v2);
+			ExecVertex last = set.last();
+			ExecEdge e = graph.addEdge(last, v2);
+			graph.setEdgeWeight(e, 0);
 		}
 	}
 
