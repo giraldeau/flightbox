@@ -2,10 +2,12 @@ package org.lttng.flightbox.graph;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.jgrapht.WeightedGraph;
 import org.jgrapht.graph.DirectedWeightedMultigraph;
+import org.lttng.flightbox.graph.ExecVertex.ExecType;
 import org.lttng.flightbox.model.ITaskListener;
 import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.model.Task.TaskState;
@@ -30,7 +32,8 @@ public class ExecutionTaskListener implements ITaskListener {
 		case ALIVE:
 			ExecVertex v1 = new ExecVertex();
 			v1.setTimestamp(nextState.getStartTime());
-			v1.setLabel(task.getProcessId() + " S");
+			v1.setType(ExecType.START);
+			v1.setTask(task);
 			graph.addVertex(v1);
 			TreeSet<ExecVertex> set = taskVertex.get(task);
 			if (set == null) {
@@ -43,7 +46,8 @@ public class ExecutionTaskListener implements ITaskListener {
 			if (parent != null) {
 				ExecVertex v2 = new ExecVertex();
 				v2.setTimestamp(nextState.getStartTime());
-				v2.setLabel(parent.getProcessId() + " F");
+				v2.setType(ExecType.FORK);
+				v2.setTask(parent);
 				graph.addVertex(v2);
 				set = taskVertex.get(parent);
 				if (set == null) {
@@ -52,7 +56,8 @@ public class ExecutionTaskListener implements ITaskListener {
 				}
 				if (!set.isEmpty()) {
 					ExecVertex last = set.last();
-					graph.addEdge(last, v2);
+					ExecEdge e = graph.addEdge(last, v2);
+					graph.setEdgeWeight(e, nextState.getStartTime() - last.getTimestamp());
 				}
 				set.add(v2);
 				ExecEdge e = graph.addEdge(v2, v1);
@@ -73,7 +78,8 @@ public class ExecutionTaskListener implements ITaskListener {
 			ExitInfo exit = (ExitInfo) currState;
 			ExecVertex v = new ExecVertex();
 			v.setTimestamp(exit.getStartTime());
-			v.setLabel(task.getProcessId() + " E");
+			v.setType(ExecType.EXIT);
+			v.setTask(task);
 			graph.addVertex(v);
 			TreeSet<ExecVertex> set = taskVertex.get(task);
 			if (set == null) {
@@ -96,8 +102,11 @@ public class ExecutionTaskListener implements ITaskListener {
 			ExecVertex v2 = new ExecVertex();
 			v1.setTimestamp(wait.getStartTime());
 			v2.setTimestamp(wait.getEndTime());
-			v1.setLabel(task.getProcessId() + " B");
-			v2.setLabel(task.getProcessId() + " W");
+			v1.setType(ExecType.BLOCK);
+			v2.setType(ExecType.WAKEUP);
+			v2.setLabel("test");
+			v1.setTask(task);
+			v2.setTask(task);
 			graph.addVertex(v1);
 			graph.addVertex(v2);
 			TreeSet<ExecVertex> vset = taskVertex.get(task);
@@ -136,4 +145,7 @@ public class ExecutionTaskListener implements ITaskListener {
 		return graph;
 	}
 	
+	public SortedSet<ExecVertex> getTaskVertex(Task task) {
+		return taskVertex.get(task);
+	}
 }

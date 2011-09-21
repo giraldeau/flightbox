@@ -25,8 +25,7 @@ public class ExecGraphProviders {
 			vertexNameProvider = new VertexNameProvider<ExecVertex>() {
 				@Override
 				public String getVertexName(ExecVertex vertex) {
-					return vertex.getLabel();
-					//return "test";
+					return String.format("[%d] %d %s", vertex.getId(), vertex.getTask().getProcessId(), vertex.getType());
 				}
 			};
 		}

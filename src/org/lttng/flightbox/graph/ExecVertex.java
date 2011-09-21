@@ -1,11 +1,19 @@
 package org.lttng.flightbox.graph;
 
+import org.lttng.flightbox.model.Task;
+
 public class ExecVertex implements Comparable<ExecVertex> {
 
+	public enum ExecType {
+		UNKNOWN, BLOCK, WAKEUP, FORK, START, EXIT
+	}
+	
 	private String label;
 	private static int count = 0;
 	private int id;
 	private long ts;
+	private ExecType type;
+	private Task task;
 
 	public ExecVertex() {
 		this(count++);		
@@ -16,6 +24,7 @@ public class ExecVertex implements Comparable<ExecVertex> {
 	public ExecVertex(int id, long ts) {
 		setId(id);
 		setTimestamp(ts);
+		setType(ExecType.UNKNOWN);
 	}
 	public String getLabel() {
 		return this.label;
@@ -46,5 +55,21 @@ public class ExecVertex implements Comparable<ExecVertex> {
 	public long getTimestamp() {
 		return ts;
 	}
-
+	
+	@Override
+	public String toString() {
+		return String.format("%d", this.id);
+	}
+	public ExecType getType() {
+		return type;
+	}
+	public void setType(ExecType type) {
+		this.type = type;
+	}
+	public Task getTask() {
+		return task;
+	}
+	public void setTask(Task task) {
+		this.task = task;
+	}
 }

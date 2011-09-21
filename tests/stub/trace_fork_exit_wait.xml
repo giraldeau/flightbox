@@ -15,20 +15,20 @@
     <event ts="40" cpu="1" channel="kernel" name="sched_schedule" prev_pid="0" next_pid="2"/>
     
     <!-- master block on child -->
-    <event ts="50" cpu="0" channel="kernel" name="syscall_entry" syscall_id="61"/>
-    <event ts="60" cpu="0" channel="kernel" name="sched_schedule" prev_pid="1" next_pid="0"/>
+    <event ts="60" cpu="0" channel="kernel" name="syscall_entry" syscall_id="61"/>
+    <event ts="70" cpu="0" channel="kernel" name="sched_schedule" prev_pid="1" next_pid="0"/>
     
     <!-- child exit -->
-    <event ts="70" cpu="1" channel="kernel" name="process_exit" pid="2"/>
-    <event ts="80" cpu="1" channel="kernel" name="sched_try_wakeup" pid="1"/>
-    <event ts="90" cpu="1" channel="kernel" name="sched_schedule" prev_pid="2" next_pid="0"/>
+    <event ts="80" cpu="1" channel="kernel" name="process_exit" pid="2"/>
+    <event ts="90" cpu="1" channel="kernel" name="sched_try_wakeup" pid="1"/>
+    <event ts="100" cpu="1" channel="kernel" name="sched_schedule" prev_pid="2" next_pid="0"/>
 
 	<!-- master wakeup -->    
-    <event ts="100" cpu="0" channel="kernel" name="sched_schedule" prev_pid="0" next_pid="1"/>
+    <event ts="110" cpu="0" channel="kernel" name="sched_schedule" prev_pid="0" next_pid="1"/>
     
     <!-- master exit -->
-    <event ts="110" cpu="0" channel="kernel" name="process_exit" pid="1"/>
-    <event ts="120" cpu="0" channel="kernel" name="sched_schedule" prev_pid="1" next_pid="0"/>
+    <event ts="120" cpu="0" channel="kernel" name="process_exit" pid="1"/>
+    <event ts="130" cpu="0" channel="kernel" name="sched_schedule" prev_pid="1" next_pid="0"/>
     
   </events>
 </trace>
