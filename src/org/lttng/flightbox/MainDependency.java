@@ -1,7 +1,7 @@
 package org.lttng.flightbox;
 
 import java.io.File;
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -12,12 +12,18 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
+import org.jgrapht.WeightedGraph;
+import org.jgrapht.graph.Subgraph;
 import org.lttng.flightbox.cpu.TraceEventHandlerProcess;
+import org.lttng.flightbox.dep.BlockingItem;
 import org.lttng.flightbox.dep.BlockingModel;
 import org.lttng.flightbox.dep.BlockingReport;
 import org.lttng.flightbox.dep.BlockingStats;
 import org.lttng.flightbox.dep.BlockingTaskListener;
-import org.lttng.flightbox.dep.BlockingItem;
+import org.lttng.flightbox.graph.ExecEdge;
+import org.lttng.flightbox.graph.ExecVertex;
+import org.lttng.flightbox.graph.ExecutionTaskListener;
+import org.lttng.flightbox.graph.GraphUtils;
 import org.lttng.flightbox.io.ITraceEventHandler;
 import org.lttng.flightbox.io.ModelBuilder;
 import org.lttng.flightbox.model.SystemModel;
@@ -45,8 +51,9 @@ public class MainDependency {
 			printUsage();
 			System.exit(1);
 		}
-
+		
 		String tracePath = null;
+		String traceName = null;
 		String cmdFilter = null;
 		Integer pidFilter = null;
 		boolean hasFilter = false;
@@ -85,12 +92,14 @@ public class MainDependency {
 			System.out.println("Error: can't read directory " + tracePath);
 			System.exit(1);
 		}
-
+		
 		long t1 = System.currentTimeMillis();
 		SystemModel model = new SystemModel();
 		BlockingTaskListener listener = new BlockingTaskListener();
-		model.addTaskListener(listener);
 		listener.setModel(model);
+		
+		ExecutionTaskListener taskListener = new ExecutionTaskListener();
+		model.addTaskListener(taskListener);
 
 		TraceEventHandlerProcess handlerProcess = new TraceEventHandlerProcess();
 		ITraceEventHandler[] handlers = new ITraceEventHandler[] { handlerProcess };
@@ -137,14 +146,25 @@ public class MainDependency {
 			BlockingReport.printSummary(str, t, stats, model);
 		}
 
+		new File("tmp").mkdir();
+		
 		ResourceUsage<Long> cpuStats = handlerProcess.getUsageStats();
 		for (Task t: tasks) {
 			BlockingReport.printCpuAccounting(str, t, model, cpuStats);
+			Subgraph<ExecVertex, ExecEdge, WeightedGraph<ExecVertex, ExecEdge>> taskExecGraph = taskListener.getTaskExecGraph(t);
+			if (taskExecGraph == null)
+				continue;
+			try {
+				GraphUtils.saveGraph(taskExecGraph, String.format("tmp/exec-graph-%s-%d.dot", traceFile.getName(), t.getProcessId()));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
-
+		
 		System.out.println(str.toString());
 		System.out.println("Analysis time: " + (t2 - t1) + "ms");
 		System.out.println("Done");
+		
 	}
 
 	private static void printUsage() {

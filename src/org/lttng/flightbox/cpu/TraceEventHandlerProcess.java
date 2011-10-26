@@ -12,6 +12,10 @@ import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.model.Task.TaskState;
 import org.lttng.flightbox.statistics.ResourceUsage;
 
+/*
+ * Provides the current task running on a CPU according to scheduling events
+ */
+
 public class TraceEventHandlerProcess extends TraceEventHandlerBase {
 
 	int count;
