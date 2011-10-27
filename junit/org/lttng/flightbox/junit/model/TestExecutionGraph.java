@@ -1,24 +1,17 @@
 package org.lttng.flightbox.junit.model;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.SortedSet;
 
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
-import org.jgrapht.Graph;
 import org.jgrapht.WeightedGraph;
 import org.jgrapht.alg.DijkstraShortestPath;
-import org.jgrapht.ext.DOTExporter;
 import org.junit.Test;
 import org.lttng.flightbox.graph.ExecEdge;
-import org.lttng.flightbox.graph.ExecGraphProviders;
 import org.lttng.flightbox.graph.ExecVertex;
 import org.lttng.flightbox.graph.ExecutionTaskListener;
 import org.lttng.flightbox.graph.GraphUtils;
 import org.lttng.flightbox.io.ModelBuilder;
-import org.lttng.flightbox.junit.Path;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
 
