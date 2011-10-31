@@ -1,12 +1,15 @@
 package org.lttng.flightbox.junit.model;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.Graph;
@@ -51,15 +54,23 @@ public class TestExecutionGraphSimple {
 	}
 	
 	@Test
-	public void testSetup() throws IOException {
-		dumpGraph(g1);
+	public void testReverseBreadthFirstIterator() throws IOException {
+		//dumpGraph(g1);
+		List<String> exp = Arrays.asList("s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8");
 		ReverseBreadthFirstIterator<String, DefaultEdge> iterator = new ReverseBreadthFirstIterator<String, DefaultEdge>(g1, "s5");
 		ArrayList<String> list = new ArrayList<String>();
 		while(iterator.hasNext()) {
 			list.add(0, iterator.next());
 		}
-		System.out.print(list.toString());
+		//System.out.println(list + " " + exp);
 		assertEquals(9, list.size());
+		assertTrue(list.containsAll(exp));
+		assertTrue(exp.containsAll(list));
+	}
+	
+	@Test
+	public void testExtractSubgraph() {
+		
 	}
 	
 	static void dumpGraph(Graph<String, DefaultEdge> g) throws IOException {
