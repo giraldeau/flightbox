@@ -12,9 +12,9 @@ import org.jgrapht.traverse.CrossComponentIterator;
 
 public class ReverseBreadthFirstIterator<V, E> extends CrossComponentIterator<V, E, Object> {
 
-	private Deque<V> queue = new ArrayDeque<V>();
-	private V startVertex;
-	private DirectedGraph<V, E> graph;
+	protected Deque<V> queue = new ArrayDeque<V>();
+	protected V startVertex;
+	protected DirectedGraph<V, E> graph;
 	
 	/* we start by the last vertex */
 	public ReverseBreadthFirstIterator(DirectedGraph<V, E> g, V startVertex) {
@@ -69,6 +69,7 @@ public class ReverseBreadthFirstIterator<V, E> extends CrossComponentIterator<V,
 		}
 		return !queue.isEmpty();
 	}
+	
 	private void addUnseenChildrenOf(V vertex) {
 		for (E edge: graph.incomingEdgesOf(vertex)) {
 			if (nListeners != 0) {
@@ -84,11 +85,11 @@ public class ReverseBreadthFirstIterator<V, E> extends CrossComponentIterator<V,
 		}
 	}
 	
-	private EdgeTraversalEvent<V, E> createEdgeTraversalEvent(E edge) {
+	protected EdgeTraversalEvent<V, E> createEdgeTraversalEvent(E edge) {
 		return new EdgeTraversalEvent<V, E>(this, edge);
 	}
 	
-	private VertexTraversalEvent<V> createVertexTraversalEvent(V vertex) {
+	protected VertexTraversalEvent<V> createVertexTraversalEvent(V vertex) {
 		return new VertexTraversalEvent<V>(this, vertex);
 	}
 }
