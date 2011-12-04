@@ -6,6 +6,10 @@ import java.util.Set;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.Graphs;
 
+/*
+ * The reverse graph iterator visits vertex from end to start through
+ * the lightweight edge.
+ */
 public class ReverseClosestIterator<V, E> extends ReverseBreadthFirstIterator<V, E> {
 
 	public ReverseClosestIterator(DirectedGraph<V, E> g, V startVertex) {
