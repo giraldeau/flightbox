@@ -11,7 +11,6 @@ import org.lttng.flightbox.model.state.WaitInfo;
 
 public class BlockingTaskListener extends AbstractTaskListener {
 
-	private SystemModel model; 
 	private BlockingModel blockingModel;
 	
 	public BlockingTaskListener() {
@@ -54,16 +53,4 @@ public class BlockingTaskListener extends AbstractTaskListener {
 		}
 		return m;
 	}
-
-	public void setModel(SystemModel model) {
-		this.model = model;
-		if (model != null) {
-			this.blockingModel = model.getBlockingModel();
-		}
-	}
-
-	public SystemModel getModel() {
-		return model;
-	}
-
 }

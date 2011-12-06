@@ -7,10 +7,13 @@ import java.util.TreeSet;
 
 import org.lttng.flightbox.graph.ExecVertex.ExecType;
 import org.lttng.flightbox.model.AbstractTaskListener;
+import org.lttng.flightbox.model.FileDescriptor;
+import org.lttng.flightbox.model.SocketInet;
 import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.model.Task.TaskState;
 import org.lttng.flightbox.model.state.ExitInfo;
 import org.lttng.flightbox.model.state.StateInfo;
+import org.lttng.flightbox.model.state.SyscallInfo;
 import org.lttng.flightbox.model.state.WaitInfo;
 
 public class ExecutionTaskListener extends AbstractTaskListener {
@@ -129,13 +132,36 @@ public class ExecutionTaskListener extends AbstractTaskListener {
 	}
 
 	private void linkSubTask(Task task, WaitInfo wait, ExecVertex v1, ExecVertex v2) {
-		Task subTask = wait.getWakeUp().getTask();		
+		StateInfo state = wait.getWakeUp();
+		if (state == null)
+			return;
+		Task subTask = state.getTask();
 		/* the task was waiting on a process, assuming the other task already exited */
-		if (wait.getWakeUp().getTaskState() == TaskState.EXIT) {
+
+		switch (state.getTaskState()) {
+		case EXIT :
 			TreeSet<ExecVertex> set = taskVertex.get(subTask);
-			ExecVertex last = set.last();
-			ExecEdge e = graph.addEdge(last, v2);
-			graph.setEdgeWeight(e, 0);
+			if (set != null && !set.isEmpty()) {
+				ExecVertex last = set.last();
+				ExecEdge e = graph.addEdge(last, v2);
+				graph.setEdgeWeight(e, 0);
+			}
+			break;
+		case SOFTIRQ:
+			break;
+			/*
+			int id = waitingSyscall.getSyscallId();
+			String name = model.getSyscallTable().get(id);
+			if (name.equals("sys_read")) {
+				FileDescriptor fd = waitingSyscall.getFileDescriptor();
+				if (fd instanceof SocketInet) {
+					SocketInet sock = (SocketInet) fd;
+					return model.findTaskByComplementSocket(sock);
+				}
+			}
+			*/
+		default:
+			break;
 		}
 	}
 

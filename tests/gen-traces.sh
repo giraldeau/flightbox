@@ -32,7 +32,9 @@ for SCRIPT in $(find $TRACE_SCRIPTS -type f); do
     TRACE_PATH=$TRACE_DIR/$NAME
     rm -rf $TRACE_PATH
     lttctl -o channel.all.bufnum=8 -C -w $TRACE_PATH $NAME 
+    sleep 1
     $SCRIPT
+    sleep 1
     lttctl -D $NAME
 done
 

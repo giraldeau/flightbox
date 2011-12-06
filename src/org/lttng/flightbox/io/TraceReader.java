@@ -60,7 +60,6 @@ public class TraceReader {
 		try {
 			hook.method = handler.getClass().getMethod(methodName, argTypes);
 		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			isHookOk = false;
 		} catch (NoSuchMethodException e) {
@@ -127,34 +126,9 @@ public class TraceReader {
 
 			hooks = getHookSetByIdArrayHashCode(traceFileName, traceFileName.hashCode(), eventName, eventId);
 
-			// FIXME: remove hook if an exception is raised
-			for (TraceHook h: hooks){
-				try {
-					h.method.invoke(h.instance, this, event);
-				} catch (IllegalArgumentException e) {
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					System.err.println("error while executing " + h.method + " on " + h.instance);
-					e.printStackTrace();
-				}
-			}
+			runHookSet(hooks, event);
+			runHookSet(catchAllHook, event);
 
-			for (TraceHook h: catchAllHook) {
-				try {
-					h.method.invoke(h.instance, this, event);
-				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (InvocationTargetException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
 		}
 
 		for(ITraceEventHandler handler: handlers.values()) {
@@ -164,6 +138,24 @@ public class TraceReader {
 		trace.closeTrace();
 	}
 
+	public void runHookSet(Set<TraceHook> hooks, JniEvent event) {
+		for (TraceHook h: hooks){
+			try {
+				h.method.invoke(h.instance, this, event);
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+				cancel = true;
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+				cancel = true;
+			} catch (InvocationTargetException e) {
+				System.err.println("error while executing " + h.method + " on " + h.instance);
+				e.printStackTrace();
+				cancel = true;
+			}
+		}		
+	}
+	
 	public Set<TraceHook> getHookSetByName(String channelName, String eventName) {
 		Map<String, Set<TraceHook>> channelHooks;
 		Set<TraceHook> hooks = null;
