@@ -1,35 +1,25 @@
 package org.lttng.flightbox.graph;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.jgrapht.WeightedGraph;
-import org.jgrapht.event.EdgeTraversalEvent;
-import org.jgrapht.event.TraversalListenerAdapter;
-import org.jgrapht.event.VertexTraversalEvent;
-import org.jgrapht.graph.DirectedWeightedMultigraph;
-import org.jgrapht.graph.Subgraph;
-import org.jgrapht.traverse.AbstractGraphIterator;
-import org.jgrapht.traverse.BreadthFirstIterator;
 import org.lttng.flightbox.graph.ExecVertex.ExecType;
-import org.lttng.flightbox.model.ITaskListener;
+import org.lttng.flightbox.model.AbstractTaskListener;
 import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.model.Task.TaskState;
 import org.lttng.flightbox.model.state.ExitInfo;
 import org.lttng.flightbox.model.state.StateInfo;
 import org.lttng.flightbox.model.state.WaitInfo;
 
-public class ExecutionTaskListener implements ITaskListener {
+public class ExecutionTaskListener extends AbstractTaskListener {
 
-	DirectedWeightedMultigraph<ExecVertex, ExecEdge> graph;
+	ExecGraph graph;
 	Map<Task, TreeSet<ExecVertex>> taskVertex;
 	
 	public ExecutionTaskListener() {
-		graph = new DirectedWeightedMultigraph<ExecVertex, ExecEdge>(ExecEdge.class);
+		graph = new ExecGraph(ExecEdge.class);
 		taskVertex = new HashMap<Task, TreeSet<ExecVertex>>();
 	}
 	
@@ -149,46 +139,12 @@ public class ExecutionTaskListener implements ITaskListener {
 		}
 	}
 
-	public WeightedGraph<ExecVertex, ExecEdge> getExecGraph() {
+	public ExecGraph getExecGraph() {
 		return graph;
-	}
-	
-	public Subgraph<ExecVertex, ExecEdge, WeightedGraph<ExecVertex, ExecEdge>> getTaskExecGraph(Task task) {
-		final Set<ExecVertex> v = new HashSet<ExecVertex>();
-		final Set<ExecEdge> e = new HashSet<ExecEdge>();
-		
-		TreeSet<ExecVertex> baseSet = taskVertex.get(task);
-		if (baseSet == null || baseSet.isEmpty())
-			return null;
-		
-		final ExecVertex first = baseSet.first();
-		
-		TraversalListenerAdapter<ExecVertex, ExecEdge> listener = new TraversalListenerAdapter<ExecVertex, ExecEdge>() {
-			@Override
-			public void edgeTraversed(EdgeTraversalEvent<ExecVertex, ExecEdge> event) {
-				e.add(event.getEdge());
-			}
-			@Override
-			public void vertexTraversed(VertexTraversalEvent<ExecVertex> event) {
-				v.add(event.getVertex());
-			}
-		};
-		
-		AbstractGraphIterator<ExecVertex, ExecEdge> graphIterator = new BreadthFirstIterator<ExecVertex, ExecEdge>(graph, first);
-		graphIterator.addTraversalListener(listener);
-		while(graphIterator.hasNext())
-			graphIterator.next();
-		
-		Subgraph<ExecVertex, ExecEdge, WeightedGraph<ExecVertex,ExecEdge>> sub = 
-			new Subgraph<ExecVertex, ExecEdge, WeightedGraph<ExecVertex,ExecEdge>>(graph, v, e);
-		return sub;
-	}
-	
-	public Subgraph<ExecVertex, ExecEdge, WeightedGraph<ExecVertex, ExecEdge>> getCriticalPath(Task task) {
-		return null;
 	}
 	
 	public SortedSet<ExecVertex> getTaskVertex(Task task) {
 		return taskVertex.get(task);
 	}
+
 }

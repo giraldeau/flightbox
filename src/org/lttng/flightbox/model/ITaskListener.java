@@ -9,4 +9,6 @@ public interface ITaskListener {
 
 	public void popState(Task task, StateInfo nextState);
 
+	public void setModel(SystemModel model);
+	
 }

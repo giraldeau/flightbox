@@ -11,7 +11,7 @@ import org.lttng.flightbox.dep.BlockingModel;
 import org.lttng.flightbox.model.Processor.ProcessorState;
 import org.lttng.flightbox.model.state.StateInfo;
 
-public class SystemModel implements IProcessorListener, ITaskListener {
+public class SystemModel extends AbstractTaskListener implements IProcessorListener {
 
 	/**
 	 * Current process list
@@ -135,6 +135,7 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 
 	public void addTaskListener(ITaskListener listener) {
 		taskListeners.add(listener);
+		listener.setModel(this);
 	}
 
 	public void removeTaskListener(ITaskListener listener) {
@@ -236,5 +237,4 @@ public class SystemModel implements IProcessorListener, ITaskListener {
 		}
 		return found;
 	}
-	
 }

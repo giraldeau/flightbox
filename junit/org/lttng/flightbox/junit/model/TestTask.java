@@ -13,7 +13,7 @@ import org.lttng.flightbox.model.StateInfoFactory;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.model.Task.TaskState;
-import org.lttng.flightbox.model.TaskListener;
+import org.lttng.flightbox.model.AbstractTaskListener;
 import org.lttng.flightbox.model.state.IRQInfo;
 import org.lttng.flightbox.model.state.StateInfo;
 import org.lttng.flightbox.model.state.StateInfo.Field;
@@ -36,7 +36,7 @@ public class TestTask {
 		assertEquals(1, t3.compareTo(t4));
 	}
 
-	class MyTaskListener extends TaskListener {
+	class MyTaskListener extends AbstractTaskListener {
 		public HashMap<Task, StateInfo> state = new HashMap<Task, StateInfo>();
 		@Override
 		public void pushState(Task task, StateInfo nextState) {
@@ -73,7 +73,7 @@ public class TestTask {
 
 	}
 
-	class StateInfoTaskListener extends TaskListener {
+	class StateInfoTaskListener extends AbstractTaskListener {
 		public HashMap<Task, StateInfo> state = new HashMap<Task, StateInfo>();
 		public StateInfo currStateInfo;
 		public StateInfo nextStateInfo;
@@ -115,7 +115,7 @@ public class TestTask {
 		assertEquals("test-file", ((SyscallInfo)listener.currStateInfo).getField(Field.FILENAME));
 	}
 
-	class BlockingListener extends TaskListener {
+	class BlockingListener extends AbstractTaskListener {
 		public HashMap<Task, WaitInfo> blockingInfo = new HashMap<Task, WaitInfo>();
 		@Override
 		public void popState(Task task, StateInfo nextState) {

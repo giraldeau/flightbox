@@ -5,11 +5,11 @@ import java.util.TreeSet;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.model.Task.TaskState;
-import org.lttng.flightbox.model.TaskListener;
+import org.lttng.flightbox.model.AbstractTaskListener;
 import org.lttng.flightbox.model.state.StateInfo;
 import org.lttng.flightbox.model.state.WaitInfo;
 
-public class BlockingTaskListener extends TaskListener {
+public class BlockingTaskListener extends AbstractTaskListener {
 
 	private SystemModel model; 
 	private BlockingModel blockingModel;
