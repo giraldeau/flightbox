@@ -2,6 +2,8 @@ package org.lttng.flightbox;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -30,15 +32,14 @@ import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.statistics.ResourceUsage;
 
-public class MainDependency {
+public class MainCLI {
 
 	static Options options;
 
 	public static void main(String[] args) {
 		options = new Options();
 		options.addOption("h", "help", false, "this help");
-		options.addOption("t", "trace", true, "trace path");
-		options.addOption("c", "cmd", true, "filter by command");
+		options.addOption("n", "path", true, "filter by command name");
 		options.addOption("p", "pid", true, "filter by pid");
 		options.addOption("v", "verbose", false, "verbose output");
 
@@ -51,9 +52,11 @@ public class MainDependency {
 			printUsage();
 			System.exit(1);
 		}
+
+		System.out.println("args " + Arrays.toString(args) + " " + cmd.getArgList());
 		
-		String tracePath = null;
-		String traceName = null;
+		List<String> tracePath = null;
+		String module = null;
 		String cmdFilter = null;
 		Integer pidFilter = null;
 		boolean hasFilter = false;
@@ -64,13 +67,25 @@ public class MainDependency {
 			System.exit(0);
 		}
 
-		if (cmd.hasOption("trace")) {
-			tracePath = cmd.getOptionValue("trace");
-		} else {
+		/* parse the requested module and traces */
+		if (cmd.getArgList().size() < 2) {
 			printUsage();
 			System.exit(1);
 		}
 
+		module = (String) cmd.getArgList().remove(0);
+		tracePath = (List<String>) cmd.getArgList();
+
+		if (!validateModule(module)) {
+			printUsage("Unknown module " + module);
+			System.exit(1);
+		}
+		
+		if (!validateTraces(tracePath)) {
+			printUsage("Unknown trace");
+			System.exit(1);
+		}
+		
 		if (cmd.hasOption("pid") && cmd.hasOption("cmd")) {
 			printUsage("conflicting options pid and cmd");
 			System.exit(1);
@@ -87,12 +102,6 @@ public class MainDependency {
 		
 		hasFilter = (pidFilter != null || cmdFilter != null);
 		
-		File traceFile = new File(tracePath);
-		if (!traceFile.isDirectory() || !traceFile.canRead()) {
-			System.out.println("Error: can't read directory " + tracePath);
-			System.exit(1);
-		}
-		
 		long t1 = System.currentTimeMillis();
 		SystemModel model = new SystemModel();
 		BlockingTaskListener listener = new BlockingTaskListener();
@@ -104,6 +113,10 @@ public class MainDependency {
 		TraceEventHandlerProcess handlerProcess = new TraceEventHandlerProcess();
 		ITraceEventHandler[] handlers = new ITraceEventHandler[] { handlerProcess };
 		
+		for (String trace: tracePath) {
+			processTrace(trace);
+		}
+		/*
 		try {
 			ModelBuilder.buildFromTrace(tracePath, model, handlers);
 		} catch (JniException e) {
@@ -163,7 +176,30 @@ public class MainDependency {
 		
 		System.out.println(str.toString());
 		System.out.println("Analysis time: " + (t2 - t1) + "ms");
+		*/
+		
 		System.out.println("Done");
+		
+	}
+
+	private static boolean validateModule(String module) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private static boolean validateTraces(List<String> traces) {
+		for (String tracePath: traces) {
+			File traceFile = new File(tracePath);
+			if (!traceFile.isDirectory() || !traceFile.canRead()) {
+				System.out.println("Error: can't read directory " + tracePath);
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private static void processTrace(String trace) {
+		// TODO Auto-generated method stub
 		
 	}
 
@@ -173,6 +209,9 @@ public class MainDependency {
 	
 	private static void printUsage(String string) {
 		HelpFormatter formatter = new HelpFormatter();
+		System.out.println(string);
+		System.out.println("flightbox-cli [options] [trace]");
+		System.out.println("Available modules: [ cpa ]");
 		formatter.printHelp("MainDependency", options);
 	}
 

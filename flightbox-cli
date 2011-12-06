@@ -1,2 +1,2 @@
 #!/bin/sh
-exec java -cp "./bin:./lib/*:/usr/share/java/*" org.lttng.flightbox.MainDependency $@
+exec java -cp "./bin:./lib/*:/usr/share/java/*" org.lttng.flightbox.MainCLI $@

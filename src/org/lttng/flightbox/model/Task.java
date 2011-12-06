@@ -17,7 +17,15 @@ import org.lttng.flightbox.model.state.StateInfo;
 public class Task extends SystemResource implements Comparable<Task> {
 
 	public enum TaskState {
-		ALIVE, WAIT, USER, IRQ, SOFTIRQ, SYSCALL, TRAP, ZOMBIE, EXIT
+		ALIVE, 		/* after fork, before first scheduling */
+		WAIT, 		/* not running, either waiting for CPU or blocked */ 
+		USER, 		/* running in userspace */ 
+		IRQ, 		/* hardware interrupt */ 
+		SOFTIRQ,	/* software interrupt */
+		SYSCALL, 	/* running in a system call */ 
+		TRAP, 		/* page fault */
+		ZOMBIE, 	/* exited, parent didn't read the exit status yet */
+		EXIT 		/* process has finished, not yet unscheduled */
 	}
 
 	private int processId;
