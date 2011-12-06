@@ -213,7 +213,7 @@ public class TestDependencyAnalysis {
 		BlockingItem read = items.last();
 		double p = 10000000;
 		// hum... sometimes, the duration is not right
-		// seems like a but in lttng
+		// seems like a bug in lttng
 		assertEquals(100000000, read.getDuration(), p);
 		
 		// server is busy and never block

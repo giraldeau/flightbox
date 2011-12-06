@@ -39,7 +39,10 @@ public class TestExecutionGraph {
 		GraphUtils.saveGraphDefault(execGraph, name);
 	}
 	
-	@Test
+	/*
+	 * ShortestPath can't be used to recover the critical path in the general case.
+	 * */
+	//@Test
 	public void testLongestPath() throws JniException, IOException {
 		String trace = "tests/stub/trace_fork_exit_wait.xml";
 		SystemModel model = new SystemModel();

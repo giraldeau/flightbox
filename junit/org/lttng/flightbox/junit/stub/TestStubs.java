@@ -20,9 +20,11 @@ import org.lttng.flightbox.stub.StubTraceReader;
 
 public class TestStubs {
 
+	String traceFile = "trace_fork_exit_simple.xml";
+	
 	@Test
 	public void testStubJniTracefile() {
-		File file = new File(Path.getTestStubDir(), "process_fork_exit.xml");
+		File file = new File(Path.getTestStubDir(), traceFile);
 		JniTrace trace = StubTraceReader.getJniTrace(file.getPath());
 		assertEquals(trace.getCpuNumber(), 2);
 	}
@@ -39,7 +41,7 @@ public class TestStubs {
 	
 	@Test
 	public void testStubJniEvent2() {
-		File file = new File(Path.getTestStubDir(), "process_fork_exit.xml");
+		File file = new File(Path.getTestStubDir(), traceFile);
 		JniTrace trace = StubTraceReader.getJniTrace(file.getPath());
 		JniEvent ev, ev1, ev2;
 		int eventId;
@@ -58,12 +60,12 @@ public class TestStubs {
 	
 	@Test
 	public void testStubCountEvents() throws JniException {
-		File file = new File(Path.getTestStubDir(), "process_fork_exit.xml");
+		File file = new File(Path.getTestStubDir(), traceFile);
 		StubTraceReader reader = new StubTraceReader(file.getPath());
 		TraceEventHandlerCounter handler = new TraceEventHandlerCounter();
 		reader.register(handler);
 		reader.process();
-		assertEquals(9, handler.getCount());
+		assertEquals(11, handler.getCount());
 	}
 	
 	@Test

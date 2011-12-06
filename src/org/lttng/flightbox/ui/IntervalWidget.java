@@ -48,7 +48,6 @@ public class IntervalWidget extends Canvas {
 		Display display = getDisplay();
 		bgColor = display.getSystemColor(SWT.COLOR_BLACK);
 		colorizer = Colorizer.getInstance();
-		legend = new HashMap<String, Color>();
 		rowHeight = 23;
 		padding = 6;
 		legend = new HashMap<String, Color>();
@@ -129,6 +128,8 @@ public class IntervalWidget extends Canvas {
 	}
 
 	private void drawIntervals(GC gc) {
+		
+		//lol never used =D
 		int y1 = padding;
 		int y2 = rowHeight - padding;
 		Color color;

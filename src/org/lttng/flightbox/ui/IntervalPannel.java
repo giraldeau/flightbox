@@ -112,6 +112,8 @@ public class IntervalPannel extends Canvas {
 
 	private void drawOneStack(GC gc, VersionizedStack<String> stack, int y1, int y2) {
 		Color color;
+		
+		//If necessary, have some dirty rectangles here
 		for (Iterator<Interval> iter = stack.iterator(); iter.hasNext();) {
 			Interval interval = iter.next();
 			color = legend.get(interval.content);

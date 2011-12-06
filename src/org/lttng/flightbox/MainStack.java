@@ -1,34 +1,22 @@
 package org.lttng.flightbox;
 
 import java.io.IOException;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
-import org.jdom.Document;
-import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.jdom.xpath.XPath;
-import org.lttng.flightbox.io.TraceReader;
-import org.lttng.flightbox.state.StackMachine;
-import org.lttng.flightbox.state.StackMachineFactory;
-import org.lttng.flightbox.state.TraceEventHandlerState;
 import org.lttng.flightbox.state.VersionizedStack;
 import org.lttng.flightbox.ui.IntervalView;
-import org.lttng.flightbox.xml.ManifestReader;
 
 public class MainStack {
 
 	public static void main(String[] args) throws JniException, JDOMException, IOException {
 		
 		MainStack mainWindow = new MainStack();
-		mainWindow.run(args[0]);
+		mainWindow.run(null);
 	}
 	
 	public void run(String trace) throws JDOMException, IOException, JniException {
@@ -38,35 +26,19 @@ public class MainStack {
 		shell.setSize(800, 800);
 		shell.setLayout(new FillLayout(SWT.VERTICAL));
 		
-		Map<String, StackMachine> machines;
-		
-		URL manifest = getClass().getResource("/manifest/mariadb.xml");
-		
-		ManifestReader reader = new ManifestReader();
-		Document doc = reader.read(manifest);
-		
-		XPath xpath = XPath.newInstance("/manifest/stack");
-		List<Element> res = (List<Element>) xpath.selectNodes(doc);
-		
-		machines = new HashMap<String, StackMachine>();
-		
-		for(Element elem: res) {
-			StackMachine machine = StackMachineFactory.fromXml(elem);
-			machines.put(machine.getName(), machine);
+		IntervalView widget = new IntervalView(shell, SWT.NONE);
+		VersionizedStack<String> stack = new VersionizedStack<String>();
+		int i;
+		int max = 1000;
+		for (i=0; i<max; i++) {
+			long disp = i * 100;
+			stack.push("FOO", 10L + disp);
+			stack.push("BAR", 20L + disp);
+			stack.pop(30L + disp);
+			stack.pop(40L + disp);
 		}
-
-		TraceReader reader2 = new TraceReader(trace);
-		TraceEventHandlerState handler = new TraceEventHandlerState();
-		handler.addAllStackMachine(machines);
-		reader2.register(handler);
-		reader2.process();
-		Map<String, VersionizedStack<String>> objectState = handler.getObjectState();
 		
-		System.out.println(objectState);
-		
-		IntervalView view = new IntervalView(shell, SWT.NONE);
-		//view.setTimeInterval(reader2.getStartTime(), reader2.getEndTime());
-		view.setStack(objectState.get("default"));
+		widget.setStack(stack);
 		
 		shell.open();
 		while (!shell.isDisposed()) {

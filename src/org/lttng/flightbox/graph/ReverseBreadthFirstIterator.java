@@ -10,6 +10,11 @@ import org.jgrapht.event.EdgeTraversalEvent;
 import org.jgrapht.event.VertexTraversalEvent;
 import org.jgrapht.traverse.CrossComponentIterator;
 
+/*
+ * JGraphT includes DeptFirstIterator, here is the reverse version of it.
+ * The traversal is done from the provided start vertex through incoming
+ * vertex.
+ */
 public class ReverseBreadthFirstIterator<V, E> extends CrossComponentIterator<V, E, Object> {
 
 	protected Deque<V> queue = new ArrayDeque<V>();
