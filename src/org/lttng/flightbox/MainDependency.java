@@ -256,19 +256,19 @@ public class MainDependency {
 	
 	public static Set<Task> getFilterTasks(List<Integer> pidFilter, List<String> cmdFilter, SystemModel model) {
 		TreeSet<Task> tasks = new TreeSet<Task>();
-		if (pidFilter == null && cmdFilter == null) {
+		if (pidFilter.isEmpty() && pidFilter.isEmpty()) {
 			for (Set<Task> t: model.getTasks().values()) {
 				tasks.addAll(t);
 			}
 			return tasks;
 		}
 		
-		if (pidFilter != null && !pidFilter.isEmpty()) {
+		if (!pidFilter.isEmpty()) {
 			for (Integer pid: pidFilter) {
 				tasks.addAll(model.getTasks().get(pid));
 			}
 		}
-		if (cmdFilter != null && !cmdFilter.isEmpty()) {
+		if (!cmdFilter.isEmpty()) {
 			for (String str: cmdFilter) {
 				tasks.addAll(model.getTaskByCmdBasename(str));
 			}
