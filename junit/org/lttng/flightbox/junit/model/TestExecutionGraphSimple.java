@@ -29,6 +29,7 @@ import org.lttng.flightbox.graph.ExecGraph;
 import org.lttng.flightbox.graph.ExecGraphProviders;
 import org.lttng.flightbox.graph.ExecSubgraph;
 import org.lttng.flightbox.graph.ExecVertex;
+import org.lttng.flightbox.graph.GraphUtils;
 import org.lttng.flightbox.graph.ReverseBreadthFirstIterator;
 import org.lttng.flightbox.graph.ReverseClosestIterator;
 import org.lttng.flightbox.graph.TaskGraphExtractor;
@@ -204,12 +205,6 @@ public class TestExecutionGraphSimple {
 	}
 	
 	static void dumpExecGraph(WeightedGraph<ExecVertex, ExecEdge> graph, String out) throws IOException {
-		DOTExporter<ExecVertex, ExecEdge> dot = ExecGraphProviders.getDOTExporter();
-		StringWriter str = new StringWriter();
-		dot.export(str, graph);
-		//System.out.println(str.toString());
-		FileWriter fileWriter = new FileWriter(new File(Path.getGraphDir(), out + ".dot"));
-		fileWriter.write(str.toString());
-		fileWriter.flush();
+		GraphUtils.saveGraph(graph, new File(Path.getGraphDir(), out + ".dot").getCanonicalPath());
 	}
 }

@@ -27,15 +27,15 @@ public class LoggingTaskListener extends AbstractTaskListener {
 	
 	@Override
 	public void pushState(Task task, StateInfo nextState) {
-		log(task, nextState);
+		log("push", task, nextState);
 	}
 
 	@Override
 	public void popState(Task task, StateInfo nextState) {
-		log(task, nextState);
+		log("pop", task, nextState);
 	}
 	
-	public void log(Task task, StateInfo nextState) {
+	public void log(String op, Task task, StateInfo nextState) {
 		if (pids.contains(task.getProcessId()) || pids.isEmpty()) {
 			String str = "";
 			if (nextState != null) {
@@ -46,7 +46,7 @@ public class LoggingTaskListener extends AbstractTaskListener {
 					str = nextState.toString();
 				}
 			}
-			System.out.println(String.format("%-5s %-6d %s", "pop", task.getProcessId(), str));
+			System.out.println(String.format("%-5s %-6d %s", op, task.getProcessId(), str));
 		}
 	}
 }

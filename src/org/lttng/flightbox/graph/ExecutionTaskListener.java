@@ -7,11 +7,10 @@ import java.util.TreeSet;
 
 import org.lttng.flightbox.graph.ExecVertex.ExecType;
 import org.lttng.flightbox.model.AbstractTaskListener;
-import org.lttng.flightbox.model.FileDescriptor;
-import org.lttng.flightbox.model.SocketInet;
 import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.model.Task.TaskState;
 import org.lttng.flightbox.model.state.ExitInfo;
+import org.lttng.flightbox.model.state.SoftIRQInfo;
 import org.lttng.flightbox.model.state.StateInfo;
 import org.lttng.flightbox.model.state.SyscallInfo;
 import org.lttng.flightbox.model.state.WaitInfo;
@@ -31,39 +30,22 @@ public class ExecutionTaskListener extends AbstractTaskListener {
 		TaskState taskState = nextState.getTaskState();
 		switch (taskState) {
 		case ALIVE:
-			ExecVertex v1 = new ExecVertex();
-			v1.setTimestamp(nextState.getStartTime());
-			v1.setType(ExecType.START);
-			v1.setTask(task);
-			graph.addVertex(v1);
-			TreeSet<ExecVertex> set = taskVertex.get(task);
-			if (set == null) {
-				set = new TreeSet<ExecVertex>();
-				taskVertex.put(task, set);
-			}
-			set.add(v1);
+			ExecVertex v1 = new ExecVertex(task, nextState.getStartTime(), ExecType.START);
+			appendVertex(v1);
 			// link parent
 			Task parent = task.getParentProcess();
 			if (parent != null) {
-				ExecVertex v2 = new ExecVertex();
-				v2.setTimestamp(nextState.getStartTime());
-				v2.setType(ExecType.FORK);
-				v2.setTask(parent);
-				graph.addVertex(v2);
-				set = taskVertex.get(parent);
-				if (set == null) {
-					set = new TreeSet<ExecVertex>();
-					taskVertex.put(parent, set);
-				}
-				if (!set.isEmpty()) {
-					ExecVertex last = set.last();
-					ExecEdge e = graph.addEdge(last, v2);
-					graph.setEdgeWeight(e, nextState.getStartTime() - last.getTimestamp());
-				}
-				set.add(v2);
+				/* append a new vertex to denote the fork */
+				ExecVertex v2 = new ExecVertex(parent, nextState.getStartTime(), ExecType.FORK);
+				appendVertex(v2);
+				/* link the parent and child */
 				ExecEdge e = graph.addEdge(v2, v1);
 				graph.setEdgeWeight(e, 0.0);
 			}
+			break;
+		case WAIT:
+			/* processing for the wait state occurs at wakeup
+			 * because we don't know yet if the cause id CPU wait or blocking */
 			break;
 		default:
 			break;
@@ -77,53 +59,20 @@ public class ExecutionTaskListener extends AbstractTaskListener {
 		switch (taskState) {
 		case EXIT :
 			ExitInfo exit = (ExitInfo) currState;
-			ExecVertex v = new ExecVertex();
-			v.setTimestamp(exit.getStartTime());
-			v.setType(ExecType.EXIT);
-			v.setTask(task);
-			graph.addVertex(v);
-			TreeSet<ExecVertex> set = taskVertex.get(task);
-			if (set == null) {
-				set = new TreeSet<ExecVertex>();
-				taskVertex.put(task, set);
-			}
-			if (set != null && set.size() > 0) {
-				ExecVertex last = set.last();
-				ExecEdge e = graph.addEdge(last, v);
-				graph.setEdgeWeight(e, exit.getEndTime() - last.getTimestamp());
-			}
-			set.add(v);
+			ExecVertex v = new ExecVertex(task, exit.getStartTime(), ExecType.EXIT);
+			appendVertex(v);
 			break;
 		case WAIT:
 			WaitInfo wait = (WaitInfo) currState;
 			if (!wait.isBlocking())
 				break;
 			// create two vertex, one at block start and end
-			ExecVertex v1 = new ExecVertex();
-			ExecVertex v2 = new ExecVertex();
-			v1.setTimestamp(wait.getStartTime());
-			v2.setTimestamp(wait.getEndTime());
-			v1.setType(ExecType.BLOCK);
-			v2.setType(ExecType.WAKEUP);
-			v2.setLabel("test");
-			v1.setTask(task);
-			v2.setTask(task);
-			graph.addVertex(v1);
-			graph.addVertex(v2);
-			TreeSet<ExecVertex> vset = taskVertex.get(task);
-			if (vset == null) {
-				vset = new TreeSet<ExecVertex>();
-				taskVertex.put(task, vset);
-			}
-			if (!vset.isEmpty()) {
-				ExecVertex last = vset.last();
-				ExecEdge e1 = graph.addEdge(last, v1);
-				ExecEdge e2 = graph.addEdge(v1, v2);
-				graph.setEdgeWeight(e1, wait.getStartTime() - last.getTimestamp());
-				graph.setEdgeWeight(e2, wait.getDuration());
-			}
-			vset.add(v1);
-			vset.add(v2);
+			ExecVertex v1 = new ExecVertex(task, wait.getStartTime(), ExecType.BLOCK);
+			ExecVertex v2 = new ExecVertex(task, wait.getEndTime(), ExecType.WAKEUP);
+
+			/* append new block and wakeup vertexes to the task graph */
+			appendVertex(v1);
+			appendVertex(v2);
 			linkSubTask(task, wait, v1, v2);
 			break;
 		default:
@@ -132,14 +81,17 @@ public class ExecutionTaskListener extends AbstractTaskListener {
 	}
 
 	private void linkSubTask(Task task, WaitInfo wait, ExecVertex v1, ExecVertex v2) {
+		// wakeup is the state of the task from which the wakeup occured
 		StateInfo state = wait.getWakeUp();
 		if (state == null)
 			return;
-		Task subTask = state.getTask();
-		/* the task was waiting on a process, assuming the other task already exited */
-
+		
+		/* the task was waiting directly on a local process
+		 * either for process exit or a kernel thread (which is always in SYSCALL state) */
 		switch (state.getTaskState()) {
-		case EXIT :
+		case EXIT:
+		case SYSCALL:
+			Task subTask = state.getTask();
 			TreeSet<ExecVertex> set = taskVertex.get(subTask);
 			if (set != null && !set.isEmpty()) {
 				ExecVertex last = set.last();
@@ -148,6 +100,18 @@ public class ExecutionTaskListener extends AbstractTaskListener {
 			}
 			break;
 		case SOFTIRQ:
+			/* Here, the wakeup is indirect. The task on which the SoftIRQ can be anything, 
+			 * this it has no relationship with the waked task. 
+			 * Queue blocking and wakeup vertexes for post processing */
+			SyscallInfo syscall = wait.getWaitingSyscall();
+			SoftIRQInfo softirq = (SoftIRQInfo) state;
+			if (syscall != null) {
+				Integer id = syscall.getSyscallId();
+				Integer sirq = softirq.getSoftirqId();
+				String sysname = model.getSyscallTable().get(id);
+				String sirqname = model.getSoftIRQTable().get(sirq);
+				System.out.println("Enqueue syscall:" + sysname + " softirq= " + sirq + " for task " + task + " time " + wait.getEndTime());
+			}
 			break;
 			/*
 			int id = waitingSyscall.getSyscallId();
@@ -165,6 +129,22 @@ public class ExecutionTaskListener extends AbstractTaskListener {
 		}
 	}
 
+	private void appendVertex(ExecVertex v) {
+		graph.addVertex(v);
+		Task t = v.getTask();
+		TreeSet<ExecVertex> vset = taskVertex.get(t);
+		if (vset == null) {
+			vset = new TreeSet<ExecVertex>();
+			taskVertex.put(t, vset);
+		}
+		if (!vset.isEmpty()) {
+			ExecVertex last = vset.last();
+			ExecEdge e1 = graph.addEdge(last, v);
+			graph.setEdgeWeight(e1, v.getTimestamp() - last.getTimestamp());
+		}
+		vset.add(v);
+	}
+	
 	public ExecGraph getExecGraph() {
 		return graph;
 	}

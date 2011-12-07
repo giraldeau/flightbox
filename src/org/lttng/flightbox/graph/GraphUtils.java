@@ -18,6 +18,7 @@ public class GraphUtils {
 		DOTExporter<ExecVertex, ExecEdge> dot = ExecGraphProviders.getDOTExporter();
 		FileWriter fwriter = new FileWriter(new File(path));
 		dot.export(fwriter, graph);
+		fwriter.flush();
 	}
 
 }

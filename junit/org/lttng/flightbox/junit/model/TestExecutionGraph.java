@@ -8,10 +8,12 @@ import org.jgrapht.WeightedGraph;
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.junit.Test;
 import org.lttng.flightbox.graph.ExecEdge;
+import org.lttng.flightbox.graph.ExecGraph;
 import org.lttng.flightbox.graph.ExecVertex;
 import org.lttng.flightbox.graph.ExecutionTaskListener;
 import org.lttng.flightbox.graph.GraphUtils;
 import org.lttng.flightbox.io.ModelBuilder;
+import org.lttng.flightbox.model.LoggingTaskListener;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
 
@@ -20,6 +22,9 @@ public class TestExecutionGraph {
 	static String[] testTraces = new String[] {	"trace_fork_exit_simple", 
 												"trace_fork_exit_wait",
 												"trace_cpm1"};
+	
+	static boolean debug = false;
+	
 	@Test
 	public void buildAllExecutionGraph() throws JniException, IOException {
 		for (String trace: testTraces) {
@@ -28,14 +33,18 @@ public class TestExecutionGraph {
 	}
 	
 	public void buildExecutionGraphFromStub(String name) throws JniException, IOException {
+		
 		String trace = "tests/stub/" + name + ".xml";
 		SystemModel model = new SystemModel();
 		ExecutionTaskListener listener = new ExecutionTaskListener();
 		model.addTaskListener(listener);
-
+		if (debug) {
+			System.out.println("processing " + name);
+			model.addTaskListener(new LoggingTaskListener());
+		}
 		ModelBuilder.buildFromStubTrace(trace, model);
 		
-		WeightedGraph<ExecVertex, ExecEdge> execGraph = listener.getExecGraph();
+		ExecGraph execGraph = listener.getExecGraph();
 		GraphUtils.saveGraphDefault(execGraph, name);
 	}
 	

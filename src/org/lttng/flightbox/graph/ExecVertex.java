@@ -14,9 +14,10 @@ public class ExecVertex implements Comparable<ExecVertex> {
 	private long ts;
 	private ExecType type;
 	private Task task;
+	private boolean resolved;
 
 	public ExecVertex() {
-		this(count++);		
+		this(count++);
 	}
 	public ExecVertex(int id) {
 		this(id, 0);
@@ -25,7 +26,16 @@ public class ExecVertex implements Comparable<ExecVertex> {
 		setId(id);
 		setTimestamp(ts);
 		setType(ExecType.UNKNOWN);
+		setResolved(true);
 	}
+	public ExecVertex(Task task, long ts, ExecType exe) {
+		setId(count++);
+		setTask(task);
+		setTimestamp(ts);
+		setType(exe);
+		setResolved(true);
+	}
+	
 	public String getLabel() {
 		return this.label;
 	}
@@ -71,5 +81,11 @@ public class ExecVertex implements Comparable<ExecVertex> {
 	}
 	public void setTask(Task task) {
 		this.task = task;
+	}
+	public boolean isResolved() {
+		return resolved;
+	}
+	public void setResolved(boolean resolved) {
+		this.resolved = resolved;
 	}
 }
