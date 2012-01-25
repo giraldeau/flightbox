@@ -1,0 +1,9 @@
+#!/bin/sh
+
+tc qdisc add dev lo root netem delay 100ms
+
+netcat -l localhost 8765 > /dev/null &
+echo "lttng" | netcat localhost 8765
+
+tc qdisc del dev lo root
+
