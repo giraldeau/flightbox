@@ -21,32 +21,36 @@ public class BlockingReport {
 	private static String fmtMs = "%1$10.3f";
 	private static String fmtInt = "%1$10d";
 
-	public static void printReport(StringBuilder str, SortedSet<BlockingItem> taskItems, SystemModel model) {
-		printReport(str, taskItems, model, 0);
+	private static String fmtItem = "%1$-15s%2$15s%3$15s %4$-30s\n";
+	private static String fmtTs = "%1$-15s";
+	
+	public static void printReport(StringBuilder str, Task main, SortedSet<BlockingItem> taskItems, SystemModel model) {
+		printReport(str, main, taskItems, model, 0);
 	}
 
-	public static void printReport(StringBuilder str, SortedSet<BlockingItem> taskItems, SystemModel model, int indent) {
+	public static void printReport(StringBuilder str, Task main, SortedSet<BlockingItem> taskItems, SystemModel model, int indent) {
 		if (taskItems == null || taskItems.isEmpty())
 			return;
-
+		
+		str.append("Blocking report for task " + main.getCmd() + "[" + main.getProcessId() + "]\n");
+		String header = String.format(fmtItem, "Start", "Duration (ms)", "Syscall", "Wakeup");
+		str.append(header);
+		
 		for (BlockingItem item: taskItems) {
-			indent(str, indent);
-
-			str.append("pid=" + item.getTask().getProcessId());
-			str.append(" cmd=" + item.getTask().getCmd());
-			str.append(" start=" + item.getStartTime());
-			str.append(" end=" + item.getEndTime());
-			str.append(" wait=" + (item.getEndTime() - item.getStartTime())/1000000 + "ms");
+			
+			String start = String.format(fmtTs, item.getStartTime());
+			String duration = String.format(fmtMs, ((double)(item.getEndTime() - item.getStartTime()))/1000000);
 			int syscallId = item.getWaitingSyscall().getSyscallId();
-			str.append(" syscall=" + model.getSyscallTable().get(syscallId));
+			String syscall = String.format("%1$12s", model.getSyscallTable().get(syscallId));
+			String wakeup = "";
 			if (item.getWakeUp() != null) {
-				str.append(" wakeup=" + item.getWakeUp().toString());
+				wakeup = wakeup + item.getWakeUp().toString();
 			}
 			if (item.getWakeUpTask() != null) {
-				str.append(" wakeup=" + item.getWakeUpTask().getCmd());
+				Task t = item.getWakeUpTask();
+				wakeup = wakeup + " by " + t.getCmd() + "[" + t.getProcessId() + "]";
 			}
-			str.append("\n");
-			printReport(str, item.getChildren(model), model, indent + 1);
+			str.append(String.format(fmtItem, start, duration, syscall, wakeup));
 		}
 	}
 

@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/bash
 # Generate test traces
 
 if [ $(id -u) -ne 0 ]; then
@@ -31,7 +31,7 @@ SCRIPT_RUN=${SCRIPT_ONE:-$SCRIPT_ALL}
 
 mkdir -p $TRACE_DIR
 
-for SCRIPT in "$SCRIPT_RUN"; do
+for SCRIPT in $SCRIPT_RUN; do
     NAME=$(basename $SCRIPT)
     echo "tracing" $NAME
     TRACE_PATH=$TRACE_DIR/$NAME

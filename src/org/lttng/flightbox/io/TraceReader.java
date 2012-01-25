@@ -87,6 +87,8 @@ public class TraceReader {
 	}
 
 	public void register(ITraceEventHandler handler) {
+		if (handler == null)
+			return;
 		Set<TraceHook> handlerHooks = handler.getHooks();
 
 		/* If handlerHooks is null then add no hooks */

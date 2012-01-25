@@ -2,10 +2,9 @@ package org.lttng.flightbox.dep;
 
 import java.util.TreeSet;
 
-import org.lttng.flightbox.model.SystemModel;
+import org.lttng.flightbox.model.AbstractTaskListener;
 import org.lttng.flightbox.model.Task;
 import org.lttng.flightbox.model.Task.TaskState;
-import org.lttng.flightbox.model.AbstractTaskListener;
 import org.lttng.flightbox.model.state.StateInfo;
 import org.lttng.flightbox.model.state.WaitInfo;
 
@@ -19,9 +18,11 @@ public class BlockingTaskListener extends AbstractTaskListener {
 	@Override
 	public void popState(Task task, StateInfo nextState) {
 
-		// should raise exception, but need to think on how to propage it
-		if (blockingModel == null)
-			return;
+		if (blockingModel == null) {
+			blockingModel = getBlockingModel();
+			if (blockingModel == null)
+				throw new RuntimeException("BlockingModel not found");
+		}
 			
 		StateInfo info = task.peekState();
 		if (info.getTaskState() != TaskState.WAIT)

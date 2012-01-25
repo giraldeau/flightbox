@@ -5,10 +5,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
@@ -21,9 +17,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
-import org.jgrapht.WeightedGraph;
 import org.jgrapht.ext.DOTExporter;
-import org.jgrapht.graph.Subgraph;
 import org.lttng.flightbox.cpu.TraceEventHandlerProcess;
 import org.lttng.flightbox.dep.BlockingItem;
 import org.lttng.flightbox.dep.BlockingModel;
@@ -36,7 +30,6 @@ import org.lttng.flightbox.graph.ExecGraphProviders;
 import org.lttng.flightbox.graph.ExecSubgraph;
 import org.lttng.flightbox.graph.ExecVertex;
 import org.lttng.flightbox.graph.ExecutionTaskListener;
-import org.lttng.flightbox.graph.GraphUtils;
 import org.lttng.flightbox.graph.TaskGraphExtractor;
 import org.lttng.flightbox.io.ITraceEventHandler;
 import org.lttng.flightbox.io.ModelBuilder;
@@ -48,8 +41,10 @@ import org.lttng.flightbox.statistics.ResourceUsage;
 public class MainDependency {
 
 	static Options options;
-
-	static String[] moduleList = new String[] {"dep", "cp"};
+	static String moduleDependency = "dependency";
+	static String moduleCriticalPath = "criticalPath";
+	static String moduleBlocking = "blocking";
+	static String[] moduleList = new String[] {moduleDependency, moduleCriticalPath, moduleBlocking};
 	
 	public class CmdOptions {
 		public String tracePath;
@@ -89,10 +84,14 @@ public class MainDependency {
 		
 		processArgs(cmd, opts);
 		long t1 = System.currentTimeMillis();
-		if (opts.moduleName.equals("cp")) {
+		if (opts.moduleName.equals(moduleCriticalPath)) {
 			doExecutionGraphAnalysis(opts);
-		} else if (opts.moduleName.equals("dep")) {
+		} else if (opts.moduleName.equals(moduleDependency) || 
+				opts.moduleName.equals(moduleBlocking)) {
 			doDependencyAnalysis(opts);
+		} else {
+			System.out.println("Unknown analysis module " + opts.moduleName);
+			printUsage();
 		}
 		long t2 = System.currentTimeMillis();
 		
@@ -212,51 +211,60 @@ public class MainDependency {
 		}
 	}
 
-	public static void doDependencyAnalysis(CmdOptions opts) {
-		
+	public static SystemModel buildSystemModelFromTrace(String tracePath, ITraceEventHandler[] handlers) {
 		SystemModel model = new SystemModel();
 		BlockingTaskListener listener = new BlockingTaskListener();
 		listener.setModel(model);
-		
-		TraceEventHandlerProcess handlerProcess = new TraceEventHandlerProcess();
-		ITraceEventHandler[] handlers = new ITraceEventHandler[] { handlerProcess };
+		model.addTaskListener(listener);
 		
 		try {
-			ModelBuilder.buildFromTrace(opts.tracePath, model, handlers);
+			ModelBuilder.buildFromTrace(tracePath, model, handlers);
 		} catch (JniException e) {
 			System.out.println("Error while reading the trace");
 			System.out.println(e.getMessage());
 		}
+		return model;
+	}
+	
+	public static void doDependencyAnalysis(CmdOptions opts) {
+		TraceEventHandlerProcess handlerProcess = new TraceEventHandlerProcess();
+		ITraceEventHandler[] handlers = new ITraceEventHandler[] { handlerProcess };
 		
+		SystemModel model = buildSystemModelFromTrace(opts.tracePath, handlers);
 		BlockingModel bm = model.getBlockingModel();
-		
-		StringBuilder str = new StringBuilder();
 		Set<Task> tasks = getFilterTasks(opts.pidFilter, opts.cmdFilter, model);
-		
-		if (opts.verbose) {
+
+		StringBuilder str = new StringBuilder();
+
+		if (opts.moduleName.equals(moduleBlocking)) {
 			for (Task t: tasks) {
-				SortedSet<BlockingItem> taskItems = bm.getBlockingItemsForTask(t);
-				BlockingReport.printReport(str, taskItems, model);
+				if (opts.verbose) {
+					SortedSet<BlockingItem> taskItems = bm.getBlockingItemsForTask(t);
+					BlockingReport.printReport(str, t, taskItems, model);
+				}
+				BlockingStats stats = bm.getBlockingStatsForTask(t);
+				BlockingReport.printSummary(str, t, stats, model);
 			}
 		}
-
-		for (Task t: tasks) {
-			BlockingStats stats = bm.getBlockingStatsForTask(t);
-			BlockingReport.printSummary(str, t, stats, model);
-		}
-
-		ResourceUsage<Long> cpuStats = handlerProcess.getUsageStats();
-		for (Task t: tasks) {
-			BlockingReport.printCpuAccounting(str, t, model, cpuStats);
-		}
 		
+		if (opts.moduleName.equals(moduleDependency)) {
+			ResourceUsage<Long> cpuStats = handlerProcess.getUsageStats();
+			for (Task t: tasks) {
+				BlockingReport.printCpuAccounting(str, t, model, cpuStats);
+			}
+		}
 		System.out.println(str.toString());
+	}
 
+	public static void doBlockingAnalysis(CmdOptions opts) {
+		StringBuilder str = new StringBuilder();
+
+		System.out.println(str.toString());
 	}
 	
 	public static Set<Task> getFilterTasks(List<Integer> pidFilter, List<String> cmdFilter, SystemModel model) {
 		TreeSet<Task> tasks = new TreeSet<Task>();
-		if (pidFilter.isEmpty() && pidFilter.isEmpty()) {
+		if (pidFilter.isEmpty() && cmdFilter.isEmpty()) {
 			for (Set<Task> t: model.getTasks().values()) {
 				tasks.addAll(t);
 			}
