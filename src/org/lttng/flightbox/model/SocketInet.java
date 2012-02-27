@@ -167,7 +167,7 @@ public class SocketInet extends FileDescriptor {
 
 	@Override
 	public String toString() {
-		return "[socket " + srcAddr + ":" + srcPort + "->" + dstAddr + ":" + dstPort + "]";
+		return String.format("[%d,%s:%d->%s:%d]", getFd(), formatIPv4(srcAddr), srcPort, formatIPv4(dstAddr), dstAddr);
 	}
 	public void setClient(boolean isXmit) {
 		this.isClient = isXmit;

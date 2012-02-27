@@ -21,7 +21,7 @@ import org.lttng.flightbox.dep.CpuAccountingItem;
 import org.lttng.flightbox.io.ITraceEventHandler;
 import org.lttng.flightbox.io.ModelBuilder;
 import org.lttng.flightbox.junit.Path;
-import org.lttng.flightbox.model.DiskFile;
+import org.lttng.flightbox.model.RegularFile;
 import org.lttng.flightbox.model.FileDescriptor;
 import org.lttng.flightbox.model.SocketInet;
 import org.lttng.flightbox.model.SystemModel;
@@ -167,8 +167,8 @@ public class TestDependencyAnalysis {
 		assertEquals(1, fdStats.size());
 		
 		FileDescriptor fd = (FileDescriptor) fdStats.keySet().toArray()[0];
-		assertTrue(fd instanceof DiskFile);
-		DiskFile data = (DiskFile) fd;
+		assertTrue(fd instanceof RegularFile);
+		RegularFile data = (RegularFile) fd;
 		assertEquals("tmp.data", data.getFilename());
 	}
 

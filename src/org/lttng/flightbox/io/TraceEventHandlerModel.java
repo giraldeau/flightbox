@@ -5,7 +5,7 @@ import java.util.List;
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
 import org.eclipse.linuxtools.lttng.jni.common.Jni_C_Pointer;
-import org.lttng.flightbox.model.DiskFile;
+import org.lttng.flightbox.model.RegularFile;
 import org.lttng.flightbox.model.FileDescriptor;
 import org.lttng.flightbox.model.Processor;
 import org.lttng.flightbox.model.SocketInet;
@@ -538,7 +538,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 
 		String filename = (String) event.parseFieldByName("filename");
 		Long fd = (Long) event.parseFieldByName("fd");
-		DiskFile file = new DiskFile();
+		RegularFile file = new RegularFile();
 		file.setFd(fd.intValue());
 		file.setFilename(filename);
 		file.setStartTime(eventTs);

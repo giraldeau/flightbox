@@ -2,8 +2,14 @@ package org.lttng.flightbox.junit.model;
 
 import static org.junit.Assert.*;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.junit.Test;
-import org.lttng.flightbox.model.DiskFile;
+import org.lttng.flightbox.model.FileDescriptorSet;
+import org.lttng.flightbox.model.RegularFile;
+import org.lttng.flightbox.model.FileDescriptor;
 import org.lttng.flightbox.model.SocketInet;
 
 public class TestFileDescriptors {
@@ -14,9 +20,9 @@ public class TestFileDescriptors {
 	
 	@Test
 	public void testCreateSimpleDiskFile() {
-		DiskFile fd1 = new DiskFile();
+		RegularFile fd1 = new RegularFile();
 		fd1.setFd(0);
-		DiskFile fd2 = new DiskFile();
+		RegularFile fd2 = new RegularFile();
 		fd2.setFd(fd1.getFd());
 		assertEquals(fd1, fd2);
 	}
@@ -44,5 +50,39 @@ public class TestFileDescriptors {
 		assertTrue(client.isSet());
 		assertTrue(server.isSet());
 		assertTrue(client.isComplementary(server));
+	}
+	public <T extends FileDescriptor> TreeSet<T> makeFDSet(Class<T> type, int start) {
+		TreeSet<T> set = new TreeSet<T>();
+		int i, j, k = start;
+		int nb = 3;
+		
+		for (i=0; i<=nb; i++) {
+			for (j=0; j<i; j++) {
+				T fd = null;
+				try {
+					fd = type.newInstance();
+				} catch (InstantiationException e) {
+					e.printStackTrace();
+					throw new RuntimeException();
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+					throw new RuntimeException();
+				}
+				fd.setFd(j);
+				fd.setStartTime(k++);
+				set.add(fd);
+			}
+		}
+		return set;
+	}
+	
+	@Test
+	public void testFileDescriptorSet() {
+		TreeSet<RegularFile> regFileSet = makeFDSet(RegularFile.class, 0);
+		TreeSet<SocketInet> socketInetSet = makeFDSet(SocketInet.class, regFileSet.size());
+		FileDescriptorSet fdSet = new FileDescriptorSet();
+		fdSet.addAll(regFileSet);
+		fdSet.addAll(socketInetSet);
+		assertEquals(fdSet.historySize(), regFileSet.size() + socketInetSet.size());
 	}
 }

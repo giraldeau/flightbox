@@ -16,7 +16,7 @@ import org.lttng.flightbox.io.TraceEventHandlerModel;
 import org.lttng.flightbox.io.TraceEventHandlerModelMeta;
 import org.lttng.flightbox.io.TraceReader;
 import org.lttng.flightbox.junit.Path;
-import org.lttng.flightbox.model.DiskFile;
+import org.lttng.flightbox.model.RegularFile;
 import org.lttng.flightbox.model.FileDescriptor;
 import org.lttng.flightbox.model.SymbolTable;
 import org.lttng.flightbox.model.SystemModel;
@@ -131,14 +131,14 @@ public class TestModelHandler {
 
 		set = fds.get(3);
 		assertNotNull(set);
-		DiskFile f = (DiskFile) set.last();
+		RegularFile f = (RegularFile) set.last();
 		assertEquals("cat-to-null", new File(f.getFilename()).getName());
 		assertFalse(f.isOpen());
 		assertFalse(f.isError());
 
 		fds = last.getFileDescriptors();
 		set = fds.get(-2);
-		f = (DiskFile) set.first();
+		f = (RegularFile) set.first();
 		assertEquals("77d2c0533bea11686a892bcb34697292", f.getFilename());
 		assertFalse(f.isOpen());
 		assertTrue(f.isError());

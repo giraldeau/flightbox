@@ -2,7 +2,7 @@ package org.lttng.flightbox.io;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
-import org.lttng.flightbox.model.DiskFile;
+import org.lttng.flightbox.model.RegularFile;
 import org.lttng.flightbox.model.StateInfoFactory;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
@@ -51,7 +51,7 @@ public class TraceEventHandlerModelMeta extends TraceEventHandlerBase {
 
 		/* FIXME: handle sockets, pipe, fifo */
 		Task task = getOrCreateTask(pid.intValue());
-		DiskFile f = new DiskFile();
+		RegularFile f = new RegularFile();
 		f.setStartTime(eventTs);
 		f.setFd(fd.intValue());
 		f.setFilename(filename);

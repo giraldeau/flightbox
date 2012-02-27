@@ -1,6 +1,6 @@
 package org.lttng.flightbox.model;
 
-public class DiskFile extends FileDescriptor {
+public class RegularFile extends FileDescriptor {
 
 	String filename;
 
@@ -14,7 +14,7 @@ public class DiskFile extends FileDescriptor {
 
 	@Override
 	public String toString() {
-		return super.toString() + " filename=" + filename;
+		return String.format("[%d,%s]", getFd(), getFilename()); 
 	}
 
 }

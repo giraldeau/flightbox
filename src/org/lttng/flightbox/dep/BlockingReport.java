@@ -6,7 +6,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.apache.commons.math.stat.descriptive.SummaryStatistics;
-import org.lttng.flightbox.model.DiskFile;
+import org.lttng.flightbox.model.RegularFile;
 import org.lttng.flightbox.model.FileDescriptor;
 import org.lttng.flightbox.model.SocketInet;
 import org.lttng.flightbox.model.SymbolTable;
@@ -98,8 +98,8 @@ public class BlockingReport {
 				String stddev = String.format(fmtMs, s.getStandardDeviation()/1000000);
 				String name = null;
 				
-				if (fd instanceof DiskFile) {
-					DiskFile file = (DiskFile) fd;
+				if (fd instanceof RegularFile) {
+					RegularFile file = (RegularFile) fd;
 					name = new File(file.getFilename()).getName();
 				} else if (elem.getId() instanceof SocketInet) {
 					SocketInet sock = (SocketInet) fd;
