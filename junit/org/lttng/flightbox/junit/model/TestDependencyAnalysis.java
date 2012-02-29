@@ -121,9 +121,9 @@ public class TestDependencyAnalysis {
 		assertTrue(taskItems.size() >= 1);
 		
 		Task server = model.getLatestTaskByCmdBasename("srvhog");
-		HashMap<Integer, TreeSet<FileDescriptor>> serverFds = server.getFileDescriptors();
-		SocketInet srvSock = (SocketInet) serverFds.get(4).last();
-		assertEquals(9876, srvSock.getSrcPort());
+		HashMap<Integer, FileDescriptor> serverFds = server.getFileDescriptors();
+		SocketInet srvSock = (SocketInet) serverFds.get(4);
+		assertEquals(9876, srvSock.getIp().getSrcPort());
 		
 		BlockingItem read = taskItems.last();
 		double p = 10000000;
@@ -142,7 +142,7 @@ public class TestDependencyAnalysis {
 		FileDescriptor fd = (FileDescriptor) fdStats.keySet().toArray()[0];
 		assertTrue(fd instanceof SocketInet);
 		SocketInet sock = (SocketInet) fd;
-		assertEquals(9876, sock.getDstPort());
+		assertEquals(9876, sock.getIp().getDstPort());
 	}
 
 	@Test
@@ -201,12 +201,12 @@ public class TestDependencyAnalysis {
 		FileDescriptor fd = (FileDescriptor) fdStats.keySet().toArray()[0];
 		assertTrue(fd instanceof SocketInet);
 		SocketInet sock = (SocketInet) fd;
-		assertEquals(9876, sock.getDstPort());
+		assertEquals(9876, sock.getIp().getDstPort());
 
 		Task server = model.getLatestTaskByCmdBasename("srvhog");
-		HashMap<Integer, TreeSet<FileDescriptor>> serverFds = server.getFileDescriptors();
-		SocketInet srvSock = (SocketInet) serverFds.get(4).last();
-		assertEquals(9876, srvSock.getSrcPort());
+		HashMap<Integer, FileDescriptor> serverFds = server.getFileDescriptors();
+		SocketInet srvSock = (SocketInet) serverFds.get(4);
+		assertEquals(9876, srvSock.getIp().getSrcPort());
 		
 		// client read blocking
 		TreeSet<BlockingItem> items = bm.getBlockingItemsForTask(foundTask);

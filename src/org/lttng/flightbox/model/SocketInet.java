@@ -72,16 +72,26 @@ public class SocketInet extends FileDescriptor {
 
 	private int type;
 	private int family;
-	private long srcAddr;
-	private long dstAddr;
-	private int srcPort;
-	private int dstPort;
+	private IPv4Con ip;
 	private int protocol;
 	private boolean isClient;
 	private long pointer;
 	private long send;
 	private long recv;
 
+	public SocketInet() {
+		this(new IPv4Con());
+	}
+	
+	public SocketInet(IPv4Con ip) {
+		setIp(ip);
+		setType(AF_INET);
+	}
+
+	public SocketInet(long srcAddr, int srcPort, long dstAddr, int dstPort) {
+		this(new IPv4Con(srcAddr, srcPort, dstAddr, dstPort));
+	}
+	
 	public int getType() {
 		return type;
 	}
@@ -94,30 +104,6 @@ public class SocketInet extends FileDescriptor {
 	public void setFamily(int family) {
 		this.family = family;
 	}
-	public long getSrcAddr() {
-		return srcAddr;
-	}
-	public void setSrcAddr(long srcAddr) {
-		this.srcAddr = srcAddr;
-	}
-	public long getDstAddr() {
-		return dstAddr;
-	}
-	public void setDstAddr(long dstAddr) {
-		this.dstAddr = dstAddr;
-	}
-	public int getSrcPort() {
-		return srcPort;
-	}
-	public void setSrcPort(int srcPort) {
-		this.srcPort = srcPort;
-	}
-	public int getDstPort() {
-		return dstPort;
-	}
-	public void setDstPort(int dstPort) {
-		this.dstPort = dstPort;
-	}
 	public void setProtocol(int protocol) {
 		this.protocol = protocol;
 	}
@@ -126,48 +112,8 @@ public class SocketInet extends FileDescriptor {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (o == this)
-			return true;
-		if (o instanceof SocketInet) {
-			SocketInet other = (SocketInet) o;
-			if (other.srcAddr == this.srcAddr &&
-				other.dstAddr == this.dstAddr &&
-				other.srcPort == this.srcPort &&
-				other.dstPort == this.dstPort)
-				return true;
-		}
-		return false;
-	}
-
-	/**
-	 * returns true if the socket is complementary
-	 * @param other
-	 * @return
-	 */
-	public boolean isComplementary(SocketInet other) {
-		if (other.srcAddr == this.dstAddr &&
-			other.dstAddr == this.srcAddr &&
-			other.srcPort == this.dstPort &&
-			other.dstPort == this.srcPort)
-			return true;
-		return false;
-	}
-	
-	@Override
-	public int hashCode() {
-		int x = (int)(srcAddr ^ srcAddr >>> 32);
-		int y = (int)(dstAddr ^ dstAddr >>> 32);
-		return x * 2 + y * 3 + srcPort * 4 + dstPort * 5;
-	}
-
-	public boolean isSet() {
-		return (srcAddr != 0) && (dstAddr != 0) && (srcPort != 0) && (dstPort != 0);
-	}
-
-	@Override
 	public String toString() {
-		return String.format("[%d,%s:%d->%s:%d]", getFd(), formatIPv4(srcAddr), srcPort, formatIPv4(dstAddr), dstAddr);
+		return String.format("[%d,%s]", getFd(), ip.toString());
 	}
 	public void setClient(boolean isXmit) {
 		this.isClient = isXmit;
@@ -175,22 +121,7 @@ public class SocketInet extends FileDescriptor {
 	public boolean isClient() {
 		return isClient;
 	}
-	public static String formatIPv4(long addr) {
-		StringBuilder str = new StringBuilder();
-		byte[] b = intToByteArray((int) addr);
-		str.append(String.format("%d.", (b[0] & 0xFF)));
-		str.append(String.format("%d.", (b[1] & 0xFF)));
-		str.append(String.format("%d.", (b[2] & 0xFF)));
-		str.append(String.format("%d",  (b[3] & 0xFF)));
-		return str.toString();
-	}
-	public static final byte[] intToByteArray(int value) {
-		return new byte[] {
-			(byte)(value >>> 24),
-			(byte)(value >>> 16),
-			(byte)(value >>> 8),
-			(byte)(value) };
-	}
+
 	public void setPointer(long pointer) {
 		this.pointer = pointer;
 	}
@@ -214,5 +145,19 @@ public class SocketInet extends FileDescriptor {
 	}
 	public void setRecv(long recv) {
 		this.recv = recv;
+	}
+
+	public IPv4Con getIp() {
+		return ip;
+	}
+	public void setIp(IPv4Con ip) {
+		this.ip = ip;
+	}
+
+	public boolean isConnected(SocketInet other) {
+		if (other.getType() == this.getType() &&
+			getIp().isComplement(other.getIp()))
+			return true;
+		return false;
 	}
 }

@@ -123,22 +123,21 @@ public class TestModelHandler {
 		assertEquals("/bin/cat", first.getCmd());
 		assertEquals("/bin/cat", last.getCmd());
 
-		HashMap<Integer, TreeSet<FileDescriptor>> fds = first.getFileDescriptors();
+		HashMap<Integer, FileDescriptor> fds = first.getFileDescriptors();
 		// copied fds from parent
-		TreeSet<FileDescriptor> set = fds.get(0);
-		assertNotNull(set);
-		assertEquals(1, set.size());
+		FileDescriptor fd = fds.get(0);
+		assertNotNull(fd);
 
-		set = fds.get(3);
-		assertNotNull(set);
-		RegularFile f = (RegularFile) set.last();
+		fd = fds.get(3);
+		assertNotNull(fd);
+		RegularFile f = (RegularFile) fd;
 		assertEquals("cat-to-null", new File(f.getFilename()).getName());
 		assertFalse(f.isOpen());
 		assertFalse(f.isError());
 
 		fds = last.getFileDescriptors();
-		set = fds.get(-2);
-		f = (RegularFile) set.first();
+		fd = fds.get(-2);
+		f = (RegularFile) fd;
 		assertEquals("77d2c0533bea11686a892bcb34697292", f.getFilename());
 		assertFalse(f.isOpen());
 		assertTrue(f.isError());

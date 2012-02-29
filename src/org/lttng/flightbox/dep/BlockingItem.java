@@ -88,14 +88,17 @@ public class BlockingItem implements Comparable<BlockingItem> {
 			 * socket info either in softirq or syscall
 			 * get the task associated with this socket
 			 */
-
+			/* FIXME: make it generic for all system calls */
 			int id = waitingSyscall.getSyscallId();
 			String name = model.getSyscallTable().get(id);
 			if (name.equals("sys_read")) {
 				FileDescriptor fd = waitingSyscall.getFileDescriptor();
 				if (fd instanceof SocketInet) {
 					SocketInet sock = (SocketInet) fd;
-					return model.findTaskByComplementSocket(sock);
+					SocketInet other = model.findComplementSocket(sock);
+					if (other == null)
+						return null;
+					return other.getOwner();
 				}
 			}
 		}

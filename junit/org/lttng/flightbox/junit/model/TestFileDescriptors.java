@@ -1,15 +1,14 @@
 package org.lttng.flightbox.junit.model;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.TreeSet;
 
 import org.junit.Test;
+import org.lttng.flightbox.model.FileDescriptor;
 import org.lttng.flightbox.model.FileDescriptorSet;
 import org.lttng.flightbox.model.RegularFile;
-import org.lttng.flightbox.model.FileDescriptor;
 import org.lttng.flightbox.model.SocketInet;
 
 public class TestFileDescriptors {
@@ -34,22 +33,14 @@ public class TestFileDescriptors {
 		long serverAddr = 9898;
 		int serverPort = 98989;
 		
-		SocketInet client = new SocketInet();
+		SocketInet client = new SocketInet(clientAddr, clientPort, serverAddr, serverPort);
 		client.setFd(3);
-		client.setDstAddr(serverAddr);
-		client.setDstPort(serverPort);
-		client.setSrcAddr(clientAddr);
-		client.setSrcPort(clientPort);
 		
-		SocketInet server = new SocketInet();
+		SocketInet server = new SocketInet(serverAddr, serverPort, clientAddr, clientPort);
 		server.setFd(4);
-		server.setDstAddr(clientAddr);
-		server.setDstPort(clientPort);
-		server.setSrcAddr(serverAddr);
-		server.setSrcPort(serverPort);
-		assertTrue(client.isSet());
-		assertTrue(server.isSet());
-		assertTrue(client.isComplementary(server));
+		assertTrue(client.getIp().isSet());
+		assertTrue(server.getIp().isSet());
+		assertTrue(client.isConnected(server));
 	}
 	public <T extends FileDescriptor> TreeSet<T> makeFDSet(Class<T> type, int start) {
 		TreeSet<T> set = new TreeSet<T>();
@@ -83,6 +74,13 @@ public class TestFileDescriptors {
 		FileDescriptorSet fdSet = new FileDescriptorSet();
 		fdSet.addAll(regFileSet);
 		fdSet.addAll(socketInetSet);
-		assertEquals(fdSet.historySize(), regFileSet.size() + socketInetSet.size());
+		assertEquals(regFileSet.size() + socketInetSet.size(), fdSet.historySize());
+		for (RegularFile obj: regFileSet) {
+			fdSet.remove(obj);
+		}
+		for (SocketInet obj: socketInetSet) {
+			fdSet.remove(obj);
+		}
+		assertEquals(0, fdSet.historySize());
 	}
 }

@@ -17,6 +17,11 @@ public class SystemModel extends AbstractTaskListener implements IProcessorListe
 	 * Current process list
 	 */
 	private final HashMap<Integer, TreeSet<Task>> tasksByPid;
+	
+	/**
+	 * Latest process list (without history)
+	 */
+	private final HashMap<Integer, Task> latestTaskMap;
 
 	/**
 	 * All processors
@@ -63,6 +68,7 @@ public class SystemModel extends AbstractTaskListener implements IProcessorListe
 		softirqTable = new SymbolTable();
 		tasksByPid = new HashMap<Integer, TreeSet<Task>>();
 		blockingModel = new BlockingModel();
+		latestTaskMap = new HashMap<Integer, Task>();
 	}
 
 	public void initProcessors(int numOfProcessors) {
@@ -86,23 +92,25 @@ public class SystemModel extends AbstractTaskListener implements IProcessorListe
 		processorListeners.remove(listener);
 	}
 
-	public void addTask(Task t1) {
-		int pid = t1.getProcessId();
+	public void addTask(Task task) {
+		int pid = task.getProcessId();
 		TreeSet<Task> taskSet = tasksByPid.get(pid);
 		if (taskSet == null) {
 			taskSet = new TreeSet<Task>();
 			tasksByPid.put(pid, taskSet);
 		}
-		taskSet.add(t1);
-		t1.addListener(this);
+		taskSet.add(task);
+		latestTaskMap.put(task.getProcessId(), task);
+		task.addListener(this);
 	}
 
-	public void removeTask(Task t1) {
-		TreeSet<Task> taskSet = tasksByPid.get(t1.getProcessId());
-		if (taskSet != null && taskSet.contains(t1)) {
-			taskSet.remove(t1);
+	public void removeTask(Task task) {
+		TreeSet<Task> taskSet = tasksByPid.get(task.getProcessId());
+		if (taskSet != null && taskSet.contains(task)) {
+			taskSet.remove(task);
 		}
-		t1.removeListener(this);
+		latestTaskMap.remove(task.getProcessId());
+		task.removeListener(this);
 	}
 
 	@Override
@@ -158,6 +166,10 @@ public class SystemModel extends AbstractTaskListener implements IProcessorListe
 		return tasksByPid;
 	}
 
+	public HashMap<Integer, Task> getLatestTasks() {
+		return latestTaskMap;
+	}
+	
 	public Task getLatestTaskByPID(int pid) {
 		Task task = null;
 		TreeSet<Task> taskSet = tasksByPid.get(pid);
@@ -208,33 +220,17 @@ public class SystemModel extends AbstractTaskListener implements IProcessorListe
 		return blockingModel;
 	}
 
-	public Set<Task> findConnectedTask(Task task) {
-		HashSet<Task> found = new HashSet<Task>();
-		for (Set<FileDescriptor> fds: task.getFileDescriptors().values()) {
-			for (FileDescriptor fd: fds) {
-				if (fd instanceof SocketInet) {
-					SocketInet sock = (SocketInet) fd;
-					Task t = findTaskByComplementSocket(sock);
-					if (t != null)
-						found.add(t);
-				}
-			}
+	/* search into latest tasks only */
+	public SocketInet findComplementSocket(SocketInet sock) {
+		if (!sock.getIp().isSet())
+			return null;
+		IPv4Con complementCon = sock.getIp().getComplement();
+		HashMap<Integer, Task> tasks = getLatestTasks();
+		for (Task task: tasks.values()) {
+			SocketInet found = task.getSocketByIp(complementCon);
+			if (found != null)
+				return found;
 		}
-		return found;
-	}
-
-	public Task findTaskByComplementSocket(SocketInet sock) {
-		Task found = null;
-		if (sock.isSet()) {
-			HashMap<Integer, TreeSet<Task>> tasks = getTasks();
-			for (Integer pid: tasks.keySet()) {
-				Task task = tasks.get(pid).last();
-				if (task.matchSocket(sock)) {
-					found = task;
-					break;
-				}
-			}
-		}
-		return found;
+		return null;
 	}
 }

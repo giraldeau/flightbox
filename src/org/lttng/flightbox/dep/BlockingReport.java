@@ -103,7 +103,7 @@ public class BlockingReport {
 					name = new File(file.getFilename()).getName();
 				} else if (elem.getId() instanceof SocketInet) {
 					SocketInet sock = (SocketInet) fd;
-					name = SocketInet.formatIPv4(sock.getDstAddr()) + ":" + sock.getDstPort();
+					name = sock.getIp().toString();
 				}
 				
 				str.append(String.format(fmt, name, nb, sum, min, max, mean, stddev));	

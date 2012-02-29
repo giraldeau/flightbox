@@ -116,15 +116,15 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 			return;
 		
 		SocketInet sock = (SocketInet) state.getField(Field.SOCKET);
-		if (!sock.isSet()) {
+		if (!sock.getIp().isSet()) {
 			if (state.getField(Field.DST_ADDR) != null)
-				sock.setDstAddr((Long)state.getField(Field.DST_ADDR));
+				sock.getIp().setDstAddr((Long)state.getField(Field.DST_ADDR));
 			if (state.getField(Field.SRC_ADDR) != null)
-				sock.setSrcAddr((Long)state.getField(Field.SRC_ADDR));
+				sock.getIp().setSrcAddr((Long)state.getField(Field.SRC_ADDR));
 			if (state.getField(Field.DST_PORT) != null)
-				sock.setDstPort((Integer)state.getField(Field.DST_PORT));
+				sock.getIp().setDstPort((Integer)state.getField(Field.DST_PORT));
 			if (state.getField(Field.SRC_PORT) != null)
-				sock.setSrcPort((Integer)state.getField(Field.SRC_PORT));
+				sock.getIp().setSrcPort((Integer)state.getField(Field.SRC_PORT));
 			if (state.getField(Field.IS_CLIENT) != null)
 				sock.setClient((Boolean)state.getField(Field.IS_CLIENT));
 		}
@@ -498,7 +498,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		/* assumption: send always occurs before recv */
 		Jni_C_Pointer pointer = (Jni_C_Pointer) event.parseFieldByName("sock");
 		Long size = (Long) event.parseFieldByName("size");
-		SocketInet sock = currentTask.getSocketByPointer(pointer.getPointer());
+		SocketInet sock = currentTask.getFileDescriptorSet().findSocketByPointer(pointer.getPointer());
 		if (sock == null)
 			return;
 		
@@ -521,7 +521,7 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 		
 		Jni_C_Pointer pointer = (Jni_C_Pointer) event.parseFieldByName("sock");
 		Long size = (Long) event.parseFieldByName("size");
-		SocketInet sock = currentTask.getSocketByPointer(pointer.getPointer());
+		SocketInet sock = currentTask.getFileDescriptorSet().findSocketByPointer(pointer.getPointer());
 		if (sock == null)
 			return;
 		

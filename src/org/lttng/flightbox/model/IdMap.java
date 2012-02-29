@@ -61,6 +61,18 @@ public class IdMap <T extends Comparable<?>> {
 		}
 	}
 	
+	public void remove(T obj) {
+		if (provider == null)
+			throw new Error("provide is null");
+		int id = provider.getId(obj);
+		TreeSet<T> set = map.get(id);
+		if (set == null)
+			return;
+		set.remove(obj);
+		if (set.isEmpty())
+			map.remove(id);
+	}
+	
 	public int size() {
 		return map.size();
 	}

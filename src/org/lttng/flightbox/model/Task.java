@@ -37,7 +37,7 @@ public class Task extends SystemResource implements Comparable<Task> {
 	private boolean isKernelThread;
 	private final Stack<StateInfo> stateStack;
 	private final HashSet<ITaskListener> listeners;
-	private final IdMap<FileDescriptor> fdsMap;
+	private final FileDescriptorSet fdsSet;
 	private StateInfo lastWakeup;
 	private boolean listenersEnabled;
 
@@ -48,13 +48,7 @@ public class Task extends SystemResource implements Comparable<Task> {
 		stateStack = new Stack<StateInfo>();
 		listeners = new HashSet<ITaskListener>();
 		isKernelThread = false;
-		fdsMap = new IdMap<FileDescriptor>();
-		fdsMap.setProvider(new IdProvider<FileDescriptor>() {
-			@Override
-			public int getId(FileDescriptor obj) {
-				return obj.getFd();
-			}
-		});
+		fdsSet = new FileDescriptorSet();
 	}
 
 	public Task(int pid) {
@@ -217,31 +211,32 @@ public class Task extends SystemResource implements Comparable<Task> {
 	}
 
 	public void addFileDescriptor(FileDescriptor fd) {
-		FileDescriptor latest = fdsMap.getLatest(fd.getFd());
+		FileDescriptor latest = fdsSet.getLatest(fd.getFd());
 		if (latest != null && latest.isOpen()) {
 			latest.setEndTime(fd.getStartTime());
 		}
-		fdsMap.add(fd);
+		fdsSet.add(fd);
 		fd.setOwner(this);
 	}
 
 	public FileDescriptor getLatestFileDescriptor(int id) {
-		return fdsMap.getLatest(id);
+		return fdsSet.getLatest(id);
 	}
 
-	public HashMap<Integer, TreeSet<FileDescriptor>> getFileDescriptors() {
-		return fdsMap.getMap();
+	public HashMap<Integer, FileDescriptor> getFileDescriptors() {
+		return fdsSet.getCurrent();
 	}
 
+	public FileDescriptorSet getFileDescriptorSet() {
+		return fdsSet;
+	}
+	
 	public List<FileDescriptor> getOpenedFileDescriptors() {
-		HashMap<Integer, TreeSet<FileDescriptor>> map = fdsMap.getMap();
+		HashMap<Integer, FileDescriptor> map = fdsSet.getCurrent();
 		ArrayList<FileDescriptor> openedFd = new ArrayList<FileDescriptor>();
-		TreeSet<FileDescriptor> set;
-		for (Integer i: map.keySet()) {
-			set = map.get(i);
-			FileDescriptor last = set.last();
-			if (last.isOpen()) {
-				openedFd.add(last);
+		for (FileDescriptor fd: map.values()) {
+			if (fd.isOpen()) {
+				openedFd.add(fd);
 			}
 		}
 		return openedFd;
@@ -266,34 +261,8 @@ public class Task extends SystemResource implements Comparable<Task> {
 		return "[task pid=" + processId + "]";
 	}
 
-	public boolean matchSocket(SocketInet sock) {
-		HashMap<Integer, TreeSet<FileDescriptor>> map = fdsMap.getMap();
-		for (TreeSet<FileDescriptor> set: map.values()) {
-			for (FileDescriptor fd: set) {
-				if (fd instanceof SocketInet) {
-					SocketInet s = (SocketInet) fd;
-					if (s.getOwner() == this && s.isComplementary(sock)) {
-						return true;
-					}					
-				}
-			}
-		}
-		return false;
-	}
-
-	public SocketInet getSocketByPointer(long pointer) {
-		HashMap<Integer, TreeSet<FileDescriptor>> map = fdsMap.getMap();
-		for (TreeSet<FileDescriptor> set: map.values()) {
-			for (FileDescriptor fd: set) {
-				if (fd instanceof SocketInet) {
-					SocketInet s = (SocketInet) fd;
-					if (s.getPointer() == pointer) {
-						return s;
-					}
-				}
-			}
-		}
-		return null;
+	public SocketInet getSocketByIp(IPv4Con ip) {
+		return fdsSet.findSocketByIp(ip);
 	}
 
 	public void setEnableListeners(boolean notify) {
