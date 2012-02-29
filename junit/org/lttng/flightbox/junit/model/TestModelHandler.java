@@ -16,6 +16,7 @@ import org.lttng.flightbox.io.TraceEventHandlerModel;
 import org.lttng.flightbox.io.TraceEventHandlerModelMeta;
 import org.lttng.flightbox.io.TraceReader;
 import org.lttng.flightbox.junit.Path;
+import org.lttng.flightbox.model.FileDescriptorSet;
 import org.lttng.flightbox.model.RegularFile;
 import org.lttng.flightbox.model.FileDescriptor;
 import org.lttng.flightbox.model.SymbolTable;
@@ -135,12 +136,13 @@ public class TestModelHandler {
 		assertFalse(f.isOpen());
 		assertFalse(f.isError());
 
-		fds = last.getFileDescriptors();
-		fd = fds.get(-2);
-		f = (RegularFile) fd;
-		assertEquals("77d2c0533bea11686a892bcb34697292", f.getFilename());
-		assertFalse(f.isOpen());
-		assertTrue(f.isError());
+		FileDescriptorSet fdsSet = last.getFileDescriptorSet();
+		TreeSet<RegularFile> regFileSet = fdsSet.getFileDescriptorByBasename("77d2c0533bea11686a892bcb34697292");
+		assertEquals(1, regFileSet.size());
+		RegularFile regFile = regFileSet.last();
+		assertNotNull(regFile);
+		assertFalse(regFile.isOpen());
+		assertTrue(regFile.isError());
 	}
 
 }

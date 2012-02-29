@@ -2,6 +2,7 @@ package org.lttng.flightbox.model;
 
 import java.util.HashMap;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class FileDescriptorSet {
 
@@ -89,5 +90,17 @@ public class FileDescriptorSet {
 
 	public HashMap<Integer, FileDescriptor> getCurrent() {
 		return latests;
+	}
+
+	public TreeSet<RegularFile> getFileDescriptorByBasename(String string) {
+		TreeSet<RegularFile> results = new TreeSet<RegularFile>();
+		for (TreeSet<RegularFile> set: regFiles.getMap().values()) {
+			for (RegularFile file: set) {
+				if (file.getFilename().compareTo(string) == 0) {
+					results.add(file);
+				}
+			}
+		}
+		return results;
 	}
 }
