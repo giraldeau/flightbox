@@ -4,7 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
@@ -13,17 +15,21 @@ import org.eclipse.linuxtools.lttng.jni.factory.JniTraceFactory;
 import org.junit.Test;
 import org.lttng.flightbox.cpu.TraceEventHandlerProcess;
 import org.lttng.flightbox.cpu.TraceEventHandlerStats;
+import org.lttng.flightbox.io.ITraceEventHandler;
 import org.lttng.flightbox.io.TimeKeeper;
 import org.lttng.flightbox.io.TraceEventHandlerBase;
 import org.lttng.flightbox.io.TraceEventHandlerCounter;
+import org.lttng.flightbox.io.TraceEventHandlerDummy;
 import org.lttng.flightbox.io.TraceEventHandlerModelMeta;
 import org.lttng.flightbox.io.TraceHook;
 import org.lttng.flightbox.io.TraceReader;
+import org.lttng.flightbox.junit.stub.TestStubs;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task.TaskState;
 import org.lttng.flightbox.statistics.Bucket;
 import org.lttng.flightbox.statistics.BucketSeries;
 import org.lttng.flightbox.statistics.ResourceUsage;
+import org.lttng.flightbox.stub.StubTraceReader;
 
 public class TestTraceReader {
 
@@ -157,4 +163,5 @@ public class TestTraceReader {
 		reader.register(handler);
 		reader.process();
 	}
+	
 }

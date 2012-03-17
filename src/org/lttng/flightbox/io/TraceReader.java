@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.eclipse.linuxtools.lttng.jni.JniEvent;
 import org.eclipse.linuxtools.lttng.jni.JniTrace;
@@ -18,10 +19,10 @@ public class TraceReader {
 	protected String tracePath;
 	protected JniTrace trace;
 	private final Map<Class, ITraceEventHandler> handlers;
-	private final Map<String, Map<String, Set<TraceHook>>> traceHookMap;
-	private final Map<String, Map<Integer, Set<TraceHook>>> traceHookMapCache;
-	private final Set<TraceHook> catchAllHook;
-	private final Map<Integer, ArrayList<Set<TraceHook>>> traceHookArrayCache;
+	private final Map<String, Map<String, TreeSet<TraceHook>>> traceHookMap;
+	private final Map<String, Map<Integer, TreeSet<TraceHook>>> traceHookMapCache;
+	private final TreeSet<TraceHook> catchAllHook;
+	private final Map<Integer, ArrayList<TreeSet<TraceHook>>> traceHookArrayCache;
 	private static Class[] argTypes = new Class[] { TraceReader.class, JniEvent.class };
 	private final TimeKeeper timeKeeper;
 	private SystemModel systemModel;
@@ -30,10 +31,10 @@ public class TraceReader {
 	public TraceReader(String trace_path) {
 		this.tracePath = trace_path;
 		handlers = new HashMap<Class, ITraceEventHandler>();
-		traceHookMap = new HashMap<String, Map<String, Set<TraceHook>>>();
-		traceHookMapCache = new HashMap<String, Map<Integer, Set<TraceHook>>>();
-		traceHookArrayCache = new HashMap<Integer, ArrayList<Set<TraceHook>>>();
-		catchAllHook = new HashSet<TraceHook>();
+		traceHookMap = new HashMap<String, Map<String, TreeSet<TraceHook>>>();
+		traceHookMapCache = new HashMap<String, Map<Integer, TreeSet<TraceHook>>>();
+		traceHookArrayCache = new HashMap<Integer, ArrayList<TreeSet<TraceHook>>>();
+		catchAllHook = new TreeSet<TraceHook>();
 		timeKeeper = TimeKeeper.getInstance();
 	}
 
@@ -54,8 +55,8 @@ public class TraceReader {
 			methodName = "handle_" + hook.channelName + "_" + hook.eventName;
 		}
 		boolean isHookOk = true;
-		Set<TraceHook> eventHooks;
-		Map<String, Set<TraceHook>> channelHooks;
+		TreeSet<TraceHook> eventHooks;
+		Map<String, TreeSet<TraceHook>> channelHooks;
 		hook.instance = handler;
 		try {
 			hook.method = handler.getClass().getMethod(methodName, argTypes);
@@ -74,12 +75,12 @@ public class TraceReader {
 		} else {
 			channelHooks = traceHookMap.get(hook.channelName);
 			if (channelHooks == null) {
-				channelHooks = new HashMap<String, Set<TraceHook>>();
+				channelHooks = new HashMap<String, TreeSet<TraceHook>>();
 				traceHookMap.put(hook.channelName, channelHooks);
 			}
 			eventHooks = channelHooks.get(hook.eventName);
 			if (eventHooks == null) {
-				eventHooks = new HashSet<TraceHook>();
+				eventHooks = new TreeSet<TraceHook>();
 				channelHooks.put(hook.eventName, eventHooks);
 			}
 			eventHooks.add(hook);
@@ -109,7 +110,7 @@ public class TraceReader {
 		JniEvent event;
 		int nbEvents = 0;
 		int eventId;
-		Set<TraceHook> hooks;
+		TreeSet<TraceHook> hooks;
 		String eventName;
 		String traceFileName;
 		cancel = false;
@@ -127,7 +128,6 @@ public class TraceReader {
 			eventName = event.getMarkersMap().get(event.getEventMarkerId()).getName();
 
 			hooks = getHookSetByIdArrayHashCode(traceFileName, traceFileName.hashCode(), eventName, eventId);
-
 			runHookSet(hooks, event);
 			runHookSet(catchAllHook, event);
 
@@ -140,7 +140,7 @@ public class TraceReader {
 		trace.closeTrace();
 	}
 
-	public void runHookSet(Set<TraceHook> hooks, JniEvent event) {
+	public void runHookSet(TreeSet<TraceHook> hooks, JniEvent event) {
 		for (TraceHook h: hooks){
 			try {
 				h.method.invoke(h.instance, this, event);
@@ -158,29 +158,29 @@ public class TraceReader {
 		}		
 	}
 	
-	public Set<TraceHook> getHookSetByName(String channelName, String eventName) {
-		Map<String, Set<TraceHook>> channelHooks;
-		Set<TraceHook> hooks = null;
+	public TreeSet<TraceHook> getHookSetByName(String channelName, String eventName) {
+		Map<String, TreeSet<TraceHook>> channelHooks;
+		TreeSet<TraceHook> hooks = null;
 		channelHooks = traceHookMap.get(channelName);
 		if (channelHooks == null) {
-			channelHooks = new HashMap<String, Set<TraceHook>>();
+			channelHooks = new HashMap<String, TreeSet<TraceHook>>();
 			traceHookMap.put(channelName, channelHooks);
 		}
 		hooks = channelHooks.get(eventName);
 		if (hooks == null) {
-			hooks = new HashSet<TraceHook>();
+			hooks = new TreeSet<TraceHook>();
 			channelHooks.put(eventName, hooks);
 		}
 		return hooks;
 	}
 
-	public Set<TraceHook> getHookSetByIdArrayHashCode(String channelName, Integer channelHC, String eventName, int eventId) {
-		ArrayList<Set<TraceHook>> channelHooksCache;
-		Set<TraceHook> hooks = null;
+	public TreeSet<TraceHook> getHookSetByIdArrayHashCode(String channelName, Integer channelHC, String eventName, int eventId) {
+		ArrayList<TreeSet<TraceHook>> channelHooksCache;
+		TreeSet<TraceHook> hooks = null;
 		channelHooksCache = traceHookArrayCache.get(channelHC);
 
 		if (channelHooksCache == null) {
-			channelHooksCache = new ArrayList<Set<TraceHook>>();
+			channelHooksCache = new ArrayList<TreeSet<TraceHook>>();
 			traceHookArrayCache.put(channelHC, channelHooksCache);
 		}
 		if (channelHooksCache.size() <= eventId) {
@@ -216,5 +216,8 @@ public class TraceReader {
 
 	public void cancel() {
 		this.cancel = true;
+	}
+	public Boolean isCancel() {
+		return this.cancel;
 	}
 }

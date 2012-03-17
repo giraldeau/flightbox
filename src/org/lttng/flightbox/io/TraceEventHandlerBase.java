@@ -8,9 +8,15 @@ import org.eclipse.linuxtools.lttng.jni.JniTrace;
 public class TraceEventHandlerBase implements ITraceEventHandler {
 
 	protected Set<TraceHook> hooks;
-
+	private Integer priority;
+	
+	public TraceEventHandlerBase(Integer priority) {
+		this.hooks = new HashSet<TraceHook>();
+		this.priority = priority;
+	}
+	
 	public TraceEventHandlerBase() {
-		hooks = new HashSet<TraceHook>();
+		this(0);
 	}
 
 	@Override
@@ -30,5 +36,15 @@ public class TraceEventHandlerBase implements ITraceEventHandler {
 	@Override
 	public void handleComplete(TraceReader reader) {
 
+	}
+
+	@Override
+	public Integer getPriority() {
+		return priority;
+	}
+	
+	@Override
+	public int compareTo(ITraceEventHandler other) {
+		return priority.compareTo(other.getPriority());
 	}
 }

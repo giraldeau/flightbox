@@ -20,7 +20,7 @@ import org.lttng.flightbox.stub.StubTraceReader;
 
 public class TestStubs {
 
-	String traceFile = "trace_fork_exit_simple.xml";
+	public static String traceFile = "trace_fork_exit_simple.xml";
 	
 	@Test
 	public void testStubJniTracefile() {

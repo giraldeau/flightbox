@@ -2,7 +2,7 @@ package org.lttng.flightbox.io;
 
 import java.lang.reflect.Method;
 
-public class TraceHook {
+public class TraceHook implements Comparable<TraceHook> {
 	
 	public String eventName;
 	public String channelName;
@@ -22,4 +22,20 @@ public class TraceHook {
 		return this.eventName == null || this.channelName == null;
 	}
 
+	public Integer getPriority() {
+		if (instance == null)
+			return 0;
+		return instance.getPriority();
+	}
+
+	@Override
+	public int compareTo(TraceHook other) {
+		return this.getPriority().compareTo(other.getPriority());
+	}
+	
+	@Override
+	public String toString() {
+		return this.eventName + "." + this.channelName + ":" + getPriority();
+	}
+	
 }

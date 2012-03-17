@@ -7,9 +7,13 @@ public class TraceEventHandlerCounter extends TraceEventHandlerBase {
 
 	public int count;
 
-	public TraceEventHandlerCounter() {
-		super();
+	public TraceEventHandlerCounter(Integer priority) {
+		super(priority);
 		hooks.add(new TraceHook());
+	}
+	
+	public TraceEventHandlerCounter() {
+		this(0);
 	}
 	
 	@Override
