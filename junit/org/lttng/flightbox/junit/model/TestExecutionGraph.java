@@ -9,6 +9,7 @@ import org.jgrapht.alg.DijkstraShortestPath;
 import org.junit.Test;
 import org.lttng.flightbox.graph.ExecEdge;
 import org.lttng.flightbox.graph.ExecGraph;
+import org.lttng.flightbox.graph.ExecGraphManager;
 import org.lttng.flightbox.graph.ExecVertex;
 import org.lttng.flightbox.graph.ExecutionTaskListener;
 import org.lttng.flightbox.graph.GraphUtils;
@@ -44,7 +45,7 @@ public class TestExecutionGraph {
 		}
 		ModelBuilder.buildFromStubTrace(trace, model);
 		
-		ExecGraph execGraph = listener.getExecGraph();
+		ExecGraph execGraph = ExecGraphManager.getInstance().getGraph();
 		GraphUtils.saveGraphDefault(execGraph, name);
 	}
 	
@@ -60,9 +61,10 @@ public class TestExecutionGraph {
 
 		ModelBuilder.buildFromStubTrace(trace, model);
 		
-		WeightedGraph<ExecVertex, ExecEdge> execGraph = listener.getExecGraph();
+		ExecGraphManager graphManager = ExecGraphManager.getInstance();
+		WeightedGraph<ExecVertex, ExecEdge> execGraph = graphManager.getGraph();
 		Task master = model.getLatestTaskByPID(1);
-		SortedSet<ExecVertex> set = listener.getTaskVertex(master);
+		SortedSet<ExecVertex> set = graphManager.getVertexSetForTask(master);
 
 		DijkstraShortestPath<ExecVertex, ExecEdge> dijkstra = new DijkstraShortestPath<ExecVertex, ExecEdge>(execGraph, set.first(), set.last());
 		System.out.println(dijkstra.getPath());

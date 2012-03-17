@@ -17,27 +17,25 @@ import org.lttng.flightbox.model.state.WaitInfo;
 
 public class ExecutionTaskListener extends AbstractTaskListener {
 
-	ExecGraph graph;
-	Map<Task, TreeSet<ExecVertex>> taskVertex;
-	
 	public ExecutionTaskListener() {
-		graph = new ExecGraph(ExecEdge.class);
-		taskVertex = new HashMap<Task, TreeSet<ExecVertex>>();
 	}
 	
 	@Override
 	public void pushState(Task task, StateInfo nextState) {
 		TaskState taskState = nextState.getTaskState();
+		ExecGraphManager graphManager = ExecGraphManager.getInstance();
+		ExecGraph graph = graphManager.getGraph();
+		
 		switch (taskState) {
 		case ALIVE:
 			ExecVertex v1 = new ExecVertex(task, nextState.getStartTime(), ExecType.START);
-			appendVertex(v1);
+			graphManager.appendVertex(v1);
 			// link parent
 			Task parent = task.getParentProcess();
 			if (parent != null) {
 				/* append a new vertex to denote the fork */
 				ExecVertex v2 = new ExecVertex(parent, nextState.getStartTime(), ExecType.FORK);
-				appendVertex(v2);
+				graphManager.appendVertex(v2);
 				/* link the parent and child */
 				ExecEdge e = graph.addEdge(v2, v1);
 				graph.setEdgeWeight(e, 0.0);
@@ -56,11 +54,12 @@ public class ExecutionTaskListener extends AbstractTaskListener {
 	public void popState(Task task, StateInfo nextState) {
 		StateInfo currState = task.peekState();
 		TaskState taskState = currState.getTaskState();
+		ExecGraphManager graphManager = ExecGraphManager.getInstance();
 		switch (taskState) {
 		case EXIT :
 			ExitInfo exit = (ExitInfo) currState;
 			ExecVertex v = new ExecVertex(task, exit.getStartTime(), ExecType.EXIT);
-			appendVertex(v);
+			graphManager.appendVertex(v);
 			break;
 		case WAIT:
 			WaitInfo wait = (WaitInfo) currState;
@@ -71,8 +70,8 @@ public class ExecutionTaskListener extends AbstractTaskListener {
 			ExecVertex v2 = new ExecVertex(task, wait.getEndTime(), ExecType.WAKEUP);
 
 			/* append new block and wakeup vertexes to the task graph */
-			appendVertex(v1);
-			appendVertex(v2);
+			graphManager.appendVertex(v1);
+			graphManager.appendVertex(v2);
 			linkSubTask(task, wait, v1, v2);
 			break;
 		default:
@@ -88,11 +87,13 @@ public class ExecutionTaskListener extends AbstractTaskListener {
 		
 		/* the task was waiting directly on a local process
 		 * either for process exit or a kernel thread (which is always in SYSCALL state) */
+		ExecGraphManager graphManager = ExecGraphManager.getInstance();
+		ExecGraph graph = graphManager.getGraph();
 		switch (state.getTaskState()) {
 		case EXIT:
 		case SYSCALL:
 			Task subTask = state.getTask();
-			TreeSet<ExecVertex> set = taskVertex.get(subTask);
+			SortedSet<ExecVertex> set = graphManager.getVertexSetForTask(subTask);
 			if (set != null && !set.isEmpty()) {
 				ExecVertex last = set.last();
 				ExecEdge e = graph.addEdge(last, v2);
@@ -127,30 +128,6 @@ public class ExecutionTaskListener extends AbstractTaskListener {
 		default:
 			break;
 		}
-	}
-
-	private void appendVertex(ExecVertex v) {
-		graph.addVertex(v);
-		Task t = v.getTask();
-		TreeSet<ExecVertex> vset = taskVertex.get(t);
-		if (vset == null) {
-			vset = new TreeSet<ExecVertex>();
-			taskVertex.put(t, vset);
-		}
-		if (!vset.isEmpty()) {
-			ExecVertex last = vset.last();
-			ExecEdge e1 = graph.addEdge(last, v);
-			graph.setEdgeWeight(e1, v.getTimestamp() - last.getTimestamp());
-		}
-		vset.add(v);
-	}
-	
-	public ExecGraph getExecGraph() {
-		return graph;
-	}
-	
-	public SortedSet<ExecVertex> getTaskVertex(Task task) {
-		return taskVertex.get(task);
 	}
 
 }

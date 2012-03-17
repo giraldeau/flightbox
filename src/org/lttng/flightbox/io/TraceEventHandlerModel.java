@@ -30,7 +30,10 @@ public class TraceEventHandlerModel extends TraceEventHandlerBase {
 	private static final Cloner cloner = new Cloner();
 	
 	public TraceEventHandlerModel() {
-		super();
+		this(0);
+	}
+	public TraceEventHandlerModel(Integer priority) {
+		super(priority);
 		hooks.add(new TraceHook("kernel", "sched_schedule"));
 		hooks.add(new TraceHook("kernel", "sched_try_wakeup"));
 		hooks.add(new TraceHook("kernel", "process_fork"));

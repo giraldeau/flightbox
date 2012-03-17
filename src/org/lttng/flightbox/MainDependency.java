@@ -26,6 +26,7 @@ import org.lttng.flightbox.dep.BlockingStats;
 import org.lttng.flightbox.dep.BlockingTaskListener;
 import org.lttng.flightbox.graph.ExecEdge;
 import org.lttng.flightbox.graph.ExecGraph;
+import org.lttng.flightbox.graph.ExecGraphManager;
 import org.lttng.flightbox.graph.ExecGraphProviders;
 import org.lttng.flightbox.graph.ExecSubgraph;
 import org.lttng.flightbox.graph.ExecVertex;
@@ -124,12 +125,13 @@ public class MainDependency {
 		int processed = 0;
 		File dir = new File(opts.outputDir);
 		dir.mkdirs();
-		ExecGraph execGraph = taskListener.getExecGraph();
+		ExecGraphManager graphManager = ExecGraphManager.getInstance();
+		ExecGraph execGraph = graphManager.getGraph();
 		if (execGraph == null) {
 			throw new RuntimeException("Execution graph can't be recovered");
 		}
 		for (Task t: tasks) {
-			SortedSet<ExecVertex> taskVertex = taskListener.getTaskVertex(t);
+			SortedSet<ExecVertex> taskVertex = graphManager.getVertexSetForTask(t);
 			if (taskVertex == null) {
 				skipped++;
 				continue;
