@@ -15,7 +15,6 @@ import org.lttng.flightbox.model.Processor;
 import org.lttng.flightbox.model.ProcessorListener;
 import org.lttng.flightbox.model.SystemModel;
 import org.lttng.flightbox.model.Task;
-import org.lttng.flightbox.model.Task.TaskState;
 import org.lttng.flightbox.model.state.StateInfo;
 import org.lttng.flightbox.model.state.SyscallInfo;
 
@@ -93,12 +92,12 @@ public class TestSystemModel {
 
 		String tracePath = file.getPath();
 		SystemModel model = new SystemModel();
-		TaskListenerForkExit taskListener = new TaskListenerForkExit();
-		taskListener.setModel(model);
-		model.addTaskListener(taskListener);
+		//TaskListenerForkExit taskListener = new TaskListenerForkExit();
+		//taskListener.setModel(model);
+		//model.addTaskListener(taskListener);
 		ModelBuilder.buildFromTrace(tracePath, model);
 
 		TreeSet<Task> taskSet = model.getTaskByCmdBasename("inception");
-		
+		assertEquals(3, taskSet.size());
 	} 
 }

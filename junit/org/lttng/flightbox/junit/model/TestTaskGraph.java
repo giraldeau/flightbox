@@ -142,7 +142,7 @@ public class TestTaskGraph {
 
 		TreeSet<Task> taskSet = model.getTaskByCmdBasename(binary);
 		Graph<Task, DefaultEdge> graph = DependencyGraphBuilder.build(taskSet.first(), model);
-		DependencyGraphBuilder.printGraph(graph);
+		//DependencyGraphBuilder.printGraph(graph);
 		
 		File outDir = Path.getGraphDir();
 		FileWriter writer = new FileWriter(new File(outDir, trace + "-task-graph.dot"));

@@ -1,12 +1,11 @@
 package org.lttng.flightbox.junit.model;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
@@ -14,9 +13,6 @@ import java.util.TreeSet;
 import org.eclipse.linuxtools.lttng.jni.exception.JniException;
 import org.junit.Test;
 import org.lttng.flightbox.io.ModelBuilder;
-import org.lttng.flightbox.io.TraceEventHandlerModel;
-import org.lttng.flightbox.io.TraceEventHandlerModelMeta;
-import org.lttng.flightbox.io.TraceReader;
 import org.lttng.flightbox.junit.Path;
 import org.lttng.flightbox.model.FileDescriptor;
 import org.lttng.flightbox.model.SocketInet;
@@ -25,7 +21,7 @@ import org.lttng.flightbox.model.Task;
 
 public class TestModelSocket {
 
-	//@Test
+	@Test
 	public void testRetreiveSocket() throws JniException {
 		String tracePath = new File(Path.getTraceDir(), "rpc-sleep-100ms").getPath();
 		SystemModel model = new SystemModel();
@@ -60,9 +56,10 @@ public class TestModelSocket {
 		assertFalse(serverSocket.isClient());
 	}
 	
+	// FIXME: Missing related executable in workload-kit 
 	//@Test
 	public void testRetreiveSocketMultiThreadServer() throws JniException {
-		String tracePath = new File("tests/trace-wk-rpc/").getPath();
+		String tracePath = new File(Path.getTraceDir(), "wk-rpc").getPath();
 		SystemModel model = new SystemModel();
 
 		ModelBuilder.buildFromTrace(tracePath, model);
@@ -97,7 +94,7 @@ public class TestModelSocket {
 	/** 
 	 * returns the first defined socket of the task
 	 * @param task
-	 * @return
+	 * @return sock
 	 */
 	public SocketInet findSocket(Task task) {
 		HashMap<Integer, FileDescriptor> fds = task.getFileDescriptors();

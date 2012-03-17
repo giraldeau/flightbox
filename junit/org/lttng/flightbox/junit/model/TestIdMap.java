@@ -61,7 +61,7 @@ public class TestIdMap {
 			}
 		});
 		idMap.addAll(dummySet);
-		System.out.println(idMap);
+		//System.out.println(idMap);
 		assertEquals(nb, idMap.size());
 		assertEquals(k, idMap.historySize());
 	}
