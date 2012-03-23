@@ -7,6 +7,7 @@ import org.eclipse.linuxtools.lttng.jni.JniTrace;
 
 public class TraceEventHandlerBase implements ITraceEventHandler {
 
+	private static int autoPriority = 0;
 	protected Set<TraceHook> hooks;
 	private Integer priority;
 	
@@ -16,7 +17,7 @@ public class TraceEventHandlerBase implements ITraceEventHandler {
 	}
 	
 	public TraceEventHandlerBase() {
-		this(0);
+		this(autoPriority++);
 	}
 
 	@Override
